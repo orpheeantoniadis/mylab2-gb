@@ -1,0 +1,12 @@
+// pour la communication SPI
+
+CPOL : la polarité de la clock -> 0 = actif haut
+CPHA : à quel moment on lit les datas ( premier ou deuxième coup de CLK) -> premier dans notre cas donc CPHA = 0
+
+SPDR -> buffer écriture ET lecture !
+
+// pour l'écran LCD:
+
+ on envoie les datas via 8 bits
+
+ D/CX : si 1, on envoie des datas et si 0 on envoie des commandes 

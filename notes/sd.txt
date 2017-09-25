@@ -1,0 +1,27 @@
+liens qui nous a permis de débloque l’initialisation de la carte SD : 
+
+http://electronics.stackexchange.com/questions/77417/what-is-the-correct-command-sequence-for-microsd-card-initialization-in-spi  
+ 
+ça aide aussi: 
+ 
+http://elm-chan.org/docs/mmc/mmc_e.html 
+http://codb.coocox.org/component/doc/coocox-master/sdcard/ebbd83c4fbfd531fe45ce460123ff59e9933c0e9/group__SD__R1.html
+ 
+démonter clé: 
+ 
+>sync 
+ 
+- commandes diskiutil :
+>diskutil list # afficher liste des disques
+>diskutil unmount /Volumes/diskx # démonter un disque
+
+- afficher les datas d’un fichier : 
+>cat toto2 | hexdump -C
+>sudo cat /dev/disk2 | hexdump -C # affiche blocs du système de fichiers
+>diff fichier1 fichier2 # affiche diff entre 2 fichiers
+
+- Utiliser dd :
+https://www.mkssoftware.com/docs/man1/dd.1.asp
+
+copier 1 bloc de 512 bytes dans clé : 
+>sudo dd if=~/Desktop/toto2  of=/dev/disk1 bs=512 conv=ascii count=1

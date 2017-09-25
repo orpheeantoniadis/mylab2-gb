@@ -1,0 +1,11 @@
+CMSIS
+
+Va nous servir à pouvoir porter le code d’un uC vers un autre uC de même famille 
+
+Différente couche 
+
+SysTick -> timer contenu dans le processeur (ce n’est pas un périphérique)
+
+Dans le fichier header *core…* on trouve pleins de définition de registres etc, on trouve même la possibilité d’accéder aux flag (ZCVN) du processeur
+
+Dans le fichier LPC17xx.h, on trouve toutes les structures utile pour l’uC

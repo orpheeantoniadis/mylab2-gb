@@ -1,0 +1,9 @@
+// comm i2c
+START|R/W|DATA|ACK|DATA|STOP
+
+// reglages touchscreen
+adresse touchscreen : 0x38
+Fréquence max touchscreen : 400kHz
+PCLKI2C = 25MHz (defaut)
+I2Cfreq = PCLKI2C / (I2CSCLH + I2CSCLL) => pour 400 kHz I2CSCLH + I2CSCLL = 62.5
+On va donc prendre I2CSCLH + I2CSCLL = 64 avec I2CSCLH = I2CSCLL = 32
