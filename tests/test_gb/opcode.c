@@ -3,70 +3,70 @@
 #include "alu.h"
 #include "opcode.h"
 
-const instruction instructions[256] = {
-	{ "NOP", 0, nop },                           // 0x00
+const instruction_t instructions[256] = {
+	{ "NOP", 0, nop },                           	// 0x00
 	{ "LD BC, 0x%04x", 2, NULL },                 // 0x01
 	{ "LD (BC), A", 0, NULL },                    // 0x02
 	{ "INC BC", 0, NULL },                        // 0x03
 	{ "INC B", 0, NULL },                         // 0x04
 	{ "DEC B", 0, NULL },                         // 0x05
-	{ "LD B, 0x%02X", 1, NULL },                  // 0x06
+	{ "LD B, 0x%02x", 1, NULL },                  // 0x06
 	{ "RLCA", 0, NULL },                          // 0x07
-	{ "LD (0x%04X), SP", 2, NULL },               // 0x08
+	{ "LD (0x%04x), SP", 2, NULL },               // 0x08
 	{ "ADD HL, BC", 0, NULL },                    // 0x09
 	{ "LD A, (BC)", 0, NULL },                    // 0x0a
 	{ "DEC BC", 0, NULL },                        // 0x0b
 	{ "INC C", 0, NULL },                         // 0x0c
 	{ "DEC C", 0, NULL },                         // 0x0d
-	{ "LD C, 0x%02X", 1, NULL },                  // 0x0e
+	{ "LD C, 0x%02x", 1, NULL },                  // 0x0e
 	{ "RRCA", 0, NULL },                          // 0x0f
 	{ "STOP", 1, NULL },                          // 0x10
-	{ "LD DE, 0x%04X", 2, NULL },                 // 0x11
+	{ "LD DE, 0x%04x", 2, NULL },                 // 0x11
 	{ "LD (DE), A", 0, NULL },                    // 0x12
 	{ "INC DE", 0, NULL },                        // 0x13
 	{ "INC D", 0, NULL },                         // 0x14
 	{ "DEC D", 0, NULL },                         // 0x15
-	{ "LD D, 0x%02X", 1, NULL },                  // 0x16
+	{ "LD D, 0x%02x", 1, NULL },                  // 0x16
 	{ "RLA", 0, NULL },                           // 0x17
-	{ "JR 0x%02X", 1, NULL },                     // 0x18
+	{ "JR 0x%02x", 1, NULL },                     // 0x18
 	{ "ADD HL, DE", 0, NULL },                    // 0x19
 	{ "LD A, (DE)", 0, NULL },                    // 0x1a
 	{ "DEC DE", 0, NULL },                        // 0x1b
 	{ "INC E", 0, NULL },                         // 0x1c
 	{ "DEC E", 0, NULL },                         // 0x1d
-	{ "LD E, 0x%02X", 1, NULL },                  // 0x1e
+	{ "LD E, 0x%02x", 1, NULL },                  // 0x1e
 	{ "RRA", 0, NULL },                           // 0x1f
-	{ "JR NZ, 0x%02X", 1, NULL },                 // 0x20
-	{ "LD HL, 0x%04X", 2, NULL },                 // 0x21
+	{ "JR NZ, 0x%02x", 1, NULL },                 // 0x20
+	{ "LD HL, 0x%04x", 2, NULL },                 // 0x21
 	{ "LDI (HL), A", 0, NULL },                   // 0x22
 	{ "INC HL", 0, NULL },                        // 0x23
 	{ "INC H", 0, NULL },                         // 0x24
 	{ "DEC H", 0, NULL },                         // 0x25
-	{ "LD H, 0x%02X", 1, NULL },                  // 0x26
+	{ "LD H, 0x%02x", 1, NULL },                  // 0x26
 	{ "DAA", 0, NULL },                           // 0x27
-	{ "JR Z, 0x%02X", 1, NULL },                  // 0x28
+	{ "JR Z, 0x%02x", 1, NULL },                  // 0x28
 	{ "ADD HL, HL", 0, NULL },                    // 0x29
 	{ "LDI A, (HL)", 0, NULL },                   // 0x2a
 	{ "DEC HL", 0, NULL },                        // 0x2b
 	{ "INC L", 0, NULL },                         // 0x2c
 	{ "DEC L", 0, NULL },                         // 0x2d
-	{ "LD L, 0x%02X", 1, NULL },                  // 0x2e
+	{ "LD L, 0x%02x", 1, NULL },                  // 0x2e
 	{ "CPL", 0, NULL },                           // 0x2f
-	{ "JR NC, 0x%02X", 1, NULL },                 // 0x30
-	{ "LD SP, 0x%04X", 2, NULL },                 // 0x31
+	{ "JR NC, 0x%02x", 1, NULL },                 // 0x30
+	{ "LD SP, 0x%04x", 2, NULL },                 // 0x31
 	{ "LDD (HL), A", 0, NULL },                   // 0x32
 	{ "INC SP", 0, NULL },                        // 0x33
 	{ "INC (HL)", 0, NULL },                      // 0x34
 	{ "DEC (HL)", 0, NULL },                      // 0x35
-	{ "LD (HL), 0x%02X", 1, NULL },               // 0x36
+	{ "LD (HL), 0x%02x", 1, NULL },               // 0x36
 	{ "SCF", 0, NULL },                           // 0x37
-	{ "JR C, 0x%02X", 1, NULL },                  // 0x38
+	{ "JR C, 0x%02x", 1, NULL },                  // 0x38
 	{ "ADD HL, SP", 0, NULL },                    // 0x39
 	{ "LDD A, (HL)", 0, NULL },                   // 0x3a
 	{ "DEC SP", 0, NULL },                        // 0x3b
 	{ "INC A", 0, NULL },                         // 0x3c
 	{ "DEC A", 0, NULL },                         // 0x3d
-	{ "LD A, 0x%02X", 1, NULL },                  // 0x3e
+	{ "LD A, 0x%02x", 1, NULL },                  // 0x3e
 	{ "CCF", 0, NULL },                           // 0x3f
 	{ "LD B, B", 0, NULL },                       // 0x40
 	{ "LD B, C", 0, NULL },                       // 0x41
@@ -200,64 +200,64 @@ const instruction instructions[256] = {
 	{ "POP BC", 0, NULL },                        // 0xc1
 	{ "JP NZ, 0x%04x", 2, NULL },                 // 0xc2
 	{ "JP 0x%04x", 2, NULL },                     // 0xc3
-	{ "CALL NZ, 0x%04X", 2, NULL },               // 0xc4
+	{ "CALL NZ, 0x%04x", 2, NULL },               // 0xc4
 	{ "PUSH BC", 0, NULL },                       // 0xc5
-	{ "ADD A, 0x%02X", 1, NULL },                 // 0xc6
+	{ "ADD A, 0x%02x", 1, NULL },                 // 0xc6
 	{ "RST 0x00", 0, NULL },                      // 0xc7
 	{ "RET Z", 0, NULL },                         // 0xc8
 	{ "RET", 0, NULL },                           // 0xc9
-	{ "JP Z, 0x%04X", 2, NULL },                  // 0xca
+	{ "JP Z, 0x%04x", 2, NULL },                  // 0xca
 	{ "CB %02X", 1, NULL },                       // 0xcb
-	{ "CALL Z, 0x%04X", 2, NULL },                // 0xcc
-	{ "CALL 0x%04X", 2, NULL },                   // 0xcd
-	{ "ADC 0x%02X", 1, NULL },                    // 0xce
+	{ "CALL Z, 0x%04x", 2, NULL },                // 0xcc
+	{ "CALL 0x%04x", 2, NULL },                   // 0xcd
+	{ "ADC 0x%02x", 1, NULL },                    // 0xce
 	{ "RST 0x08", 0, NULL },                      // 0xcf
 	{ "RET NC", 0, NULL },                        // 0xd0
 	{ "POP DE", 0, NULL },                        // 0xd1
-	{ "JP NC, 0x%04X", 2, NULL },                 // 0xd2
+	{ "JP NC, 0x%04x", 2, NULL },                 // 0xd2
 	{ "UNKNOWN", 0, NULL },                       // 0xd3
-	{ "CALL NC, 0x%04X", 2, NULL },               // 0xd4
+	{ "CALL NC, 0x%04x", 2, NULL },               // 0xd4
 	{ "PUSH DE", 0, NULL },                       // 0xd5
-	{ "SUB 0x%02X", 1, NULL },                    // 0xd6
+	{ "SUB 0x%02x", 1, NULL },                    // 0xd6
 	{ "RST 0x10", 0, NULL },                      // 0xd7
 	{ "RET C", 0, NULL },                         // 0xd8
 	{ "RETI", 0, NULL },                          // 0xd9
-	{ "JP C, 0x%04X", 2, NULL },                  // 0xda
+	{ "JP C, 0x%04x", 2, NULL },                  // 0xda
 	{ "UNKNOWN", 0, NULL },                       // 0xdb
-	{ "CALL C, 0x%04X", 2, NULL },                // 0xdc
+	{ "CALL C, 0x%04x", 2, NULL },                // 0xdc
 	{ "UNKNOWN", 0, NULL },                       // 0xdd
-	{ "SBC 0x%02X", 1, NULL },                    // 0xde
+	{ "SBC 0x%02x", 1, NULL },                    // 0xde
 	{ "RST 0x18", 0, NULL },                      // 0xdf
-	{ "LD (0xFF00 + 0x%02X), A", 1, NULL },       // 0xe0
+	{ "LD (0xFF00 + 0x%02x), A", 1, NULL },       // 0xe0
 	{ "POP HL", 0, NULL },                        // 0xe1
 	{ "LD (0xFF00 + C), A", 0, NULL },            // 0xe2
 	{ "UNKNOWN", 0, NULL },                       // 0xe3
 	{ "UNKNOWN", 0, NULL },                       // 0xe4
 	{ "PUSH HL", 0, NULL },                       // 0xe5
-	{ "AND 0x%02X", 1, NULL },                    // 0xe6
+	{ "AND 0x%02x", 1, NULL },                    // 0xe6
 	{ "RST 0x20", 0, NULL },                      // 0xe7
-	{ "ADD SP,0x%02X", 1, NULL },                 // 0xe8
+	{ "ADD SP,0x%02x", 1, NULL },                 // 0xe8
 	{ "JP HL", 0, NULL },                         // 0xe9
-	{ "LD (0x%04X), A", 2, NULL },                // 0xea
+	{ "LD (0x%04x), A", 2, NULL },                // 0xea
 	{ "UNKNOWN", 0, NULL },                       // 0xeb
 	{ "UNKNOWN", 0, NULL },                       // 0xec
 	{ "UNKNOWN", 0, NULL },                       // 0xed
-	{ "XOR 0x%02X", 1, NULL },                    // 0xee
+	{ "XOR 0x%02x", 1, NULL },                    // 0xee
 	{ "RST 0x28", 0, NULL },                      // 0xef
-	{ "LD A, (0xFF00 + 0x%02X)", 1, NULL },       // 0xf0
+	{ "LD A, (0xFF00 + 0x%02x)", 1, NULL },       // 0xf0
 	{ "POP AF", 0, NULL },                        // 0xf1
 	{ "LD A, (0xFF00 + C)", 0, NULL },            // 0xf2
 	{ "DI", 0, NULL },                            // 0xf3
 	{ "UNKNOWN", 0, NULL },                       // 0xf4
 	{ "PUSH AF", 0, NULL },                       // 0xf5
-	{ "OR 0x%02X", 1, NULL },                     // 0xf6
+	{ "OR 0x%02x", 1, NULL },                     // 0xf6
 	{ "RST 0x30", 0, NULL },                      // 0xf7
-	{ "LD HL, SP+0x%02X", 1, NULL },              // 0xf8
+	{ "LD HL, SP+0x%02x", 1, NULL },              // 0xf8
 	{ "LD SP, HL", 0, NULL },                     // 0xf9
-	{ "LD A, (0x%04X)", 2, NULL },                // 0xfa
+	{ "LD A, (0x%04x)", 2, NULL },                // 0xfa
 	{ "EI", 0, NULL },                            // 0xfb
 	{ "UNKNOWN", 0, NULL },                       // 0xxzc
 	{ "UNKNOWN", 0, NULL },                       // 0xfd
-	{ "CP 0x%02X", 1, NULL },                     // 0xfe
+	{ "CP 0x%02x", 1, NULL },                     // 0xfe
 	{ "RST 0x38", 0, NULL },                      // 0xff
 };

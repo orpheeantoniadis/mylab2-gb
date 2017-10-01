@@ -5,8 +5,8 @@ typedef struct {
 	char *disassembly;
 	unsigned char operandLength;
 	void *execute;
-} instruction;
+} instruction_t;
 
-extern const instruction instructions[256];
+extern const instruction_t instructions[256];
 
 #endif
