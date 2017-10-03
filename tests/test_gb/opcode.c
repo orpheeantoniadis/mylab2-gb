@@ -261,3 +261,33 @@ const instruction_t instructions[256] = {
 	{ "CP 0x%02x", 1, NULL },                     // 0xfe
 	{ "RST 0x38", 0, NULL },                      // 0xff
 };
+
+void print_instructions(uint8_t *opcodes, int size) {
+	char buffer[30];
+	uint8_t opcode;
+	uint8_t n;
+	uint16_t nn;
+
+	for (int i = 0; i < size; i++) {
+		opcode = opcodes[i];
+		switch (instructions[opcode].operandLength) {
+			case 0 :
+				printf("0x%02x : %s (0x%02x)\n", i, instructions[opcode].disassembly, opcode);
+				break;
+			case 1 :
+				n = opcodes[i+1];
+				sprintf(buffer, instructions[opcode].disassembly, n);
+				printf("0x%02x : %s (0x%02x)\n", i, buffer, opcode);
+				i++;
+				break;
+			case 2 :
+				nn = opcodes[i+1] | (opcodes[i+2] << 8);
+				sprintf(buffer, instructions[opcode].disassembly, nn);
+				printf("0x%02x : %s (0x%02x)\n", i, buffer, opcode);
+				i+=2;
+				break;
+			default :
+				break;
+		}
+	}
+}

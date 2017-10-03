@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "memory.h"
 
 memory_t memory = {.bootstrap = { 0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32,
@@ -34,3 +36,19 @@ memory_t memory = {.bootstrap = { 0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32
                                   0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
                                 }
                   };
+
+void load_rom(char *filename) {
+  FILE *rom;
+  int cnt = 0;
+  if ((rom = fopen(filename,"r")) == NULL) {
+    fprintf(stderr,"File not found\n");
+    return;
+  }
+  fseek(rom, 0x100, SEEK_SET);
+  // while (!feof(rom)) {
+  while (cnt < CART_LEN) {
+    fread(&memory.cart[cnt], sizeof(uint8_t), 1, rom);
+    cnt++;
+  }
+  fclose(rom);
+}

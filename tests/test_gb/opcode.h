@@ -9,4 +9,6 @@ typedef struct {
 
 extern const instruction_t instructions[256];
 
+void print_instructions(uint8_t *opcodes, int size);
+
 #endif
