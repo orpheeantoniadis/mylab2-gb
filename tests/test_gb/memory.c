@@ -46,9 +46,22 @@ void load_rom(char *filename) {
   }
   fseek(rom, 0x100, SEEK_SET);
   // while (!feof(rom)) {
-  while (cnt < CART_LEN) {
+  while (cnt < CART_SPACE) {
     fread(&memory.cart[cnt], sizeof(uint8_t), 1, rom);
     cnt++;
   }
   fclose(rom);
+}
+
+uint8_t read_byte(uint16_t addr) {
+  return memory.MEM[addr];
+}
+
+void write_byte(uint16_t addr, uint8_t val) {
+  if (addr < 0x8000) {
+    fprintf(stderr,"Cannot write in ROM space\n");
+  }
+  else {
+    memory.MEM[addr] = val;
+  }
 }

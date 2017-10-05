@@ -4,7 +4,7 @@
 #include "opcode.h"
 
 const instruction_t instructions[256] = {
-	{ "NOP", 0, nop },                           	// 0x00
+	{ "NOP", 0, NULL },                           	// 0x00
 	{ "LD BC, 0x%04x", 2, NULL },                 // 0x01
 	{ "LD (BC), A", 0, NULL },                    // 0x02
 	{ "INC BC", 0, NULL },                        // 0x03
