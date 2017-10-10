@@ -25,7 +25,7 @@ void inc_d(void);                         // 0x14
 void dec_d(void);                         // 0x15
 void ld_d_n(uint8_t n);                   // 0x16
                                           // 0x17
-                                          // 0x18
+void jr_n(uint8_t n);                     // 0x18
 void add_hl_de(void);                     // 0x19
 void ld_a_dep(void);                      // 0x1a
 void dec_de(void);                        // 0x1b
@@ -33,7 +33,7 @@ void inc_e(void);                         // 0x1c
 void dec_e(void);                         // 0x1d
 void ld_e_n(uint8_t n);                   // 0x1e
                                           // 0x1f
-                                          // 0x20
+void jr_nz(uint8_t n);                    // 0x20
 void ld_hl_nn(uint16_t nn);               // 0x21
 void ldi_hlp_a(void);                     // 0x22
 void inc_hl(void);                        // 0x23
@@ -41,7 +41,7 @@ void inc_h(void);                         // 0x24
 void dec_h(void);                         // 0x25
 void ld_h_n(uint8_t n);                   // 0x26
                                           // 0x27
-                                          // 0x28
+void jr_z(uint8_t n);                     // 0x28
 void add_hl_hl(void);                     // 0x29
 void ldi_a_hlp(void);                     // 0x2a
 void dec_hl(void);                        // 0x2b
@@ -49,7 +49,7 @@ void inc_l(void);                         // 0x2c
 void dec_l(void);                         // 0x2d
 void ld_l_n(uint8_t n);                   // 0x2e
                                           // 0x2f
-                                          // 0x30
+void jr_nc(uint8_t n);                    // 0x30
 void ld_sp_nn(uint16_t nn);               // 0x31
 void ldd_hlp_a(void);                     // 0x32
 void inc_sp(void);                        // 0x33
@@ -57,7 +57,7 @@ void inc_hlp(void);                       // 0x34
 void dec_hlp(void);                       // 0x35
 void ld_hlp_n(uint8_t n);                 // 0x36
                                           // 0x37
-                                          // 0x38
+void jr_c(uint8_t n);                     // 0x38
 void add_hl_sp(void);                     // 0x39
 void ldd_a_hlp(void);                     // 0x3a
 void dec_sp(void);                        // 0x3b
@@ -194,47 +194,47 @@ void cp_l(void);                          // 0xbd
 void cp_hlp(void);                        // 0xbe
 void cp_a(void);                          // 0xbf
                                           // 0xc0
-                                          // 0xc1
-                                          // 0xc2
-                                          // 0xc3
+void pop_bc(void);                        // 0xc1
+void jp_nz(uint16_t nn);                  // 0xc2
+void jp(uint16_t nn);                     // 0xc3
                                           // 0xc4
-                                          // 0xc5
+void push_bc(void);                       // 0xc5
 void add_a_n(uint8_t n);                  // 0xc6
                                           // 0xc7
                                           // 0xc8
                                           // 0xc9
-                                          // 0xca
+void jp_z(uint16_t);                      // 0xca
                                           // 0xcb
                                           // 0xcc
                                           // 0xcd
 void adc_n(uint8_t n);                    // 0xce
                                           // 0xcf
                                           // 0xd0
-                                          // 0xd1
-                                          // 0xd2
+void pop_de(void);                        // 0xd1
+void jp_nc(uint16_t nn);                  // 0xd2
                                           // 0xd3
                                           // 0xd4
-                                          // 0xd5
+void push_de(void);                       // 0xd5
 void sub_n(uint8_t n);                    // 0xd6
                                           // 0xd7
                                           // 0xd8
                                           // 0xd9
-                                          // 0xda
+void jp_c(uint16_t nn);                   // 0xda
                                           // 0xdb
                                           // 0xdc
                                           // 0xdd
 void sbc_n(uint8_t n);                    // 0xde
                                           // 0xdf
 void ldh_np_a(uint8_t n);                 // 0xe0
-                                          // 0xe1
+void pop_hl(void);                        // 0xe1
 void ldh_cp_a(void);                      // 0xe2
                                           // 0xe3
                                           // 0xe4
-                                          // 0xe5
+void push_hl(void);                       // 0xe5
 void and_n(uint8_t n);                    // 0xe6
                                           // 0xe7
 void add_sp_n(uint8_t n);                 // 0xe8
-                                          // 0xe9
+void jp_hl(void);                         // 0xe9
 void ld_nnp_a(uint16_t nn);               // 0xea
                                           // 0xeb
                                           // 0xec
@@ -242,11 +242,11 @@ void ld_nnp_a(uint16_t nn);               // 0xea
 void xor_n(uint8_t n);                    // 0xee
                                           // 0xef
 void ldh_a_np(uint8_t n);                 // 0xf0
-                                          // 0xf1
+void pop_af(void);                        // 0xf1
 void ldh_a_cp(void);                      // 0xf2
                                           // 0xf3
                                           // 0xf4
-                                          // 0xf5
+void push_af(void);                       // 0xf5
 void or_n(uint8_t n);                     // 0xf6
                                           // 0xf7
                                           // 0xf8

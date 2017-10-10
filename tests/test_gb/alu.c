@@ -150,6 +150,16 @@ static void cp(uint8_t reg, uint8_t val) {
   else FLAG_CLEAR(CARRY_FLAG);
 }
 
+static void push(uint16_t val) {
+  registers.sp-=2;
+  write16(val, registers.sp);
+}
+
+static void pop(uint16_t *dst) {
+  (*dst) = read16(registers.sp);
+  registers.sp+=2;
+}
+
 // 0x00
 void nop(void) { }
 
@@ -157,7 +167,7 @@ void nop(void) { }
 void ld_bc_nn(uint16_t nn) { registers.bc = nn; }
 
 // 0x02
-void ld_bcp_a(void) { write_byte(registers.bc, registers.a); }
+void ld_bcp_a(void) { write8(registers.bc, registers.a); }
 
 // 0x03
 void inc_bc(void) { registers.bc++; }
@@ -174,13 +184,13 @@ void ld_b_n(uint8_t n) { registers.b = n; }
 // 0x07
 
 // 0x08
-void ld_nnp_sp(uint16_t nn) { write_byte(nn, registers.sp); }
+void ld_nnp_sp(uint16_t nn) { write8(nn, registers.sp); }
 
 // 0x09
 void add_hl_bc(void) { add16(&(registers.hl), registers.bc); }
 
 // 0x0a
-void ld_a_bcp(void) { registers.a = read_byte(registers.bc); }
+void ld_a_bcp(void) { registers.a = read8(registers.bc); }
 
 // 0x0b
 void dec_bc(void) { registers.bc--; }
@@ -202,7 +212,7 @@ void ld_c_n(uint8_t n) { registers.c = n; }
 void ld_de_nn(uint16_t nn) { registers.de = nn; }
 
 // 0x12
-void ld_dep_a(void) { write_byte(registers.de, registers.a); }
+void ld_dep_a(void) { write8(registers.de, registers.a); }
 
 // 0x13
 void inc_de(void) { registers.de++; }
@@ -219,12 +229,13 @@ void ld_d_n(uint8_t n) { registers.d = n; }
 // 0x17
 
 // 0x18
+void jr_n(uint8_t n) { registers.pc += n; }
 
 // 0x19
 void add_hl_de(void) { add16(&(registers.hl), registers.de); }
 
 // 0x1a
-void ld_a_dep(void) { registers.a = read_byte(registers.de); }
+void ld_a_dep(void) { registers.a = read8(registers.de); }
 
 // 0x1b
 void dec_de(void) { registers.de--; }
@@ -241,13 +252,14 @@ void ld_e_n(uint8_t n) { registers.e = n; }
 // 0x1f
 
 // 0x20
+void jr_nz(uint8_t n) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc += n; }
 
 // 0x21
 void ld_hl_nn(uint16_t nn) { registers.hl = nn; }
 
 // 0x22
 void ldi_hlp_a(void) {
-  write_byte(registers.hl, registers.a);
+  write8(registers.hl, registers.a);
   registers.hl++;
 }
 
@@ -266,13 +278,14 @@ void ld_h_n(uint8_t n) { registers.h = n; }
 // 0x27
 
 // 0x28
+void jr_z(uint8_t n) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc += n; }
 
 // 0x29
 void add_hl_hl(void) { add16(&(registers.hl), registers.hl); }
 
 // 0x2a
 void ldi_a_hlp(void) {
-  registers.a = read_byte(registers.hl);
+  registers.a = read8(registers.hl);
   registers.hl++;
 }
 
@@ -291,13 +304,14 @@ void ld_l_n(uint8_t n) { registers.l = n; }
 // 0x2f
 
 // 0x30
+void jr_nc(uint8_t n) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc += n; }
 
 // 0x31
 void ld_sp_nn(uint16_t nn) { registers.sp = nn; }
 
 // 0x32
 void ldd_hlp_a(void) {
-  write_byte(registers.hl, registers.a);
+  write8(registers.hl, registers.a);
   registers.hl--;
 }
 
@@ -306,31 +320,32 @@ void inc_sp(void) { registers.sp++; }
 
 // 0x34
 void inc_hlp(void) {
-  uint8_t temp = read_byte(registers.hl);
+  uint8_t temp = read8(registers.hl);
   inc(&temp);
-  write_byte(registers.hl, temp);
+  write8(registers.hl, temp);
 }
 
 // 0x35
 void dec_hlp(void) {
-  uint8_t temp = read_byte(registers.hl);
+  uint8_t temp = read8(registers.hl);
   dec(&temp);
-  write_byte(registers.hl, temp);
+  write8(registers.hl, temp);
 }
 
 // 0x36
-void ld_hlp_n(uint8_t n) { write_byte(registers.hl, n); }
+void ld_hlp_n(uint8_t n) { write8(registers.hl, n); }
 
 // 0x37
 
 // 0x38
+void jr_c(uint8_t n) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc += n; }
 
 // 0x39
 void add_hl_sp(void) { add16(&(registers.hl), registers.sp); }
 
 // 0x3a
 void ldd_a_hlp(void) {
-  registers.a = read_byte(registers.hl);
+  registers.a = read8(registers.hl);
   registers.hl--;
 }
 
@@ -367,7 +382,7 @@ void ld_b_h(void) { registers.b = registers.h; }
 void ld_b_l(void) { registers.b = registers.l; }
 
 // 0x46
-void ld_b_hlp(void) { registers.b = read_byte(registers.hl); }
+void ld_b_hlp(void) { registers.b = read8(registers.hl); }
 
 // 0x47
 void ld_b_a(void) { registers.b = registers.a; }
@@ -390,7 +405,7 @@ void ld_c_h(void) { registers.c = registers.h; }
 void ld_c_l(void) { registers.c = registers.l; }
 
 // 0x4e
-void ld_c_hlp(void) { registers.c = read_byte(registers.hl); }
+void ld_c_hlp(void) { registers.c = read8(registers.hl); }
 
 // 0x4f
 void ld_c_a(void) { registers.c = registers.a; }
@@ -413,7 +428,7 @@ void ld_d_h(void) { registers.d = registers.h; }
 void ld_d_l(void) { registers.d = registers.l; }
 
 // 0x56
-void ld_d_hlp(void) { registers.d = read_byte(registers.hl); }
+void ld_d_hlp(void) { registers.d = read8(registers.hl); }
 
 // 0x57
 void ld_d_a(void) { registers.d = registers.a; }
@@ -436,7 +451,7 @@ void ld_e_h(void) { registers.e = registers.h; }
 void ld_e_l(void) { registers.e = registers.l; }
 
 // 0x5e
-void ld_e_hlp(void) { registers.e = read_byte(registers.hl); }
+void ld_e_hlp(void) { registers.e = read8(registers.hl); }
 
 // 0x5f
 void ld_e_a(void) { registers.e = registers.a; }
@@ -459,7 +474,7 @@ void ld_h_e(void) { registers.h = registers.e; }
 void ld_h_l(void) { registers.h = registers.l; }
 
 // 0x66
-void ld_h_hlp(void) { registers.h = read_byte(registers.hl); }
+void ld_h_hlp(void) { registers.h = read8(registers.hl); }
 
 // 0x67
 void ld_h_a(void) { registers.h = registers.a; }
@@ -482,33 +497,33 @@ void ld_l_h(void) { registers.l = registers.h; }
 // 0x6d
 
 // 0x6e
-void ld_l_hlp(void) { registers.l = read_byte(registers.hl); }
+void ld_l_hlp(void) { registers.l = read8(registers.hl); }
 
 // 0x6f
 void ld_l_a(void) { registers.l = registers.a; }
 
 // 0x70
-void ld_hlp_b(void) { write_byte(registers.hl, registers.b); }
+void ld_hlp_b(void) { write8(registers.hl, registers.b); }
 
 // 0x71
-void ld_hlp_c(void) { write_byte(registers.hl, registers.c); }
+void ld_hlp_c(void) { write8(registers.hl, registers.c); }
 
 // 0x72
-void ld_hlp_d(void) { write_byte(registers.hl, registers.d); }
+void ld_hlp_d(void) { write8(registers.hl, registers.d); }
 
 // 0x73
-void ld_hlp_e(void) { write_byte(registers.hl, registers.e); }
+void ld_hlp_e(void) { write8(registers.hl, registers.e); }
 
 // 0x74
-void ld_hlp_h(void) { write_byte(registers.hl, registers.h); }
+void ld_hlp_h(void) { write8(registers.hl, registers.h); }
 
 // 0x75
-void ld_hlp_l(void) { write_byte(registers.hl, registers.l); }
+void ld_hlp_l(void) { write8(registers.hl, registers.l); }
 
 // 0x76
 
 // 0x77
-void ld_hlp_a(void) { write_byte(registers.hl, registers.a); }
+void ld_hlp_a(void) { write8(registers.hl, registers.a); }
 
 // 0x78
 void ld_a_b(void) { registers.a = registers.b; }
@@ -529,7 +544,7 @@ void ld_a_h(void) { registers.a = registers.h; }
 void ld_a_l(void) { registers.a = registers.l; }
 
 // 0x7e
-void ld_a_hlp(void) { registers.a = read_byte(registers.hl); }
+void ld_a_hlp(void) { registers.a = read8(registers.hl); }
 
 // 0x7f
 
@@ -552,7 +567,7 @@ void add_a_h(void) { add8(&(registers.a), registers.h); }
 void add_a_l(void) { add8(&(registers.a), registers.l); }
 
 // 0x86
-void add_a_hlp(void) { add8(&(registers.a), read_byte(registers.hl)); }
+void add_a_hlp(void) { add8(&(registers.a), read8(registers.hl)); }
 
 // 0x87
 void add_a_a(void) { add8(&(registers.a), registers.a); }
@@ -576,7 +591,7 @@ void adc_h(void) { adc(&(registers.a), registers.h); }
 void adc_l(void) { adc(&(registers.a), registers.l); }
 
 // 0x8e
-void adc_hlp(void) { adc(&(registers.a), read_byte(registers.hl)); }
+void adc_hlp(void) { adc(&(registers.a), read8(registers.hl)); }
 
 // 0x8f
 void adc_a(void) { adc(&(registers.a), registers.a); }
@@ -600,7 +615,7 @@ void sub_h(void) { sub(&(registers.a), registers.h); }
 void sub_l(void) { sub(&(registers.a), registers.l); }
 
 // 0x96
-void sub_hlp(void) { sub(&(registers.a), read_byte(registers.hl)); }
+void sub_hlp(void) { sub(&(registers.a), read8(registers.hl)); }
 
 // 0x97
 void sub_a(void) { sub(&(registers.a), registers.a); }
@@ -624,7 +639,7 @@ void sbc_h(void) { sbc(&(registers.a), registers.h); }
 void sbc_l(void) { sbc(&(registers.a), registers.l); }
 
 // 0x9e
-void sbc_hlp(void) { sbc(&(registers.a), read_byte(registers.hl)); }
+void sbc_hlp(void) { sbc(&(registers.a), read8(registers.hl)); }
 
 // 0x9f
 void sbc_a(void) { sbc(&(registers.a), registers.a); }
@@ -648,7 +663,7 @@ void and_h(void) { and(&(registers.a), registers.h); }
 void and_l(void) { and(&(registers.a), registers.l); }
 
 // 0xa6
-void and_hlp(void) { and(&(registers.a), read_byte(registers.hl)); }
+void and_hlp(void) { and(&(registers.a), read8(registers.hl)); }
 
 // 0xa7
 void and_a(void) { and(&(registers.a), registers.a); }
@@ -672,7 +687,7 @@ void xor_h(void) { xor(&(registers.a), registers.h); }
 void xor_l(void) { xor(&(registers.a), registers.l); }
 
 // 0xae
-void xor_hlp(void) { xor(&(registers.a), read_byte(registers.hl)); }
+void xor_hlp(void) { xor(&(registers.a), read8(registers.hl)); }
 
 // 0xaf
 void xor_a(void) { xor(&(registers.a), registers.a); }
@@ -696,7 +711,7 @@ void or_h(void) { or(&(registers.a), registers.h); }
 void or_l(void) { or(&(registers.a), registers.l); }
 
 // 0xb6
-void or_hlp(void) { or(&(registers.a), read_byte(registers.hl)); }
+void or_hlp(void) { or(&(registers.a), read8(registers.hl)); }
 
 // 0xb7
 void or_a(void) { or(&(registers.a), registers.a); }
@@ -720,7 +735,7 @@ void cp_h(void) { cp(registers.a, registers.h); }
 void cp_l(void) { cp(registers.a, registers.l); }
 
 // 0xbe
-void cp_hlp(void) { cp(registers.a, read_byte(registers.hl)); }
+void cp_hlp(void) { cp(registers.a, read8(registers.hl)); }
 
 // 0xbf
 void cp_a(void) { cp(registers.a, registers.a); }
@@ -728,14 +743,18 @@ void cp_a(void) { cp(registers.a, registers.a); }
 // 0xc0
 
 // 0xc1
+void pop_bc(void) { pop(&(registers.bc)); }
 
 // 0xc2
+void jp_nz(uint16_t nn) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
 
 // 0xc3
+void jp(uint16_t nn) { registers.pc = nn; }
 
 // 0xc4
 
 // 0xc5
+void push_bc(void) { push(registers.bc); }
 
 // 0xc6
 void add_a_n(uint8_t n) { add8(&(registers.a), n); }
@@ -747,6 +766,7 @@ void add_a_n(uint8_t n) { add8(&(registers.a), n); }
 // 0xc9
 
 // 0xca
+void jp_z(uint16_t nn) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
 
 // 0xcb
 
@@ -762,12 +782,15 @@ void adc_n(uint8_t n) { adc(&(registers.a), n); }
 // 0xd0
 
 // 0xd1
+void pop_de(void) { pop(&(registers.de)); }
 
 // 0xd2
+void jp_nc(uint16_t nn) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
 
 // 0xd4
 
 // 0xd5
+void push_de(void) { push(registers.de); }
 
 // 0xd6
 void sub_n(uint8_t n) { sub(&(registers.a), n); }
@@ -779,6 +802,7 @@ void sub_n(uint8_t n) { sub(&(registers.a), n); }
 // 0xd9
 
 // 0xda
+void jp_c(uint16_t nn) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
 
 // 0xdc
 
@@ -788,14 +812,16 @@ void sbc_n(uint8_t n) { sbc(&(registers.a), n); }
 // 0xdf
 
 // 0xe0
-void ldh_np_a(uint8_t n) { write_byte(0xff00 + n, registers.a); }
+void ldh_np_a(uint8_t n) { write8(0xff00 + n, registers.a); }
 
 // 0xe1
+void pop_hl(void) { pop(&(registers.hl)); }
 
 // 0xe2
-void ldh_cp_a(void) { write_byte(0xff00 + registers.c, registers.a); }
+void ldh_cp_a(void) { write8(0xff00 + registers.c, registers.a); }
 
 // 0xe5
+void push_hl(void) { push(registers.hl); }
 
 // 0xe6
 void and_n(uint8_t n) { and(&(registers.a), n ); }
@@ -806,9 +832,10 @@ void and_n(uint8_t n) { and(&(registers.a), n ); }
 void add_sp_n(uint8_t n) { add16(&(registers.sp), n); }
 
 // 0xe9
+void jp_hl(void) { registers.pc = read8(registers.hl); }
 
 // 0xea
-void ld_nnp_a(uint16_t nn) { write_byte(nn, registers.a); }
+void ld_nnp_a(uint16_t nn) { write8(nn, registers.a); }
 
 // 0xee
 void xor_n(uint8_t n) { xor(&(registers.a), n); }
@@ -816,16 +843,18 @@ void xor_n(uint8_t n) { xor(&(registers.a), n); }
 //0xef
 
 // 0xf0
-void ldh_a_np(uint8_t n) { registers.a = read_byte(0xff00 + n); }
+void ldh_a_np(uint8_t n) { registers.a = read8(0xff00 + n); }
 
 // 0xf1
+void pop_af(void) { pop(&(registers.af)); }
 
 // 0xf2
-void ldh_a_cp(void) { registers.a = read_byte(0xff00 + registers.c); }
+void ldh_a_cp(void) { registers.a = read8(0xff00 + registers.c); }
 
 // 0xf3
 
 // 0xf5
+void push_af(void) { push(registers.af); }
 
 // 0xf6
 void or_n(uint8_t n) { or(&(registers.a), n); }
@@ -838,7 +867,7 @@ void or_n(uint8_t n) { or(&(registers.a), n); }
 void ld_sp_hl(void) { registers.sp = registers.hl; }
 
 // 0xfa
-void ld_a_nnp(uint16_t nn) { registers.a = read_byte(nn); }
+void ld_a_nnp(uint16_t nn) { registers.a = read8(nn); }
 
 // 0xfb
 

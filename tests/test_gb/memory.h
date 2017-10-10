@@ -58,7 +58,9 @@ typedef struct {
 extern memory_t memory;
 
 void load_rom(char *fiSPACEame);
-uint8_t read_byte(uint16_t addr);
-void write_byte(uint16_t addr, uint8_t val);
+uint8_t read8(uint16_t addr);
+void write8(uint16_t addr, uint8_t val);
+uint16_t read16(uint16_t addr);
+void write16(uint16_t addr, uint16_t val);
 
 #endif

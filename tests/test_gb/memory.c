@@ -53,15 +53,24 @@ void load_rom(char *filename) {
   fclose(rom);
 }
 
-uint8_t read_byte(uint16_t addr) {
+uint8_t read8(uint16_t addr) {
   return memory.MEM[addr];
 }
 
-void write_byte(uint16_t addr, uint8_t val) {
+void write8(uint16_t addr, uint8_t val) {
   if (addr < 0x8000) {
     fprintf(stderr,"Cannot write in ROM space\n");
   }
   else {
     memory.MEM[addr] = val;
   }
+}
+
+uint16_t read16(uint16_t addr) {
+  return read8(addr) | (read8(addr + 1) << 8);
+}
+
+void write16(uint16_t addr, uint16_t val) {
+  write8(addr, (val & 0xff));
+  write8(addr + 1, ((val & 0xff00) >> 8));
 }
