@@ -767,6 +767,10 @@ void push_bc(void) { push(registers.bc); }
 void add_a_n(uint8_t n) { add8(&(registers.a), n); }
 
 // 0xc7
+void rst_00h(void) {
+  push(registers.pc);
+  registers.pc = 0x00;
+}
 
 // 0xc8
 void ret_z(void) { if (FLAG_ISSET(ZERO_FLAG)) pop(&(registers.pc)); }
@@ -797,6 +801,10 @@ void call(uint16_t nn) {
 void adc_n(uint8_t n) { adc(&(registers.a), n); }
 
 // 0xcf
+void rst_08h(void) {
+  push(registers.pc);
+  registers.pc = 0x08;
+}
 
 // 0xd0
 void ret_nc(void) { if (!FLAG_ISSET(CARRY_FLAG)) pop(&(registers.pc)); }
@@ -822,6 +830,10 @@ void push_de(void) { push(registers.de); }
 void sub_n(uint8_t n) { sub(&(registers.a), n); }
 
 // 0xd7
+void rst_10h(void) {
+  push(registers.pc);
+  registers.pc = 0x10;
+}
 
 // 0xd8
 void ret_c(void) { if (FLAG_ISSET(CARRY_FLAG)) pop(&(registers.pc)); }
@@ -847,6 +859,10 @@ void call_c(uint16_t nn) {
 void sbc_n(uint8_t n) { sbc(&(registers.a), n); }
 
 // 0xdf
+void rst_18h(void) {
+  push(registers.pc);
+  registers.pc = 0x18;
+}
 
 // 0xe0
 void ldh_np_a(uint8_t n) { write8(0xff00 + n, registers.a); }
@@ -864,6 +880,10 @@ void push_hl(void) { push(registers.hl); }
 void and_n(uint8_t n) { and(&(registers.a), n ); }
 
 // 0xe7
+void rst_20h(void) {
+  push(registers.pc);
+  registers.pc = 0x20;
+}
 
 // 0xe8
 void add_sp_n(uint8_t n) { add16(&(registers.sp), n); }
@@ -878,6 +898,10 @@ void ld_nnp_a(uint16_t nn) { write8(nn, registers.a); }
 void xor_n(uint8_t n) { xor(&(registers.a), n); }
 
 //0xef
+void rst_28h(void) {
+  push(registers.pc);
+  registers.pc = 0x28;
+}
 
 // 0xf0
 void ldh_a_np(uint8_t n) { registers.a = read8(0xff00 + n); }
@@ -897,6 +921,10 @@ void push_af(void) { push(registers.af); }
 void or_n(uint8_t n) { or(&(registers.a), n); }
 
 // 0xf7
+void rst_30h(void) {
+  push(registers.pc);
+  registers.pc = 0x30;
+}
 
 // 0xf8
 
@@ -912,3 +940,7 @@ void ld_a_nnp(uint16_t nn) { registers.a = read8(nn); }
 void cp_n(uint8_t n) { cp(registers.a, n); }
 
 //0xff
+void rst_38h(void) {
+  push(registers.pc);
+  registers.pc = 0x38;
+}

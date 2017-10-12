@@ -203,7 +203,7 @@ const instruction_t instructions[256] = {
 	{ "CALL NZ, 0x%04x", 2, call_nz },        	 // 0xc4
 	{ "PUSH BC", 0, NULL },                   	 // 0xc5
 	{ "ADD A, 0x%02x", 1, add_a_n },             // 0xc6
-	{ "RST 0x00", 0, NULL },                     // 0xc7
+	{ "RST 0x00", 0, rst_00h },                  // 0xc7
 	{ "RET Z", 0, ret_z },                       // 0xc8
 	{ "RET", 0, ret },                           // 0xc9
 	{ "JP Z, 0x%04x", 2, NULL },              	 // 0xca
@@ -211,7 +211,7 @@ const instruction_t instructions[256] = {
 	{ "CALL Z, 0x%04x", 2, call_z },          	 // 0xcc
 	{ "CALL 0x%04x", 2, call },               	 // 0xcd
 	{ "ADC 0x%02x", 1, adc_n },                  // 0xce
-	{ "RST 0x08", 0, NULL },                   	 // 0xcf
+	{ "RST 0x08", 0, rst_08h },                  // 0xcf
 	{ "RET NC", 0, ret_nc },                     // 0xd0
 	{ "POP DE", 0, NULL },                     	 // 0xd1
 	{ "JP NC, 0x%04x", 2, NULL },            		 // 0xd2
@@ -219,7 +219,7 @@ const instruction_t instructions[256] = {
 	{ "CALL NC, 0x%04x", 2, call_nc },        	 // 0xd4
 	{ "PUSH DE", 0, NULL },                   	 // 0xd5
 	{ "SUB 0x%02x", 1, sub_n },                  // 0xd6
-	{ "RST 0x10", 0, NULL },                   	 // 0xd7
+	{ "RST 0x10", 0, rst_10h },                  // 0xd7
 	{ "RET C", 0, ret_c },                       // 0xd8
 	{ "RETI", 0, reti },          							 // 0xd9
 	{ "JP C, 0x%04x", 2, NULL },              	 // 0xda
@@ -227,7 +227,7 @@ const instruction_t instructions[256] = {
 	{ "CALL C, 0x%04x", 2, call_c },          	 // 0xdc
 	{ "UNKNOWN", 0, NULL },                 		 // 0xdd
 	{ "SBC 0x%02x", 1, sbc_n },                  // 0xde
-	{ "RST 0x18", 0, NULL },                   	 // 0xdf
+	{ "RST 0x18", 0, rst_18h },                  // 0xdf
 	{ "LD (0xFF00 + 0x%02x), A", 1, ldh_np_a },	 // 0xe0
 	{ "POP HL", 0, NULL },                     	 // 0xe1
 	{ "LD (0xFF00 + C), A", 0, ldh_cp_a },       // 0xe2
@@ -235,7 +235,7 @@ const instruction_t instructions[256] = {
 	{ "UNKNOWN", 0, NULL },                 		 // 0xe4
 	{ "PUSH HL", 0, NULL },                   	 // 0xe5
 	{ "AND 0x%02x", 1, and_n },                  // 0xe6
-	{ "RST 0x20", 0, NULL },                  	 // 0xe7
+	{ "RST 0x20", 0, rst_20h },                  // 0xe7
 	{ "ADD SP,0x%02x", 1, add_sp_n },            // 0xe8
 	{ "JP HL", 0, NULL },                        // 0xe9
 	{ "LD (0x%04x), A", 2, ld_nnp_a },           // 0xea
@@ -243,7 +243,7 @@ const instruction_t instructions[256] = {
 	{ "UNKNOWN", 0, NULL },                 		 // 0xec
 	{ "UNKNOWN", 0, NULL },                 		 // 0xed
 	{ "XOR 0x%02x", 1, xor_n },                  // 0xee
-	{ "RST 0x28", 0, NULL },                   	 // 0xef
+	{ "RST 0x28", 0, rst_28h },                  // 0xef
 	{ "LD A, (0xFF00 + 0x%02x)", 1, ldh_a_np },	 // 0xf0
 	{ "POP AF", 0, NULL },                     	 // 0xf1
 	{ "LD A, (0xFF00 + C)", 0, ldh_a_cp },       // 0xf2
@@ -251,7 +251,7 @@ const instruction_t instructions[256] = {
 	{ "UNKNOWN", 0, NULL },                 		 // 0xf4
 	{ "PUSH AF", 0, NULL },                   	 // 0xf5
 	{ "OR 0x%02x", 1, or_n },                    // 0xf6
-	{ "RST 0x30", 0, NULL },                   	 // 0xf7
+	{ "RST 0x30", 0, rst_30h },                  // 0xf7
 	{ "LD HL, SP+0x%02x", 1, NULL },       			 // 0xf8
 	{ "LD SP, HL", 0, ld_sp_hl },                // 0xf9
 	{ "LD A, (0x%04x)", 2, ld_a_nnp },           // 0xfa
@@ -259,7 +259,7 @@ const instruction_t instructions[256] = {
 	{ "UNKNOWN", 0, NULL },                 		 // 0xfc
 	{ "UNKNOWN", 0, NULL },                 		 // 0xfd
 	{ "CP 0x%02x", 1, cp_n },                    // 0xfe
-	{ "RST 0x38", 0, NULL },                   	 // 0xff
+	{ "RST 0x38", 0, rst_38h },                  // 0xff
 };
 
 void print_instructions(uint8_t *opcodes, int size) {
