@@ -52,11 +52,6 @@ extern registers_t registers;
 #define HALFCARRY_FLAG (1 << 5)
 #define CARRY_FLAG (1 << 4)
 
-#define FLAG_ISZERO (registers.f & FLAGS_ZERO)
-#define FLAG_ISNEGATIVE (registers.f & FLAGS_NEGATIVE)
-#define FLAG_ISCARRY (registers.f & FLAGS_CARRY)
-#define FLAG_ISHALFCARRY (registers.f & FLAGS_HALFCARRY)
-
 #define FLAG_ISSET(x) (registers.f & (x))
 #define FLAG_SET(x) (registers.f |= (x))
 #define FLAG_CLEAR(x) (registers.f &= ~(x))
