@@ -432,6 +432,7 @@ void ld_b_a(void) { registers.b = registers.a; }
 void ld_c_b(void) { registers.c = registers.b; }
 
 // 0x49
+void ld_c_c(void) { registers.c = registers.c; };
 
 // 0x4a
 void ld_c_d(void) { registers.c = registers.d; }
@@ -458,6 +459,7 @@ void ld_d_b(void) { registers.d = registers.b; }
 void ld_d_c(void) { registers.d = registers.c; }
 
 // 0x52
+void ld_d_d(void) { registers.d = registers.d; };
 
 // 0x53
 void ld_d_e(void) { registers.d = registers.e; }
@@ -484,6 +486,7 @@ void ld_e_c(void) { registers.e = registers.c; }
 void ld_e_d(void) { registers.e = registers.d; }
 
 // 0x5b
+void ld_e_e(void) { registers.e = registers.e; };
 
 // 0x5c
 void ld_e_h(void) { registers.e = registers.h; }
@@ -510,6 +513,7 @@ void ld_h_d(void) { registers.h = registers.d; }
 void ld_h_e(void) { registers.h = registers.e; }
 
 // 0x64
+void ld_h_h(void) { registers.h = registers.h; };
 
 // 0x65
 void ld_h_l(void) { registers.h = registers.l; }
@@ -536,6 +540,7 @@ void ld_l_e(void) { registers.l = registers.e; }
 void ld_l_h(void) { registers.l = registers.h; }
 
 // 0x6d
+void ld_l_l(void) { registers.b = registers.b; };
 
 // 0x6e
 void ld_l_hlp(void) { registers.l = read8(registers.hl); }
@@ -589,6 +594,7 @@ void ld_a_l(void) { registers.a = registers.l; }
 void ld_a_hlp(void) { registers.a = read8(registers.hl); }
 
 // 0x7f
+void ld_a_a(void) { registers.a = registers.a; }
 
 // 0x80
 void add_a_b(void) { add8(&(registers.a), registers.b); }

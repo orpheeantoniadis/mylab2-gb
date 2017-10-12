@@ -28,7 +28,7 @@ const instruction_t instructions[256] = {
 	{ "DEC D", 0, dec_d },                       // 0x15
 	{ "LD D, 0x%02x", 1, ld_d_n },               // 0x16
 	{ "RLA", 0, rla },                           // 0x17
-	{ "JR 0x%02x", 1, NULL },                    // 0x18
+	{ "JR 0x%02x", 1, jr_n },                    // 0x18
 	{ "ADD HL, DE", 0, add_hl_de },              // 0x19
 	{ "LD A, (DE)", 0, ld_a_dep },               // 0x1a
 	{ "DEC DE", 0, dec_de },                     // 0x1b
@@ -36,7 +36,7 @@ const instruction_t instructions[256] = {
 	{ "DEC E", 0, dec_e },                       // 0x1d
 	{ "LD E, 0x%02x", 1, ld_e_n },               // 0x1e
 	{ "RRA", 0, rra },                         	 // 0x1f
-	{ "JR NZ, 0x%02x", 1, NULL },             	 // 0x20
+	{ "JR NZ, 0x%02x", 1, jr_nz },             	 // 0x20
 	{ "LD HL, 0x%04x", 2, ld_hl_nn },            // 0x21
 	{ "LDI (HL), A", 0, ldi_hlp_a },             // 0x22
 	{ "INC HL", 0, inc_hl },                     // 0x23
@@ -44,7 +44,7 @@ const instruction_t instructions[256] = {
 	{ "DEC H", 0, dec_h },                       // 0x25
 	{ "LD H, 0x%02x", 1, ld_h_n },               // 0x26
 	{ "DAA", 0, NULL },                          // 0x27
-	{ "JR Z, 0x%02x", 1, NULL },               	 // 0x28
+	{ "JR Z, 0x%02x", 1, jr_z },               	 // 0x28
 	{ "ADD HL, HL", 0, add_hl_hl },              // 0x29
 	{ "LDI A, (HL)", 0, ldi_a_hlp },             // 0x2a
 	{ "DEC HL", 0, dec_hl },                     // 0x2b
@@ -52,7 +52,7 @@ const instruction_t instructions[256] = {
 	{ "DEC L", 0, dec_l },                       // 0x2d
 	{ "LD L, 0x%02x", 1, ld_l_n },               // 0x2e
 	{ "CPL", 0, NULL },                          // 0x2f
-	{ "JR NC, 0x%02x", 1, NULL },             	 // 0x30
+	{ "JR NC, 0x%02x", 1, jr_nc },             	 // 0x30
 	{ "LD SP, 0x%04x", 2, ld_sp_nn },            // 0x31
 	{ "LDD (HL), A", 0, ldd_hlp_a },             // 0x32
 	{ "INC SP", 0, inc_sp },                     // 0x33
@@ -60,7 +60,7 @@ const instruction_t instructions[256] = {
 	{ "DEC (HL)", 0, dec_hlp },                  // 0x35
 	{ "LD (HL), 0x%02x", 1, ld_hlp_n },          // 0x36
 	{ "SCF", 0, NULL },                          // 0x37
-	{ "JR C, 0x%02x", 1, NULL },               	 // 0x38
+	{ "JR C, 0x%02x", 1, jr_c },               	 // 0x38
 	{ "ADD HL, SP", 0, add_hl_sp },              // 0x39
 	{ "LDD A, (HL)", 0, ldd_a_hlp },             // 0x3a
 	{ "DEC SP", 0, dec_sp },                     // 0x3b
@@ -68,7 +68,7 @@ const instruction_t instructions[256] = {
 	{ "DEC A", 0, dec_a },                       // 0x3d
 	{ "LD A, 0x%02x", 1, ld_a_n },               // 0x3e
 	{ "CCF", 0, NULL },                          // 0x3f
-	{ "LD B, B", 0, nop },                       // 0x40
+	{ "LD B, B", 0, ld_b_b },                    // 0x40
 	{ "LD B, C", 0, ld_b_c },                    // 0x41
 	{ "LD B, D", 0, ld_b_d },                    // 0x42
 	{ "LD B, E", 0, ld_b_e },                    // 0x43
@@ -77,7 +77,7 @@ const instruction_t instructions[256] = {
 	{ "LD B, (HL)", 0, ld_b_hlp },               // 0x46
 	{ "LD B, A", 0, ld_b_a },                    // 0x47
 	{ "LD C, B", 0, ld_c_b },                    // 0x48
-	{ "LD C, C", 0, nop },                       // 0x49
+	{ "LD C, C", 0, ld_c_c },                    // 0x49
 	{ "LD C, D", 0, ld_c_d },                    // 0x4a
 	{ "LD C, E", 0, ld_c_e },                    // 0x4b
 	{ "LD C, H", 0, ld_c_h },                    // 0x4c
@@ -86,7 +86,7 @@ const instruction_t instructions[256] = {
 	{ "LD C, A", 0, ld_c_a },                    // 0x4f
 	{ "LD D, B", 0, ld_d_b },                    // 0x50
 	{ "LD D, C", 0, ld_d_c },                    // 0x51
-	{ "LD D, D", 0, nop },                       // 0x52
+	{ "LD D, D", 0, ld_d_d },                    // 0x52
 	{ "LD D, E", 0, ld_d_e },                    // 0x53
 	{ "LD D, H", 0, ld_d_h },                    // 0x54
 	{ "LD D, L", 0, ld_d_l },                    // 0x55
@@ -95,7 +95,7 @@ const instruction_t instructions[256] = {
 	{ "LD E, B", 0, ld_e_b },                    // 0x58
 	{ "LD E, C", 0, ld_e_c },                    // 0x59
 	{ "LD E, D", 0, ld_e_d },                    // 0x5a
-	{ "LD E, E", 0, nop },                       // 0x5b
+	{ "LD E, E", 0, ld_e_e },                    // 0x5b
 	{ "LD E, H", 0, ld_e_h },                    // 0x5c
 	{ "LD E, L", 0, ld_e_l },                    // 0x5d
 	{ "LD E, (HL)", 0, ld_e_hlp },               // 0x5e
@@ -104,7 +104,7 @@ const instruction_t instructions[256] = {
 	{ "LD H, C", 0, ld_h_c },                    // 0x61
 	{ "LD H, D", 0, ld_h_d },                    // 0x62
 	{ "LD H, E", 0, ld_h_e },                    // 0x63
-	{ "LD H, H", 0, nop },                       // 0x64
+	{ "LD H, H", 0, ld_h_h },                    // 0x64
 	{ "LD H, L", 0, ld_h_l },                    // 0x65
 	{ "LD H, (HL)", 0, ld_h_hlp },               // 0x66
 	{ "LD H, A", 0, ld_h_a },                    // 0x67
@@ -113,7 +113,7 @@ const instruction_t instructions[256] = {
 	{ "LD L, D", 0, ld_l_d },                    // 0x6a
 	{ "LD L, E", 0, ld_l_e },                    // 0x6b
 	{ "LD L, H", 0, ld_l_h },                    // 0x6c
-	{ "LD L, L", 0, nop },                       // 0x6d
+	{ "LD L, L", 0, ld_l_l },                    // 0x6d
 	{ "LD L, (HL)", 0, ld_l_hlp },               // 0x6e
 	{ "LD L, A", 0, ld_l_a },                    // 0x6f
 	{ "LD (HL), B", 0, ld_hlp_b },               // 0x70
@@ -131,7 +131,7 @@ const instruction_t instructions[256] = {
 	{ "LD A, H", 0, ld_a_h },                    // 0x7c
 	{ "LD A, L", 0, ld_a_l },                    // 0x7d
 	{ "LD A, (HL)", 0, ld_a_hlp },               // 0x7e
-	{ "LD A, A", 0, nop },                       // 0x7f
+	{ "LD A, A", 0, ld_a_a },                    // 0x7f
 	{ "ADD A, B", 0, add_a_b },                  // 0x80
 	{ "ADD A, C", 0, add_a_c },                  // 0x81
 	{ "ADD A, D", 0, add_a_d },                  // 0x82
@@ -197,32 +197,32 @@ const instruction_t instructions[256] = {
 	{ "CP (HL)", 0, cp_hlp },                    // 0xbe
 	{ "CP A", 0, cp_a },                         // 0xbf
 	{ "RET NZ", 0, ret_nz },                     // 0xc0
-	{ "POP BC", 0, NULL },                     	 // 0xc1
-	{ "JP NZ, 0x%04x", 2, NULL },            		 // 0xc2
-	{ "JP 0x%04x", 2, NULL },                    // 0xc3
+	{ "POP BC", 0, pop_bc },                     // 0xc1
+	{ "JP NZ, 0x%04x", 2, jp_nz },            	 // 0xc2
+	{ "JP 0x%04x", 2, jp },                    	 // 0xc3
 	{ "CALL NZ, 0x%04x", 2, call_nz },        	 // 0xc4
-	{ "PUSH BC", 0, NULL },                   	 // 0xc5
+	{ "PUSH BC", 0, push_bc },                   // 0xc5
 	{ "ADD A, 0x%02x", 1, add_a_n },             // 0xc6
 	{ "RST 0x00", 0, rst_00h },                  // 0xc7
 	{ "RET Z", 0, ret_z },                       // 0xc8
 	{ "RET", 0, ret },                           // 0xc9
-	{ "JP Z, 0x%04x", 2, NULL },              	 // 0xca
+	{ "JP Z, 0x%04x", 2, jp_z },              	 // 0xca
 	{ "CB %02x", 1, NULL },                      // 0xcb
 	{ "CALL Z, 0x%04x", 2, call_z },          	 // 0xcc
 	{ "CALL 0x%04x", 2, call },               	 // 0xcd
 	{ "ADC 0x%02x", 1, adc_n },                  // 0xce
 	{ "RST 0x08", 0, rst_08h },                  // 0xcf
 	{ "RET NC", 0, ret_nc },                     // 0xd0
-	{ "POP DE", 0, NULL },                     	 // 0xd1
-	{ "JP NC, 0x%04x", 2, NULL },            		 // 0xd2
+	{ "POP DE", 0, pop_de },                     // 0xd1
+	{ "JP NC, 0x%04x", 2, jp_nc },            	 // 0xd2
 	{ "UNKNOWN", 0, NULL },                 		 // 0xd3
 	{ "CALL NC, 0x%04x", 2, call_nc },        	 // 0xd4
-	{ "PUSH DE", 0, NULL },                   	 // 0xd5
+	{ "PUSH DE", 0, push_de },                   // 0xd5
 	{ "SUB 0x%02x", 1, sub_n },                  // 0xd6
 	{ "RST 0x10", 0, rst_10h },                  // 0xd7
 	{ "RET C", 0, ret_c },                       // 0xd8
 	{ "RETI", 0, reti },          							 // 0xd9
-	{ "JP C, 0x%04x", 2, NULL },              	 // 0xda
+	{ "JP C, 0x%04x", 2, jp_c },              	 // 0xda
 	{ "UNKNOWN", 0, NULL },                 		 // 0xdb
 	{ "CALL C, 0x%04x", 2, call_c },          	 // 0xdc
 	{ "UNKNOWN", 0, NULL },                 		 // 0xdd
@@ -233,11 +233,11 @@ const instruction_t instructions[256] = {
 	{ "LD (0xFF00 + C), A", 0, ldh_cp_a },       // 0xe2
 	{ "UNKNOWN", 0, NULL },                 		 // 0xe3
 	{ "UNKNOWN", 0, NULL },                 		 // 0xe4
-	{ "PUSH HL", 0, NULL },                   	 // 0xe5
+	{ "PUSH HL", 0, push_hl },                   // 0xe5
 	{ "AND 0x%02x", 1, and_n },                  // 0xe6
 	{ "RST 0x20", 0, rst_20h },                  // 0xe7
 	{ "ADD SP,0x%02x", 1, add_sp_n },            // 0xe8
-	{ "JP HL", 0, NULL },                        // 0xe9
+	{ "JP HL", 0, jp_hl },                       // 0xe9
 	{ "LD (0x%04x), A", 2, ld_nnp_a },           // 0xea
 	{ "UNKNOWN", 0, NULL },                 		 // 0xeb
 	{ "UNKNOWN", 0, NULL },                 		 // 0xec
@@ -245,11 +245,11 @@ const instruction_t instructions[256] = {
 	{ "XOR 0x%02x", 1, xor_n },                  // 0xee
 	{ "RST 0x28", 0, rst_28h },                  // 0xef
 	{ "LD A, (0xFF00 + 0x%02x)", 1, ldh_a_np },	 // 0xf0
-	{ "POP AF", 0, NULL },                     	 // 0xf1
+	{ "POP AF", 0, pop_af },                     // 0xf1
 	{ "LD A, (0xFF00 + C)", 0, ldh_a_cp },       // 0xf2
 	{ "DI", 0, di },                        	 	 // 0xf3
 	{ "UNKNOWN", 0, NULL },                 		 // 0xf4
-	{ "PUSH AF", 0, NULL },                   	 // 0xf5
+	{ "PUSH AF", 0, push_af },                   // 0xf5
 	{ "OR 0x%02x", 1, or_n },                    // 0xf6
 	{ "RST 0x30", 0, rst_30h },                  // 0xf7
 	{ "LD HL, SP+0x%02x", 1, ldhl_sp_n },        // 0xf8
