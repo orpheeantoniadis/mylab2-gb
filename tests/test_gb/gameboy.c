@@ -10,7 +10,7 @@
 int main(int argc, char** argv) {
   if (argc == 2) {
     load_rom(argv[1]);
-    print_instructions(memory.ROM, 0x8000);
+    print_instructions(memory.ROM, 0x100);
   }
   else {
     printf("Usage : %s <game_file>\n", argv[0]);

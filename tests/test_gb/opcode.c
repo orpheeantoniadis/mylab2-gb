@@ -11,7 +11,7 @@ const instruction_t instructions[256] = {
 	{ "INC B", 0, inc_b },                       // 0x04
 	{ "DEC B", 0, dec_b },                       // 0x05
 	{ "LD B, 0x%02x", 1, ld_b_n },               // 0x06
-	{ "RLCA", 0, NULL },                         // 0x07
+	{ "RLCA", 0, rlca },                         // 0x07
 	{ "LD (0x%04x), SP", 2, ld_nnp_sp },         // 0x08
 	{ "ADD HL, BC", 0, add_hl_bc },              // 0x09
 	{ "LD A, (BC)", 0, ld_a_bcp },               // 0x0a
@@ -19,15 +19,15 @@ const instruction_t instructions[256] = {
 	{ "INC C", 0, inc_c },                       // 0x0c
 	{ "DEC C", 0, dec_c },                       // 0x0d
 	{ "LD C, 0x%02x", 1, ld_c_n },               // 0x0e
-	{ "RRCA", 0, NULL },                         // 0x0f
-	{ "STOP", 1, NULL },                         // 0x10
+	{ "RRCA", 0, rrca },                         // 0x0f
+	{ "STOP", 1, stop },                         // 0x10
 	{ "LD DE, 0x%04x", 2, ld_de_nn },            // 0x11
 	{ "LD (DE), A", 0, ld_dep_a },               // 0x12
 	{ "INC DE", 0, inc_de },                     // 0x13
 	{ "INC D", 0, inc_d },                       // 0x14
 	{ "DEC D", 0, dec_d },                       // 0x15
 	{ "LD D, 0x%02x", 1, ld_d_n },               // 0x16
-	{ "RLA", 0, NULL },                          // 0x17
+	{ "RLA", 0, rla },                           // 0x17
 	{ "JR 0x%02x", 1, NULL },                    // 0x18
 	{ "ADD HL, DE", 0, add_hl_de },              // 0x19
 	{ "LD A, (DE)", 0, ld_a_dep },               // 0x1a
@@ -35,7 +35,7 @@ const instruction_t instructions[256] = {
 	{ "INC E", 0, inc_e },                       // 0x1c
 	{ "DEC E", 0, dec_e },                       // 0x1d
 	{ "LD E, 0x%02x", 1, ld_e_n },               // 0x1e
-	{ "RRA", 0, NULL },                          // 0x1f
+	{ "RRA", 0, rra },                         	 // 0x1f
 	{ "JR NZ, 0x%02x", 1, NULL },             	 // 0x20
 	{ "LD HL, 0x%04x", 2, ld_hl_nn },            // 0x21
 	{ "LDI (HL), A", 0, ldi_hlp_a },             // 0x22
@@ -122,7 +122,7 @@ const instruction_t instructions[256] = {
 	{ "LD (HL), E", 0, ld_hlp_e },               // 0x73
 	{ "LD (HL), H", 0, ld_hlp_h },               // 0x74
 	{ "LD (HL), L", 0, ld_hlp_l },               // 0x75
-	{ "HALT", 0, NULL },                         // 0x76
+	{ "HALT", 0, halt },                         // 0x76
 	{ "LD (HL), A", 0, ld_hlp_a },               // 0x77
 	{ "LD A, B", 0, ld_a_b },                    // 0x78
 	{ "LD A, C", 0, ld_a_c },                    // 0x79
@@ -247,15 +247,15 @@ const instruction_t instructions[256] = {
 	{ "LD A, (0xFF00 + 0x%02x)", 1, ldh_a_np },	 // 0xf0
 	{ "POP AF", 0, NULL },                     	 // 0xf1
 	{ "LD A, (0xFF00 + C)", 0, ldh_a_cp },       // 0xf2
-	{ "DI", 0, NULL },                        	 // 0xf3
+	{ "DI", 0, di },                        	 	 // 0xf3
 	{ "UNKNOWN", 0, NULL },                 		 // 0xf4
 	{ "PUSH AF", 0, NULL },                   	 // 0xf5
 	{ "OR 0x%02x", 1, or_n },                    // 0xf6
 	{ "RST 0x30", 0, rst_30h },                  // 0xf7
-	{ "LD HL, SP+0x%02x", 1, NULL },       			 // 0xf8
+	{ "LD HL, SP+0x%02x", 1, ldhl_sp_n },        // 0xf8
 	{ "LD SP, HL", 0, ld_sp_hl },                // 0xf9
 	{ "LD A, (0x%04x)", 2, ld_a_nnp },           // 0xfa
-	{ "EI", 0, NULL },                           // 0xfb
+	{ "EI", 0, ei },                           	 // 0xfb
 	{ "UNKNOWN", 0, NULL },                 		 // 0xfc
 	{ "UNKNOWN", 0, NULL },                 		 // 0xfd
 	{ "CP 0x%02x", 1, cp_n },                    // 0xfe

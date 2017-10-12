@@ -182,6 +182,16 @@ void dec_b(void) { dec(&(registers.b)); }
 void ld_b_n(uint8_t n) { registers.b = n; }
 
 // 0x07
+void rlca(void) {
+  uint8_t carry = registers.a >> 7;
+  registers.a = (registers.a << 1) | carry;
+  if (registers.a == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
 
 // 0x08
 void ld_nnp_sp(uint16_t nn) { write8(nn, registers.sp); }
@@ -205,8 +215,19 @@ void dec_c(void) { dec(&(registers.c)); }
 void ld_c_n(uint8_t n) { registers.c = n; }
 
 // 0x0f
+void rrca(void) {
+  uint8_t carry = registers.a & 1;
+  registers.a = (registers.a >> 1) | (carry << 7);
+  if (registers.a == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
 
 // 0x10
+void stop(void) {  }
 
 // 0x11
 void ld_de_nn(uint16_t nn) { registers.de = nn; }
@@ -227,6 +248,16 @@ void dec_d(void) { dec(&(registers.d)); }
 void ld_d_n(uint8_t n) { registers.d = n; }
 
 // 0x17
+void rla(void) {
+  uint8_t old_carry = registers.a >> 7;
+  registers.a = (registers.a << 1) | (FLAG_ISSET(CARRY_FLAG) ? 1 : 0);
+  if (registers.a == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (old_carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
 
 // 0x18
 void jr_n(uint8_t n) { registers.pc += n; }
@@ -250,6 +281,16 @@ void dec_e(void) { dec(&(registers.e)); }
 void ld_e_n(uint8_t n) { registers.e = n; }
 
 // 0x1f
+void rra(void) {
+  uint8_t old_carry = registers.a & 1;
+  registers.a = (registers.a >> 1) | ((FLAG_ISSET(CARRY_FLAG) ? 1 : 0) << 7);
+  if (registers.a == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (old_carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
 
 // 0x20
 void jr_nz(uint8_t n) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc += n; }
@@ -521,6 +562,7 @@ void ld_hlp_h(void) { write8(registers.hl, registers.h); }
 void ld_hlp_l(void) { write8(registers.hl, registers.l); }
 
 // 0x76
+void halt(void) {  }
 
 // 0x77
 void ld_hlp_a(void) { write8(registers.hl, registers.a); }
@@ -913,6 +955,7 @@ void pop_af(void) { pop(&(registers.af)); }
 void ldh_a_cp(void) { registers.a = read8(0xff00 + registers.c); }
 
 // 0xf3
+void di(void) {  }
 
 // 0xf5
 void push_af(void) { push(registers.af); }
@@ -927,6 +970,10 @@ void rst_30h(void) {
 }
 
 // 0xf8
+void ldhl_sp_n(uint8_t n) {
+  add16(&(registers.sp), n);
+  FLAG_CLEAR(ZERO_FLAG);
+}
 
 // 0xf9
 void ld_sp_hl(void) { registers.sp = registers.hl; }
@@ -935,6 +982,7 @@ void ld_sp_hl(void) { registers.sp = registers.hl; }
 void ld_a_nnp(uint16_t nn) { registers.a = read8(nn); }
 
 // 0xfb
+void ei(void) {  }
 
 // 0xfe
 void cp_n(uint8_t n) { cp(registers.a, n); }
