@@ -317,6 +317,24 @@ void dec_h(void) { dec(&(registers.h)); }
 void ld_h_n(uint8_t n) { registers.h = n; }
 
 // 0x27
+void daa(void) {
+  uint16_t result = registers.a;
+
+	if(FLAG_ISSET(NEGATIVE_FLAG)) {
+		if(FLAG_ISSET(HALFCARRY_FLAG)) result = (result - 6) & 0xff;
+		if(FLAG_ISSET(CARRY_FLAG)) result -= 0x60;
+	}
+	else {
+		if(FLAG_ISSET(HALFCARRY_FLAG) || (result & 0xf) > 9) result += 6;
+		if(FLAG_ISSET(CARRY_FLAG) || result > 0x9f) result += 0x60;
+	}
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if(result) FLAG_CLEAR(ZERO_FLAG);
+	else FLAG_SET(ZERO_FLAG);
+	if(result > 0xff) FLAG_SET(CARRY_FLAG);
+
+  registers.a = result;
+}
 
 // 0x28
 void jr_z(uint8_t n) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc += n; }
@@ -343,6 +361,11 @@ void dec_l(void) { dec(&(registers.l)); }
 void ld_l_n(uint8_t n) { registers.l = n; }
 
 // 0x2f
+void cpl(void) {
+  registers.a = ~(registers.a);
+  FLAG_SET(NEGATIVE_FLAG);
+  FLAG_SET(HALFCARRY_FLAG);
+}
 
 // 0x30
 void jr_nc(uint8_t n) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc += n; }
@@ -377,6 +400,11 @@ void dec_hlp(void) {
 void ld_hlp_n(uint8_t n) { write8(registers.hl, n); }
 
 // 0x37
+void scf(void) {
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  FLAG_SET(CARRY_FLAG);
+}
 
 // 0x38
 void jr_c(uint8_t n) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc += n; }
@@ -403,6 +431,12 @@ void dec_a(void) { dec(&(registers.a)); }
 void ld_a_n(uint8_t n) { registers.a = n; }
 
 // 0x3f
+void cff(void) {
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (FLAG_ISSET(CARRY_FLAG)) FLAG_CLEAR(CARRY_FLAG);
+  else FLAG_SET(CARRY_FLAG);
+}
 
 // 0x40
 void ld_b_b(void) { registers.b = registers.b; };

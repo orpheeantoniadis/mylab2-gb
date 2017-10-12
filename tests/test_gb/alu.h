@@ -40,7 +40,7 @@ void inc_hl(void);                        // 0x23
 void inc_h(void);                         // 0x24
 void dec_h(void);                         // 0x25
 void ld_h_n(uint8_t n);                   // 0x26
-                                          // 0x27
+void daa(void);                           // 0x27
 void jr_z(uint8_t n);                     // 0x28
 void add_hl_hl(void);                     // 0x29
 void ldi_a_hlp(void);                     // 0x2a
@@ -48,7 +48,7 @@ void dec_hl(void);                        // 0x2b
 void inc_l(void);                         // 0x2c
 void dec_l(void);                         // 0x2d
 void ld_l_n(uint8_t n);                   // 0x2e
-                                          // 0x2f
+void cpl(void);                           // 0x2f
 void jr_nc(uint8_t n);                    // 0x30
 void ld_sp_nn(uint16_t nn);               // 0x31
 void ldd_hlp_a(void);                     // 0x32
@@ -56,7 +56,7 @@ void inc_sp(void);                        // 0x33
 void inc_hlp(void);                       // 0x34
 void dec_hlp(void);                       // 0x35
 void ld_hlp_n(uint8_t n);                 // 0x36
-                                          // 0x37
+void scf(void);                           // 0x37
 void jr_c(uint8_t n);                     // 0x38
 void add_hl_sp(void);                     // 0x39
 void ldd_a_hlp(void);                     // 0x3a
@@ -64,7 +64,7 @@ void dec_sp(void);                        // 0x3b
 void inc_a(void);                         // 0x3c
 void dec_a(void);                         // 0x3d
 void ld_a_n(uint8_t n);                   // 0x3e
-                                          // 0x3f
+void cff(void);                           // 0x3f
 void ld_b_b(void);                        // 0x40
 void ld_b_c(void);                        // 0x41
 void ld_b_d(void);                        // 0x42

@@ -43,7 +43,7 @@ const instruction_t instructions[256] = {
 	{ "INC H", 0, inc_h },                       // 0x24
 	{ "DEC H", 0, dec_h },                       // 0x25
 	{ "LD H, 0x%02x", 1, ld_h_n },               // 0x26
-	{ "DAA", 0, NULL },                          // 0x27
+	{ "DAA", 0, daa },                           // 0x27
 	{ "JR Z, 0x%02x", 1, jr_z },               	 // 0x28
 	{ "ADD HL, HL", 0, add_hl_hl },              // 0x29
 	{ "LDI A, (HL)", 0, ldi_a_hlp },             // 0x2a
@@ -51,7 +51,7 @@ const instruction_t instructions[256] = {
 	{ "INC L", 0, inc_l },                       // 0x2c
 	{ "DEC L", 0, dec_l },                       // 0x2d
 	{ "LD L, 0x%02x", 1, ld_l_n },               // 0x2e
-	{ "CPL", 0, NULL },                          // 0x2f
+	{ "CPL", 0, cpl },                           // 0x2f
 	{ "JR NC, 0x%02x", 1, jr_nc },             	 // 0x30
 	{ "LD SP, 0x%04x", 2, ld_sp_nn },            // 0x31
 	{ "LDD (HL), A", 0, ldd_hlp_a },             // 0x32
@@ -59,7 +59,7 @@ const instruction_t instructions[256] = {
 	{ "INC (HL)", 0, inc_hlp },                  // 0x34
 	{ "DEC (HL)", 0, dec_hlp },                  // 0x35
 	{ "LD (HL), 0x%02x", 1, ld_hlp_n },          // 0x36
-	{ "SCF", 0, NULL },                          // 0x37
+	{ "SCF", 0, scf },                           // 0x37
 	{ "JR C, 0x%02x", 1, jr_c },               	 // 0x38
 	{ "ADD HL, SP", 0, add_hl_sp },              // 0x39
 	{ "LDD A, (HL)", 0, ldd_a_hlp },             // 0x3a
@@ -67,7 +67,7 @@ const instruction_t instructions[256] = {
 	{ "INC A", 0, inc_a },                       // 0x3c
 	{ "DEC A", 0, dec_a },                       // 0x3d
 	{ "LD A, 0x%02x", 1, ld_a_n },               // 0x3e
-	{ "CCF", 0, NULL },                          // 0x3f
+	{ "CCF", 0, cff },                           // 0x3f
 	{ "LD B, B", 0, ld_b_b },                    // 0x40
 	{ "LD B, C", 0, ld_b_c },                    // 0x41
 	{ "LD B, D", 0, ld_b_d },                    // 0x42
