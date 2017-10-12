@@ -193,7 +193,7 @@ void cp_h(void);                          // 0xbc
 void cp_l(void);                          // 0xbd
 void cp_hlp(void);                        // 0xbe
 void cp_a(void);                          // 0xbf
-                                          // 0xc0
+void ret_nz(void);                        // 0xc0
 void pop_bc(void);                        // 0xc1
 void jp_nz(uint16_t nn);                  // 0xc2
 void jp(uint16_t nn);                     // 0xc3
@@ -201,15 +201,15 @@ void jp(uint16_t nn);                     // 0xc3
 void push_bc(void);                       // 0xc5
 void add_a_n(uint8_t n);                  // 0xc6
                                           // 0xc7
-                                          // 0xc8
-                                          // 0xc9
+void ret_z(void);                         // 0xc8
+void ret(void);                           // 0xc9
 void jp_z(uint16_t);                      // 0xca
                                           // 0xcb
                                           // 0xcc
                                           // 0xcd
 void adc_n(uint8_t n);                    // 0xce
                                           // 0xcf
-                                          // 0xd0
+void ret_nc(void);                        // 0xd0
 void pop_de(void);                        // 0xd1
 void jp_nc(uint16_t nn);                  // 0xd2
                                           // 0xd3
@@ -217,8 +217,8 @@ void jp_nc(uint16_t nn);                  // 0xd2
 void push_de(void);                       // 0xd5
 void sub_n(uint8_t n);                    // 0xd6
                                           // 0xd7
-                                          // 0xd8
-                                          // 0xd9
+void ret_c(void);                         // 0xd8
+void reti(void);                          // 0xd9
 void jp_c(uint16_t nn);                   // 0xda
                                           // 0xdb
                                           // 0xdc
