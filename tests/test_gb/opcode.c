@@ -196,35 +196,35 @@ const instruction_t instructions[256] = {
 	{ "CP L", 0, cp_l },                         // 0xbd
 	{ "CP (HL)", 0, cp_hlp },                    // 0xbe
 	{ "CP A", 0, cp_a },                         // 0xbf
-	{ "RET NZ", 0, NULL },                     	 // 0xc0
+	{ "RET NZ", 0, ret_nz },                     // 0xc0
 	{ "POP BC", 0, NULL },                     	 // 0xc1
 	{ "JP NZ, 0x%04x", 2, NULL },            		 // 0xc2
 	{ "JP 0x%04x", 2, NULL },                    // 0xc3
-	{ "CALL NZ, 0x%04x", 2, NULL },        			 // 0xc4
+	{ "CALL NZ, 0x%04x", 2, call_nz },        	 // 0xc4
 	{ "PUSH BC", 0, NULL },                   	 // 0xc5
 	{ "ADD A, 0x%02x", 1, add_a_n },             // 0xc6
 	{ "RST 0x00", 0, NULL },                     // 0xc7
-	{ "RET Z", 0, NULL },                        // 0xc8
-	{ "RET", 0, NULL },                          // 0xc9
+	{ "RET Z", 0, ret_z },                       // 0xc8
+	{ "RET", 0, ret },                           // 0xc9
 	{ "JP Z, 0x%04x", 2, NULL },              	 // 0xca
 	{ "CB %02x", 1, NULL },                      // 0xcb
-	{ "CALL Z, 0x%04x", 2, NULL },          		 // 0xcc
-	{ "CALL 0x%04x", 2, NULL },               	 // 0xcd
+	{ "CALL Z, 0x%04x", 2, call_z },          	 // 0xcc
+	{ "CALL 0x%04x", 2, call },               	 // 0xcd
 	{ "ADC 0x%02x", 1, adc_n },                  // 0xce
 	{ "RST 0x08", 0, NULL },                   	 // 0xcf
-	{ "RET NC", 0, NULL },                     	 // 0xd0
+	{ "RET NC", 0, ret_nc },                     // 0xd0
 	{ "POP DE", 0, NULL },                     	 // 0xd1
 	{ "JP NC, 0x%04x", 2, NULL },            		 // 0xd2
 	{ "UNKNOWN", 0, NULL },                 		 // 0xd3
-	{ "CALL NC, 0x%04x", 2, NULL },        			 // 0xd4
+	{ "CALL NC, 0x%04x", 2, call_nc },        	 // 0xd4
 	{ "PUSH DE", 0, NULL },                   	 // 0xd5
 	{ "SUB 0x%02x", 1, sub_n },                  // 0xd6
 	{ "RST 0x10", 0, NULL },                   	 // 0xd7
-	{ "RET C", 0, NULL },                        // 0xd8
-	{ "RETI", 0, NULL },          							 // 0xd9
+	{ "RET C", 0, ret_c },                       // 0xd8
+	{ "RETI", 0, reti },          							 // 0xd9
 	{ "JP C, 0x%04x", 2, NULL },              	 // 0xda
 	{ "UNKNOWN", 0, NULL },                 		 // 0xdb
-	{ "CALL C, 0x%04x", 2, NULL },          		 // 0xdc
+	{ "CALL C, 0x%04x", 2, call_c },          	 // 0xdc
 	{ "UNKNOWN", 0, NULL },                 		 // 0xdd
 	{ "SBC 0x%02x", 1, sbc_n },                  // 0xde
 	{ "RST 0x18", 0, NULL },                   	 // 0xdf

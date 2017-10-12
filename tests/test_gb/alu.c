@@ -753,6 +753,12 @@ void jp_nz(uint16_t nn) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
 void jp(uint16_t nn) { registers.pc = nn; }
 
 // 0xc4
+void call_nz(uint16_t nn) {
+  if (!FLAG_ISSET(ZERO_FLAG)) {
+    push(nn);
+    registers.pc = nn;
+  }
+}
 
 // 0xc5
 void push_bc(void) { push(registers.bc); }
@@ -774,8 +780,18 @@ void jp_z(uint16_t nn) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
 // 0xcb
 
 // 0xcc
+void call_z(uint16_t nn) {
+  if (FLAG_ISSET(ZERO_FLAG)) {
+    push(nn);
+    registers.pc = nn;
+  }
+}
 
 // 0xcd
+void call(uint16_t nn) {
+  push(nn);
+  registers.pc = nn;
+}
 
 // 0xce
 void adc_n(uint8_t n) { adc(&(registers.a), n); }
@@ -792,6 +808,12 @@ void pop_de(void) { pop(&(registers.de)); }
 void jp_nc(uint16_t nn) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
 
 // 0xd4
+void call_nc(uint16_t nn) {
+  if (!FLAG_ISSET(CARRY_FLAG)) {
+    push(nn);
+    registers.pc = nn;
+  }
+}
 
 // 0xd5
 void push_de(void) { push(registers.de); }
@@ -814,6 +836,12 @@ void reti(void) {
 void jp_c(uint16_t nn) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
 
 // 0xdc
+void call_c(uint16_t nn) {
+  if (FLAG_ISSET(CARRY_FLAG)) {
+    push(nn);
+    registers.pc = nn;
+  }
+}
 
 // 0xde
 void sbc_n(uint8_t n) { sbc(&(registers.a), n); }
