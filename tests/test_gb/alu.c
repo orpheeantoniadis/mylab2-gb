@@ -55,6 +55,19 @@ static void add16(uint16_t *dst, uint16_t val) {
   FLAG_CLEAR(NEGATIVE_FLAG);
 }
 
+static void add_sp(uint16_t *dst, int8_t val) {
+  FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+
+  if (((((*dst) & 0x0f) + (val & 0x0f)) & 0x10) != 0) FLAG_SET(HALFCARRY_FLAG);
+  else FLAG_CLEAR(HALFCARRY_FLAG);
+
+  if (((((*dst) & 0xff) + (val & 0xff)) & 0x100) != 0) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+
+  (*dst) += val;
+}
+
 static void adc(uint8_t *dst, uint8_t val) {
   uint8_t carry = FLAG_ISSET(CARRY_FLAG) ? 1 : 0;
 
@@ -1065,7 +1078,7 @@ void rst_20h(void) {
 }
 
 // 0xe8
-void add_sp_n(uint8_t n) { add16(&(registers.sp), n); }
+void add_sp_n(uint8_t n) { add_sp(&(registers.sp), (int8_t)n); }
 
 // 0xe9
 void jp_hl(void) { registers.pc = read8(registers.hl); }
@@ -1107,10 +1120,7 @@ void rst_30h(void) {
 }
 
 // 0xf8
-void ldhl_sp_n(uint8_t n) {
-  add16(&(registers.sp), n);
-  FLAG_CLEAR(ZERO_FLAG);
-}
+void ldhl_sp_n(uint8_t n) { add_sp(&(registers.sp), (int8_t)n); }
 
 // 0xf9
 void ld_sp_hl(void) { registers.sp = registers.hl; }

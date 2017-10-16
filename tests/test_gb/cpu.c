@@ -13,19 +13,19 @@ void cycle(void) {
   opcode = memory.MEM[registers.pc];
   switch (instruction_set[opcode].operandLength) {
     case 0 :
+			(registers.pc)++;
       ((void (*)(void))instruction_set[opcode].execute)();
-      (registers.pc)++;
       break;
     case 1 :
       n = memory.MEM[registers.pc+1];
+			(registers.pc)+=2;
       if (opcode == 0xcb) ((void (*)(void))prefix_cb[n].execute)();
       else ((void (*)(uint8_t))instruction_set[opcode].execute)(n);
-      (registers.pc)+=2;
       break;
     case 2 :
       nn = memory.MEM[registers.pc+1] | (memory.MEM[registers.pc+2] << 8);
+			(registers.pc)+=3;
       ((void (*)(uint16_t))instruction_set[opcode].execute)(nn);
-      (registers.pc)+=3;
       break;
     default : break;
   }
@@ -37,11 +37,8 @@ void print_registers(void) {
           "DE : 0x%04x\n"
           "HL : 0x%04x\n"
           "SP : 0x%04x\n"
-          "PC : 0x%04x\n\n"
-          "Z : %d\n"
-          "N : %d\n"
-          "H : %d\n"
-          "C : %d\n\n",
+          "PC : 0x%04x\n"
+          "Z|N|H|C : %d|%d|%d|%d\n\n",
           registers.af, registers.bc,
           registers.de, registers.hl,
           registers.sp, registers.pc,

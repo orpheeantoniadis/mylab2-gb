@@ -12,7 +12,6 @@ int main(int argc, char** argv) {
     load_rom(argv[1]);
     while(registers.pc < 0x100) {
       print_instruction();
-      print_registers();
       cycle();
       print_registers();
     }
