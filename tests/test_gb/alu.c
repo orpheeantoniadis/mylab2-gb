@@ -160,6 +160,105 @@ static void pop(uint16_t *dst) {
   registers.sp+=2;
 }
 
+static void rlc(uint8_t *reg) {
+  uint8_t carry = (*reg) >> 7;
+  (*reg) = ((*reg) << 1) | carry;
+  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
+
+static void rrc(uint8_t *reg) {
+  uint8_t carry = (*reg) & 1;
+  (*reg) = ((*reg) >> 1) | (carry << 7);
+  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
+
+static void rl(uint8_t *reg) {
+  uint8_t old_carry = (*reg) >> 7;
+  (*reg) = ((*reg) << 1) | (FLAG_ISSET(CARRY_FLAG) ? 1 : 0);
+  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (old_carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
+
+static void rr(uint8_t *reg) {
+  uint8_t old_carry = (*reg) & 1;
+  (*reg) = ((*reg) >> 1) | ((FLAG_ISSET(CARRY_FLAG) ? 1 : 0) << 7);
+  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (old_carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
+
+static void sla(uint8_t *reg) {
+  uint8_t carry = (*reg) >> 7;
+  (*reg) = ((*reg) << 1);
+  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
+
+static void sra(uint8_t *reg) {
+  uint8_t carry = (*reg) & 1;
+  (*reg) = ((*reg) & (1 << 7)) | (*reg) >> 1;
+  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
+
+static void swap(uint8_t *reg) {
+	(*reg) = (((*reg) & 0xf) << 4) | (((*reg) & 0xf0) >> 4);
+  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  FLAG_CLEAR(CARRY_FLAG);
+}
+
+static void srl(uint8_t *reg) {
+  uint8_t carry = (*reg) & 1;
+  (*reg) = (*reg) >> 1;
+  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_CLEAR(HALFCARRY_FLAG);
+  if (carry) FLAG_SET(CARRY_FLAG);
+  else FLAG_CLEAR(CARRY_FLAG);
+}
+
+static void bit(uint8_t reg, uint8_t bit) {
+	if((reg & (1 << bit)) == 0) FLAG_CLEAR(ZERO_FLAG);
+	else FLAG_SET(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_SET(HALFCARRY_FLAG);
+}
+
+static void set(uint8_t *reg, uint8_t bit) { (*reg) |= (1 << bit); }
+
+static void res(uint8_t *reg, uint8_t bit) { (*reg) &= ~(1 << bit); }
+
+/**** instruction set ****/
+
 // 0x00
 void nop(void) { }
 
@@ -863,8 +962,6 @@ void ret(void) { pop(&(registers.pc)); }
 // 0xca
 void jp_z(uint16_t nn) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
 
-// 0xcb
-
 // 0xcc
 void call_z(uint16_t nn) {
   if (FLAG_ISSET(ZERO_FLAG)) {
@@ -1032,3 +1129,869 @@ void rst_38h(void) {
   push(registers.pc);
   registers.pc = 0x38;
 }
+
+/**** prefix cb ****/
+
+// 0x00
+void rlc_b(void) { rlc(&(registers.b)); }
+
+// 0x01
+void rlc_c(void) { rlc(&(registers.c)); }
+
+// 0x02
+void rlc_d(void) { rlc(&(registers.d)); }
+
+// 0x03
+void rlc_e(void) { rlc(&(registers.e)); }
+
+// 0x04
+void rlc_h(void) { rlc(&(registers.h)); }
+
+// 0x05
+void rlc_l(void) { rlc(&(registers.l)); }
+
+// 0x06
+void rlc_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  rlc(&temp);
+  write8(registers.hl, temp);
+}
+
+// 0x07
+void rlc_a(void) { rlc(&(registers.a)); }
+
+// 0x08
+void rrc_b(void) { rrc(&(registers.b)); }
+
+// 0x09
+void rrc_c(void) { rrc(&(registers.c)); }
+
+// 0x0a
+void rrc_d(void) { rrc(&(registers.d)); }
+
+// 0x0b
+void rrc_e(void) { rrc(&(registers.e)); }
+
+// 0x0c
+void rrc_h(void) { rrc(&(registers.h)); }
+
+// 0x0d
+void rrc_l(void) { rrc(&(registers.l)); }
+
+// 0x0e
+void rrc_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  rrc(&temp);
+  write8(registers.hl, temp);
+}
+
+// 0x0f
+void rrc_a(void) { rrc(&(registers.a)); }
+
+// 0x10
+void rl_b(void) { rl(&(registers.b)); }
+
+// 0x11
+void rl_c(void) { rl(&(registers.c)); }
+
+// 0x12
+void rl_d(void) { rl(&(registers.d)); }
+
+// 0x13
+void rl_e(void) { rl(&(registers.e)); }
+
+// 0x14
+void rl_h(void) { rl(&(registers.h)); }
+
+// 0x15
+void rl_l(void) { rl(&(registers.l)); }
+
+// 0x16
+void rl_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  rl(&temp);
+  write8(registers.hl, temp);
+}
+
+// 0x17
+void rl_a(void) { rl(&(registers.a)); }
+
+// 0x18
+void rr_b(void) { rr(&(registers.b)); }
+
+// 0x19
+void rr_c(void) { rr(&(registers.c)); }
+
+// 0x1a
+void rr_d(void) { rr(&(registers.d)); }
+
+// 0x1b
+void rr_e(void) { rr(&(registers.e)); }
+
+// 0x1c
+void rr_h(void) { rr(&(registers.h)); }
+
+// 0x1d
+void rr_l(void) { rr(&(registers.l)); }
+
+// 0x1e
+void rr_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  rr(&temp);
+  write8(registers.hl, temp);
+}
+
+// 0x1f
+void rr_a(void) { rr(&(registers.a)); }
+
+// 0x20
+void sla_b(void) { sla(&(registers.b)); }
+
+// 0x21
+void sla_c(void) { sla(&(registers.c)); }
+
+// 0x22
+void sla_d(void) { sla(&(registers.d)); }
+
+// 0x23
+void sla_e(void) { sla(&(registers.e)); }
+
+// 0x24
+void sla_h(void) { sla(&(registers.h)); }
+
+// 0x25
+void sla_l(void) { sla(&(registers.l)); }
+
+// 0x26
+void sla_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  sla(&temp);
+  write8(registers.hl, temp);
+}
+
+// 0x27
+void sla_a(void) { sla(&(registers.a)); }
+
+// 0x28
+void sra_b(void) { sra(&(registers.b)); }
+
+// 0x29
+void sra_c(void) { sra(&(registers.c)); }
+
+// 0x2a
+void sra_d(void) { sra(&(registers.d)); }
+
+// 0x2b
+void sra_e(void) { sra(&(registers.e)); }
+
+// 0x2c
+void sra_h(void) { sra(&(registers.h)); }
+
+// 0x2d
+void sra_l(void) { sra(&(registers.l)); }
+
+// 0x2e
+void sra_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  sra(&temp);
+  write8(registers.hl, temp);
+}
+
+// 0x2f
+void sra_a(void) { sra(&(registers.a)); }
+
+// 0x30
+void swap_b(void) { swap(&(registers.b)); }
+
+// 0x31
+void swap_c(void) { swap(&(registers.c)); }
+
+// 0x32
+void swap_d(void) { swap(&(registers.d)); }
+
+// 0x33
+void swap_e(void) { swap(&(registers.e)); }
+
+// 0x34
+void swap_h(void) { swap(&(registers.h)); }
+
+// 0x35
+void swap_l(void) { swap(&(registers.l)); }
+
+// 0x36
+void swap_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  swap(&temp);
+  write8(registers.hl, temp);
+}
+
+// 0x37
+void swap_a(void) { swap(&(registers.a)); }
+
+// 0x38
+void srl_b(void) { srl(&(registers.b)); }
+
+// 0x39
+void srl_c(void) { srl(&(registers.c)); }
+
+// 0x3a
+void srl_d(void) { srl(&(registers.d)); }
+
+// 0x3b
+void srl_e(void) { srl(&(registers.e)); }
+
+// 0x3c
+void srl_h(void) { srl(&(registers.h)); }
+
+// 0x3d
+void srl_l(void) { srl(&(registers.l)); }
+
+// 0x3e
+void srl_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  srl(&temp);
+  write8(registers.hl, temp);
+}
+
+// 0x3f
+void srl_a(void) { srl(&(registers.a)); }
+
+// 0x40
+void bit_0_b(void) { bit(registers.b, 0); }
+
+// 0x41
+void bit_0_c(void) { bit(registers.c, 0); }
+
+// 0x42
+void bit_0_d(void) { bit(registers.d, 0); }
+
+// 0x43
+void bit_0_e(void) { bit(registers.e, 0); }
+
+// 0x44
+void bit_0_h(void) { bit(registers.h, 0); }
+
+// 0x45
+void bit_0_l(void) { bit(registers.l, 0); }
+
+// 0x46
+void bit_0_hlp(void) { bit(read8(registers.hl), 0); }
+
+// 0x47
+void bit_0_a(void) { bit(registers.a, 0); }
+
+// 0x48
+void bit_1_b(void) { bit(registers.b, 1); }
+
+// 0x49
+void bit_1_c(void) { bit(registers.c, 1); }
+
+// 0x4a
+void bit_1_d(void) { bit(registers.d, 1); }
+
+// 0x4b
+void bit_1_e(void) { bit(registers.e, 1); }
+
+// 0x4c
+void bit_1_h(void) { bit(registers.h, 1); }
+
+// 0x4d
+void bit_1_l(void) { bit(registers.l, 1); }
+
+// 0x4e
+void bit_1_hlp(void) { bit(read8(registers.hl), 1); }
+
+// 0x4f
+void bit_1_a(void) { bit(registers.a, 1); }
+
+// 0x50
+void bit_2_b(void) { bit(registers.b, 2); }
+
+// 0x51
+void bit_2_c(void) { bit(registers.c, 2); }
+
+// 0x52
+void bit_2_d(void) { bit(registers.d, 2); }
+
+// 0x53
+void bit_2_e(void) { bit(registers.e, 2); }
+
+// 0x54
+void bit_2_h(void) { bit(registers.h, 2); }
+
+// 0x55
+void bit_2_l(void) { bit(registers.l, 2); }
+
+// 0x56
+void bit_2_hlp(void) { bit(read8(registers.hl), 2); }
+
+// 0x57
+void bit_2_a(void) { bit(registers.a, 2); }
+
+// 0x58
+void bit_3_b(void) { bit(registers.b, 3); }
+
+// 0x59
+void bit_3_c(void) { bit(registers.c, 3); }
+
+// 0x5a
+void bit_3_d(void) { bit(registers.d, 3); }
+
+// 0x5b
+void bit_3_e(void) { bit(registers.e, 3); }
+
+// 0x5c
+void bit_3_h(void) { bit(registers.h, 3); }
+
+// 0x5d
+void bit_3_l(void) { bit(registers.l, 3); }
+
+// 0x5e
+void bit_3_hlp(void) { bit(read8(registers.hl), 3); }
+
+// 0x5f
+void bit_3_a(void) { bit(registers.a, 3); }
+
+// 0x60
+void bit_4_b(void) { bit(registers.b, 4); }
+
+// 0x61
+void bit_4_c(void) { bit(registers.c, 4); }
+
+// 0x62
+void bit_4_d(void) { bit(registers.d, 4); }
+
+// 0x63
+void bit_4_e(void) { bit(registers.e, 4); }
+
+// 0x64
+void bit_4_h(void) { bit(registers.h, 4); }
+
+// 0x65
+void bit_4_l(void) { bit(registers.l, 4); }
+
+// 0x66
+void bit_4_hlp(void) { bit(read8(registers.hl), 4); }
+
+// 0x67
+void bit_4_a(void) { bit(registers.a, 4); }
+
+// 0x68
+void bit_5_b(void) { bit(registers.b, 5); }
+
+// 0x69
+void bit_5_c(void) { bit(registers.c, 5); }
+
+// 0x6a
+void bit_5_d(void) { bit(registers.d, 5); }
+
+// 0x6b
+void bit_5_e(void) { bit(registers.e, 5); }
+
+// 0x6c
+void bit_5_h(void) { bit(registers.h, 5); }
+
+// 0x6d
+void bit_5_l(void) { bit(registers.l, 5); }
+
+// 0x6e
+void bit_5_hlp(void) { bit(read8(registers.hl), 5); }
+
+// 0x6f
+void bit_5_a(void) { bit(registers.a, 5); }
+
+// 0x70
+void bit_6_b(void) { bit(registers.b, 6); }
+
+// 0x71
+void bit_6_c(void) { bit(registers.c, 6); }
+
+// 0x72
+void bit_6_d(void) { bit(registers.d, 6); }
+
+// 0x73
+void bit_6_e(void) { bit(registers.e, 6); }
+
+// 0x74
+void bit_6_h(void) { bit(registers.h, 6); }
+
+// 0x75
+void bit_6_l(void) { bit(registers.l, 6); }
+
+// 0x76
+void bit_6_hlp(void) { bit(read8(registers.hl), 6); }
+
+// 0x77
+void bit_6_a(void) { bit(registers.a, 6); }
+
+// 0x78
+void bit_7_b(void) { bit(registers.b, 7); }
+
+// 0x79
+void bit_7_c(void) { bit(registers.c, 7); }
+
+// 0x7a
+void bit_7_d(void) { bit(registers.d, 7); }
+
+// 0x7b
+void bit_7_e(void) { bit(registers.e, 7); }
+
+// 0x7c
+void bit_7_h(void) { bit(registers.h, 7); }
+
+// 0x7d
+void bit_7_l(void) { bit(registers.l, 7); }
+
+// 0x7e
+void bit_7_hlp(void) { bit(read8(registers.hl), 7); }
+
+// 0x7f
+void bit_7_a(void) { bit(registers.a, 7); }
+
+// 0x80
+void res_0_b(void) { res(&(registers.b), 0); }
+
+// 0x81
+void res_0_c(void) { res(&(registers.c), 0); }
+
+// 0x82
+void res_0_d(void) { res(&(registers.d), 0); }
+
+// 0x83
+void res_0_e(void) { res(&(registers.e), 0); }
+
+// 0x84
+void res_0_h(void) { res(&(registers.h), 0); }
+
+// 0x85
+void res_0_l(void) { res(&(registers.l), 0); }
+
+// 0x86
+void res_0_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  res(&temp, 0);
+  write8(registers.hl, temp);
+}
+
+// 0x87
+void res_0_a(void) { res(&(registers.a), 0); }
+
+// 0x88
+void res_1_b(void) { res(&(registers.b), 1); }
+
+// 0x89
+void res_1_c(void) { res(&(registers.c), 1); }
+
+// 0x8a
+void res_1_d(void) { res(&(registers.d), 1); }
+
+// 0x8b
+void res_1_e(void) { res(&(registers.e), 1); }
+
+// 0x8c
+void res_1_h(void) { res(&(registers.h), 1); }
+
+// 0x8d
+void res_1_l(void) { res(&(registers.l), 1); }
+
+// 0x8e
+void res_1_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  res(&temp, 1);
+  write8(registers.hl, temp);
+}
+
+// 0x8f
+void res_1_a(void) { res(&(registers.a), 1); }
+
+// 0x90
+void res_2_b(void) { res(&(registers.b), 2); }
+
+// 0x91
+void res_2_c(void) { res(&(registers.c), 2); }
+
+// 0x92
+void res_2_d(void) { res(&(registers.d), 2); }
+
+// 0x93
+void res_2_e(void) { res(&(registers.e), 2); }
+
+// 0x94
+void res_2_h(void) { res(&(registers.h), 2); }
+
+// 0x95
+void res_2_l(void) { res(&(registers.l), 2); }
+
+// 0x96
+void res_2_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  res(&temp, 2);
+  write8(registers.hl, temp);
+}
+
+// 0x97
+void res_2_a(void) { res(&(registers.a), 2); }
+
+// 0x98
+void res_3_b(void) { res(&(registers.b), 3); }
+
+// 0x99
+void res_3_c(void) { res(&(registers.c), 3); }
+
+// 0x9a
+void res_3_d(void) { res(&(registers.d), 3); }
+
+// 0x9b
+void res_3_e(void) { res(&(registers.e), 3); }
+
+// 0x9c
+void res_3_h(void) { res(&(registers.h), 3); }
+
+// 0x9d
+void res_3_l(void) { res(&(registers.l), 3); }
+
+// 0x9e
+void res_3_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  res(&temp, 3);
+  write8(registers.hl, temp);
+}
+
+// 0x9f
+void res_3_a(void) { res(&(registers.a), 3); }
+
+// 0xa0
+void res_4_b(void) { res(&(registers.b), 4); }
+
+// 0xa1
+void res_4_c(void) { res(&(registers.c), 4); }
+
+// 0xa2
+void res_4_d(void) { res(&(registers.d), 4); }
+
+// 0xa3
+void res_4_e(void) { res(&(registers.e), 4); }
+
+// 0xa4
+void res_4_h(void) { res(&(registers.h), 4); }
+
+// 0xa5
+void res_4_l(void) { res(&(registers.l), 4); }
+
+// 0xa6
+void res_4_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  res(&temp, 4);
+  write8(registers.hl, temp);
+}
+
+// 0xa7
+void res_4_a(void) { res(&(registers.a), 4); }
+
+// 0xa8
+void res_5_b(void) { res(&(registers.b), 5); }
+
+// 0xa9
+void res_5_c(void) { res(&(registers.c), 5); }
+
+// 0xaa
+void res_5_d(void) { res(&(registers.d), 5); }
+
+// 0xab
+void res_5_e(void) { res(&(registers.e), 5); }
+
+// 0xac
+void res_5_h(void) { res(&(registers.h), 5); }
+
+// 0xad
+void res_5_l(void) { res(&(registers.l), 5); }
+
+// 0xae
+void res_5_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  res(&temp, 5);
+  write8(registers.hl, temp);
+}
+
+// 0xaf
+void res_5_a(void) { res(&(registers.a), 5); }
+
+// 0xb0
+void res_6_b(void) { res(&(registers.b), 6); }
+
+// 0xb1
+void res_6_c(void) { res(&(registers.c), 6); }
+
+// 0xb2
+void res_6_d(void) { res(&(registers.d), 6); }
+
+// 0xb3
+void res_6_e(void) { res(&(registers.e), 6); }
+
+// 0xb4
+void res_6_h(void) { res(&(registers.h), 6); }
+
+// 0xb5
+void res_6_l(void) { res(&(registers.l), 6); }
+
+// 0xb6
+void res_6_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  res(&temp, 6);
+  write8(registers.hl, temp);
+}
+
+// 0xb7
+void res_6_a(void) { res(&(registers.a), 6); }
+
+// 0xb8
+void res_7_b(void) { res(&(registers.b), 7); }
+
+// 0xb9
+void res_7_c(void) { res(&(registers.c), 7); }
+
+// 0xba
+void res_7_d(void) { res(&(registers.d), 7); }
+
+// 0xbb
+void res_7_e(void) { res(&(registers.e), 7); }
+
+// 0xbc
+void res_7_h(void) { res(&(registers.h), 7); }
+
+// 0xbd
+void res_7_l(void) { res(&(registers.l), 7); }
+
+// 0xbe
+void res_7_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  res(&temp, 7);
+  write8(registers.hl, temp);
+}
+
+// 0xbf
+void res_7_a(void) { res(&(registers.a), 7); }
+
+// 0xc0
+void set_0_b(void) { set(&(registers.b), 0); }
+
+// 0xc1
+void set_0_c(void) { set(&(registers.c), 0); }
+
+// 0xc2
+void set_0_d(void) { set(&(registers.d), 0); }
+
+// 0xc3
+void set_0_e(void) { set(&(registers.e), 0); }
+
+// 0xc4
+void set_0_h(void) { set(&(registers.h), 0); }
+
+// 0xc5
+void set_0_l(void) { set(&(registers.l), 0); }
+
+// 0xc6
+void set_0_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  set(&temp, 0);
+  write8(registers.hl, temp);
+}
+
+// 0xc7
+void set_0_a(void) { set(&(registers.a), 0); }
+
+// 0xc8
+void set_1_b(void) { set(&(registers.b), 1); }
+
+// 0xc9
+void set_1_c(void) { set(&(registers.c), 1); }
+
+// 0xca
+void set_1_d(void) { set(&(registers.d), 1); }
+
+// 0xcb
+void set_1_e(void) { set(&(registers.e), 1); }
+
+// 0xcc
+void set_1_h(void) { set(&(registers.h), 1); }
+
+// 0xcd
+void set_1_l(void) { set(&(registers.l), 1); }
+
+// 0xce
+void set_1_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  set(&temp, 1);
+  write8(registers.hl, temp);
+}
+
+// 0xcf
+void set_1_a(void) { set(&(registers.a), 1); }
+
+// 0xd0
+void set_2_b(void) { set(&(registers.b), 2); }
+
+// 0xd1
+void set_2_c(void) { set(&(registers.c), 2); }
+
+// 0xd2
+void set_2_d(void) { set(&(registers.d), 2); }
+
+// 0xd3
+void set_2_e(void) { set(&(registers.e), 2); }
+
+// 0xd4
+void set_2_h(void) { set(&(registers.h), 2); }
+
+// 0xd5
+void set_2_l(void) { set(&(registers.l), 2); }
+
+// 0xd6
+void set_2_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  set(&temp, 2);
+  write8(registers.hl, temp);
+}
+
+// 0xd7
+void set_2_a(void) { set(&(registers.a), 2); }
+
+// 0xd8
+void set_3_b(void) { set(&(registers.b), 3); }
+
+// 0xd9
+void set_3_c(void) { set(&(registers.c), 3); }
+
+// 0xda
+void set_3_d(void) { set(&(registers.d), 3); }
+
+// 0xdb
+void set_3_e(void) { set(&(registers.e), 3); }
+
+// 0xdc
+void set_3_h(void) { set(&(registers.h), 3); }
+
+// 0xdd
+void set_3_l(void) { set(&(registers.l), 3); }
+
+// 0xde
+void set_3_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  set(&temp, 3);
+  write8(registers.hl, temp);
+}
+
+// 0xdf
+void set_3_a(void) { set(&(registers.a), 3); }
+
+// 0xe0
+void set_4_b(void) { set(&(registers.b), 4); }
+
+// 0xe1
+void set_4_c(void) { set(&(registers.c), 4); }
+
+// 0xe2
+void set_4_d(void) { set(&(registers.d), 4); }
+
+// 0xe3
+void set_4_e(void) { set(&(registers.e), 4); }
+
+// 0xe4
+void set_4_h(void) { set(&(registers.h), 4); }
+
+// 0xe5
+void set_4_l(void) { set(&(registers.l), 4); }
+
+// 0xe6
+void set_4_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  set(&temp, 4);
+  write8(registers.hl, temp);
+}
+
+// 0xe7
+void set_4_a(void) { set(&(registers.a), 4); }
+
+// 0xe8
+void set_5_b(void) { set(&(registers.b), 5); }
+
+// 0xe9
+void set_5_c(void) { set(&(registers.c), 5); }
+
+// 0xea
+void set_5_d(void) { set(&(registers.d), 5); }
+
+// 0xeb
+void set_5_e(void) { set(&(registers.e), 5); }
+
+// 0xec
+void set_5_h(void) { set(&(registers.h), 5); }
+
+// 0xed
+void set_5_l(void) { set(&(registers.l), 5); }
+
+// 0xee
+void set_5_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  set(&temp, 5);
+  write8(registers.hl, temp);
+}
+
+// 0xef
+void set_5_a(void) { set(&(registers.a), 5); }
+
+// 0xf0
+void set_6_b(void) { set(&(registers.b), 6); }
+
+// 0xf1
+void set_6_c(void) { set(&(registers.c), 6); }
+
+// 0xf2
+void set_6_d(void) { set(&(registers.d), 6); }
+
+// 0xf3
+void set_6_e(void) { set(&(registers.e), 6); }
+
+// 0xf4
+void set_6_h(void) { set(&(registers.h), 6); }
+
+// 0xf5
+void set_6_l(void) { set(&(registers.l), 6); }
+
+// 0xf6
+void set_6_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  set(&temp, 6);
+  write8(registers.hl, temp);
+}
+
+// 0xf7
+void set_6_a(void) { set(&(registers.a), 6); }
+
+// 0xf8
+void set_7_b(void) { set(&(registers.b), 7); }
+
+// 0xf9
+void set_7_c(void) { set(&(registers.c), 7); }
+
+// 0xfa
+void set_7_d(void) { set(&(registers.d), 7); }
+
+// 0xfb
+void set_7_e(void) { set(&(registers.e), 7); }
+
+// 0xfc
+void set_7_h(void) { set(&(registers.h), 7); }
+
+// 0xfd
+void set_7_l(void) { set(&(registers.l), 7); }
+
+// 0xfe
+void set_7_hlp(void) {
+  uint8_t temp = read8(registers.hl);
+  set(&temp, 7);
+  write8(registers.hl, temp);
+}
+
+// 0xff
+void set_7_a(void) { set(&(registers.a), 7); }

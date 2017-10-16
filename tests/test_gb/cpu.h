@@ -2,7 +2,7 @@
 #define _CPU_H
 
 #include <stdint.h>
-#include "opcode.h"
+#include "commands.h"
 #include "alu.h"
 
 typedef struct {
