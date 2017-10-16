@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "cpu.h"
 #include "memory.h"
 
 memory_t memory = {.bootstrap = { 0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32,
@@ -59,6 +60,7 @@ uint8_t read8(uint16_t addr) {
 
 void write8(uint16_t addr, uint8_t val) {
   if (addr < 0x8000) {
+    print_instruction();
     fprintf(stderr,"Cannot write in ROM space\n");
   }
   else {

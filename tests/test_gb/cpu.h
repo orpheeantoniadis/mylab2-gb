@@ -56,4 +56,8 @@ extern registers_t registers;
 #define FLAG_SET(x) (registers.f |= (x))
 #define FLAG_CLEAR(x) (registers.f &= ~(x))
 
+void cycle(void);
+void print_registers(void);
+void print_instruction(void);
+
 #endif

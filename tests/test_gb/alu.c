@@ -152,7 +152,7 @@ static void cp(uint8_t reg, uint8_t val) {
 
 static void push(uint16_t val) {
   registers.sp-=2;
-  write16(val, registers.sp);
+  write16(registers.sp, val);
 }
 
 static void pop(uint16_t *dst) {
@@ -247,8 +247,8 @@ static void srl(uint8_t *reg) {
 }
 
 static void bit(uint8_t reg, uint8_t bit) {
-	if((reg & (1 << bit)) == 0) FLAG_CLEAR(ZERO_FLAG);
-	else FLAG_SET(ZERO_FLAG);
+	if((reg & (1 << bit)) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 	FLAG_CLEAR(NEGATIVE_FLAG);
 	FLAG_SET(HALFCARRY_FLAG);
 }
@@ -359,7 +359,7 @@ void rla(void) {
 }
 
 // 0x18
-void jr_n(uint8_t n) { registers.pc += n; }
+void jr_n(uint8_t n) { registers.pc += (int8_t)n; }
 
 // 0x19
 void add_hl_de(void) { add16(&(registers.hl), registers.de); }
@@ -392,7 +392,7 @@ void rra(void) {
 }
 
 // 0x20
-void jr_nz(uint8_t n) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc += n; }
+void jr_nz(uint8_t n) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc += (int8_t)n; }
 
 // 0x21
 void ld_hl_nn(uint16_t nn) { registers.hl = nn; }
@@ -436,7 +436,7 @@ void daa(void) {
 }
 
 // 0x28
-void jr_z(uint8_t n) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc += n; }
+void jr_z(uint8_t n) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc += (int8_t)n; }
 
 // 0x29
 void add_hl_hl(void) { add16(&(registers.hl), registers.hl); }
@@ -467,7 +467,7 @@ void cpl(void) {
 }
 
 // 0x30
-void jr_nc(uint8_t n) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc += n; }
+void jr_nc(uint8_t n) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc += (int8_t)n; }
 
 // 0x31
 void ld_sp_nn(uint16_t nn) { registers.sp = nn; }
@@ -506,7 +506,7 @@ void scf(void) {
 }
 
 // 0x38
-void jr_c(uint8_t n) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc += n; }
+void jr_c(uint8_t n) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc += (int8_t)n; }
 
 // 0x39
 void add_hl_sp(void) { add16(&(registers.hl), registers.sp); }
