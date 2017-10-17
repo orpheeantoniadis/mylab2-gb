@@ -949,7 +949,7 @@ void jp(uint16_t nn) { registers.pc = nn; }
 // 0xc4
 void call_nz(uint16_t nn) {
   if (!FLAG_ISSET(ZERO_FLAG)) {
-    push(nn);
+    push(registers.pc);
     registers.pc = nn;
   }
 }
@@ -978,14 +978,14 @@ void jp_z(uint16_t nn) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
 // 0xcc
 void call_z(uint16_t nn) {
   if (FLAG_ISSET(ZERO_FLAG)) {
-    push(nn);
+    push(registers.pc);
     registers.pc = nn;
   }
 }
 
 // 0xcd
 void call(uint16_t nn) {
-  push(nn);
+  push(registers.pc);
   registers.pc = nn;
 }
 
@@ -1010,7 +1010,7 @@ void jp_nc(uint16_t nn) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
 // 0xd4
 void call_nc(uint16_t nn) {
   if (!FLAG_ISSET(CARRY_FLAG)) {
-    push(nn);
+    push(registers.pc);
     registers.pc = nn;
   }
 }
@@ -1042,7 +1042,7 @@ void jp_c(uint16_t nn) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
 // 0xdc
 void call_c(uint16_t nn) {
   if (FLAG_ISSET(CARRY_FLAG)) {
-    push(nn);
+    push(registers.pc);
     registers.pc = nn;
   }
 }
