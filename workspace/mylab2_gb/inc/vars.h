@@ -33,19 +33,21 @@
 #include "queue.h"
 #include "semphr.h"
 
-// MyLab_lib libraries
+// myLab2_lib libraries
 #include "gpio.h"
 #include "utils.h"
 #include "lcd.h"
-#include "fat.h"
-#include "sys_call.h"
-#include "marklin.h"
 #include "touchscreen.h"
+
+// gb_lib libraries
+#include "cpu.h"
+#include "memory.h"
 
 #define SLEEP(mseconds)	vTaskDelay(mseconds / portTICK_RATE_MS)
 #define TASK_CREATE(function, name, args, priority) xTaskCreate(function, (signed portCHAR*)name, configMINIMAL_STACK_SIZE, args, priority, NULL)
 
-#define BUFFER_SIZE	255
+//#define BUFFER_SIZE	255
+#define FILENAME	"Tetris.gb"
 
 void gameboy(void *arg);
 void display(void *arg);

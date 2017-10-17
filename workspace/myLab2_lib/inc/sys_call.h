@@ -22,7 +22,7 @@
 
 #define STDOUT				0
 #define	STANDARD_STREAM		0
-#define	FILE_STREAM			9
+#define	FILE_STREAM			0
 #define	NB_STREAM			STANDARD_STREAM + FILE_STREAM
 #define	STREAM_BUFFER_SIZE	BLOCK_LEN * 3
 

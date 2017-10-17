@@ -15,7 +15,10 @@
  * @return 	none
  */
 void display(void *arg) {
-	SLEEP(10);
+	while(1) {
+		lcd_print(LCD_CENTER("Hello World!"), 160, SMALLFONT, LCD_WHITE, LCD_BLACK, "Hello World!");
+		SLEEP(10);
+	}
 }
 
 

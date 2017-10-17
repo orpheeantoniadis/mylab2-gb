@@ -15,5 +15,9 @@
  * @return 	none
  */
 void gameboy(void *arg) {
-	SLEEP(10);
+	load_rom(FILENAME);
+	while(1) {
+		cycle();
+		SLEEP(10);
+	}
 }

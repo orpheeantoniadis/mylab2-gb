@@ -9,6 +9,5 @@ Gameboy emulator on myLab 2
 * [Implementation of the RealBoy Emulator](https://realboyemulator.wordpress.com)
 * [Implementation of the Cinoop emulator](https://cturt.github.io/cinoop.html)
 * [GameBoy emulator in Java](https://github.com/trekawek/coffee-gb)
-* [GameBoy emulator in C++](https://github.com/drhelius/Gearboy)
-* [GameBoy emulator in JavaScript](http://imrannazar.com/GameBoy-Emulation-in-JavaScript)
+* [GameBoy emulator in C++](http://www.codeslinger.co.uk/pages/projects/gameboy.html)
 * [Hello World tutorial for GB](http://peterwynroberts.com/?p=10)
