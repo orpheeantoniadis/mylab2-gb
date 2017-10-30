@@ -6,16 +6,18 @@
 
 #include "cpu.h"
 #include "memory.h"
+#include "lcdc.h"
 
 int main(int argc, char** argv) {
   if (argc == 2) {
     if (load_rom(argv[1]) == 1) return EXIT_FAILURE;
     while(registers.pc < 0x100) {
-      print_instruction();
-      cycle();
-      print_registers();
+      // print_instruction();
+      cpu_cycle();
+      lcdc_cycle();
+      // print_registers();
     }
-    // print_registers();
+    print_registers();
     // print_instructions(memory.ROM, 0x100);
   }
   else {

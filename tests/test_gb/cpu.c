@@ -5,7 +5,7 @@
 
 registers_t registers;
 
-void cycle(void) {
+void cpu_cycle(void) {
 	uint8_t opcode;
 	uint8_t n;
 	uint16_t nn;
