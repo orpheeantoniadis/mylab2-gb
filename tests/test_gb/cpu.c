@@ -11,7 +11,7 @@ void cpu_cycle(void) {
 	uint16_t nn;
 
   opcode = memory.MEM[registers.pc];
-  switch (instruction_set[opcode].operandLength) {
+  switch (instruction_set[opcode].length) {
     case 0 :
 			(registers.pc)++;
       ((void (*)(void))instruction_set[opcode].execute)();
@@ -53,7 +53,7 @@ void print_instruction(void) {
 	uint16_t nn;
 
 	opcode = memory.MEM[registers.pc];
-	switch (instruction_set[opcode].operandLength) {
+	switch (instruction_set[opcode].length) {
 		case 0 :
 			printf("0x%02x : %s (0x%02x)\n", registers.pc, instruction_set[opcode].disassembly, opcode);
 			break;

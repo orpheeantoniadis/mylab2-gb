@@ -5,7 +5,8 @@
 
 typedef struct {
 	char *disassembly;
-	uint8_t operandLength;
+	uint8_t length;
+	uint8_t duration;
 	void *execute;
 } instruction_t;
 
