@@ -5,258 +5,258 @@
 #include "alu.h"
 
 static void inc(uint8_t *reg) {
-  if (((*reg) & 0x0f) == 0x0f) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if (((*reg) & 0x0f) == 0x0f) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  (*reg)++;
+	(*reg)++;
 
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
 }
 
 static void dec(uint8_t *reg) {
-  if (((*reg) & 0x0f) == 0) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if (((*reg) & 0x0f) == 0) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  (*reg)--;
+	(*reg)--;
 
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_SET(NEGATIVE_FLAG);
+	FLAG_SET(NEGATIVE_FLAG);
 }
 
 static void add8(uint8_t *dst, uint8_t val) {
-  if ((((*dst) & 0x0f) + (val & 0x0f)) > 0x0f) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if ((((*dst) & 0x0f) + (val & 0x0f)) > 0x0f) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  if ((0xff - (*dst)) < val) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	if ((0xff - (*dst)) < val) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 
-  (*dst) += val;
+	(*dst) += val;
 
-  if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
 }
 
 static void add16(uint16_t *dst, uint16_t val) {
-  if ((((*dst) & 0x0fff) + (val & 0x0fff)) > 0x0fff) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if ((((*dst) & 0x0fff) + (val & 0x0fff)) > 0x0fff) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  if ((0xffff - (*dst)) < val) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	if ((0xffff - (*dst)) < val) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 
-  (*dst) += val;
+	(*dst) += val;
 
-  FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
 }
 
 static void add_sp(uint16_t *dst, int8_t val) {
-  FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
 
-  if (((((*dst) & 0x0f) + (val & 0x0f)) & 0x10) != 0) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if (((((*dst) & 0x0f) + (val & 0x0f)) & 0x10) != 0) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  if (((((*dst) & 0xff) + (val & 0xff)) & 0x100) != 0) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	if (((((*dst) & 0xff) + (val & 0xff)) & 0x100) != 0) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 
-  (*dst) += val;
+	(*dst) += val;
 }
 
 static void adc(uint8_t *dst, uint8_t val) {
-  uint8_t carry = FLAG_ISSET(CARRY_FLAG) ? 1 : 0;
+	uint8_t carry = FLAG_ISSET(CARRY_FLAG) ? 1 : 0;
 
-  if ((((*dst) & 0x0f) + (val & 0x0f) + carry) > 0x0f) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if ((((*dst) & 0x0f) + (val & 0x0f) + carry) > 0x0f) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  if ((0xff - (*dst)) < (val + carry)) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	if ((0xff - (*dst)) < (val + carry)) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 
-  (*dst) += val + carry;
+	(*dst) += val + carry;
 
-  if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
 }
 
 static void sub(uint8_t *dst, uint8_t val) {
-  if ((val & 0x0f) > ((*dst) & 0x0f)) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if ((val & 0x0f) > ((*dst) & 0x0f)) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  if (val > (*dst)) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	if (val > (*dst)) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 
-  (*dst) -= val;
+	(*dst) -= val;
 
-  if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_SET(NEGATIVE_FLAG);
+	FLAG_SET(NEGATIVE_FLAG);
 }
 
 static void sbc(uint8_t *dst, uint8_t val) {
-  uint8_t carry = FLAG_ISSET(CARRY_FLAG) ? 1 : 0;
+	uint8_t carry = FLAG_ISSET(CARRY_FLAG) ? 1 : 0;
 
-  if (((val + carry) & 0x0f) > ((*dst) & 0x0f)) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if (((val + carry) & 0x0f) > ((*dst) & 0x0f)) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  if ((val + carry) > (*dst)) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	if ((val + carry) > (*dst)) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 
-  (*dst) -= (val + carry);
+	(*dst) -= (val + carry);
 
-  if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_SET(NEGATIVE_FLAG);
+	FLAG_SET(NEGATIVE_FLAG);
 }
 
 static void and(uint8_t *dst, uint8_t val) {
-  (*dst) &= val;
+	(*dst) &= val;
 
-  if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_SET(HALFCARRY_FLAG);
-  FLAG_CLEAR(CARRY_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_SET(HALFCARRY_FLAG);
+	FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void or(uint8_t *dst, uint8_t val) {
-  (*dst) |= val;
+	(*dst) |= val;
 
-  if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  FLAG_CLEAR(CARRY_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void xor(uint8_t *dst, uint8_t val) {
-  (*dst) ^= val;
+	(*dst) ^= val;
 
-  if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  FLAG_CLEAR(CARRY_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void cp(uint8_t reg, uint8_t val) {
-  if ((reg - val) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
+	if ((reg - val) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
 
-  FLAG_SET(NEGATIVE_FLAG);
+	FLAG_SET(NEGATIVE_FLAG);
 
-  if ((val & 0x0f) > (reg & 0x0f)) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+	if ((val & 0x0f) > (reg & 0x0f)) FLAG_SET(HALFCARRY_FLAG);
+	else FLAG_CLEAR(HALFCARRY_FLAG);
 
-  if (val > reg) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	if (val > reg) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void push(uint16_t val) {
-  registers.sp-=2;
-  write16(registers.sp, val);
+	registers.sp-=2;
+	write16(registers.sp, val);
 }
 
 static void pop(uint16_t *dst) {
-  (*dst) = read16(registers.sp);
-  registers.sp+=2;
+	(*dst) = read16(registers.sp);
+	registers.sp+=2;
 }
 
 static void rlc(uint8_t *reg) {
-  uint8_t carry = (*reg) >> 7;
-  (*reg) = ((*reg) << 1) | carry;
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t carry = (*reg) >> 7;
+	(*reg) = ((*reg) << 1) | carry;
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void rrc(uint8_t *reg) {
-  uint8_t carry = (*reg) & 1;
-  (*reg) = ((*reg) >> 1) | (carry << 7);
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t carry = (*reg) & 1;
+	(*reg) = ((*reg) >> 1) | (carry << 7);
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void rl(uint8_t *reg) {
-  uint8_t old_carry = (*reg) >> 7;
-  (*reg) = ((*reg) << 1) | (FLAG_ISSET(CARRY_FLAG) ? 1 : 0);
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (old_carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t old_carry = (*reg) >> 7;
+	(*reg) = ((*reg) << 1) | (FLAG_ISSET(CARRY_FLAG) ? 1 : 0);
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (old_carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void rr(uint8_t *reg) {
-  uint8_t old_carry = (*reg) & 1;
-  (*reg) = ((*reg) >> 1) | ((FLAG_ISSET(CARRY_FLAG) ? 1 : 0) << 7);
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (old_carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t old_carry = (*reg) & 1;
+	(*reg) = ((*reg) >> 1) | ((FLAG_ISSET(CARRY_FLAG) ? 1 : 0) << 7);
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (old_carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void sla(uint8_t *reg) {
-  uint8_t carry = (*reg) >> 7;
-  (*reg) = ((*reg) << 1);
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t carry = (*reg) >> 7;
+	(*reg) = ((*reg) << 1);
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void sra(uint8_t *reg) {
-  uint8_t carry = (*reg) & 1;
-  (*reg) = ((*reg) & (1 << 7)) | (*reg) >> 1;
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t carry = (*reg) & 1;
+	(*reg) = ((*reg) & (1 << 7)) | (*reg) >> 1;
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void swap(uint8_t *reg) {
 	(*reg) = (((*reg) & 0xf) << 4) | (((*reg) & 0xf0) >> 4);
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  FLAG_CLEAR(CARRY_FLAG);
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void srl(uint8_t *reg) {
-  uint8_t carry = (*reg) & 1;
-  (*reg) = (*reg) >> 1;
-  if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t carry = (*reg) & 1;
+	(*reg) = (*reg) >> 1;
+	if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 static void bit(uint8_t reg, uint8_t bit) {
@@ -295,14 +295,14 @@ void ld_b_n(uint8_t n) { registers.b = n; }
 
 // 0x07
 void rlca(void) {
-  uint8_t carry = registers.a >> 7;
-  registers.a = (registers.a << 1) | carry;
-  if (registers.a == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t carry = registers.a >> 7;
+	registers.a = (registers.a << 1) | carry;
+	if (registers.a == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 // 0x08
@@ -328,14 +328,14 @@ void ld_c_n(uint8_t n) { registers.c = n; }
 
 // 0x0f
 void rrca(void) {
-  uint8_t carry = registers.a & 1;
-  registers.a = (registers.a >> 1) | (carry << 7);
-  if (registers.a == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t carry = registers.a & 1;
+	registers.a = (registers.a >> 1) | (carry << 7);
+	if (registers.a == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 // 0x10
@@ -361,14 +361,14 @@ void ld_d_n(uint8_t n) { registers.d = n; }
 
 // 0x17
 void rla(void) {
-  uint8_t old_carry = registers.a >> 7;
-  registers.a = (registers.a << 1) | (FLAG_ISSET(CARRY_FLAG) ? 1 : 0);
-  if (registers.a == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (old_carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t old_carry = registers.a >> 7;
+	registers.a = (registers.a << 1) | (FLAG_ISSET(CARRY_FLAG) ? 1 : 0);
+	if (registers.a == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (old_carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 // 0x18
@@ -394,18 +394,24 @@ void ld_e_n(uint8_t n) { registers.e = n; }
 
 // 0x1f
 void rra(void) {
-  uint8_t old_carry = registers.a & 1;
-  registers.a = (registers.a >> 1) | ((FLAG_ISSET(CARRY_FLAG) ? 1 : 0) << 7);
-  if (registers.a == 0) FLAG_SET(ZERO_FLAG);
-  else FLAG_CLEAR(ZERO_FLAG);
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (old_carry) FLAG_SET(CARRY_FLAG);
-  else FLAG_CLEAR(CARRY_FLAG);
+	uint8_t old_carry = registers.a & 1;
+	registers.a = (registers.a >> 1) | ((FLAG_ISSET(CARRY_FLAG) ? 1 : 0) << 7);
+	if (registers.a == 0) FLAG_SET(ZERO_FLAG);
+	else FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (old_carry) FLAG_SET(CARRY_FLAG);
+	else FLAG_CLEAR(CARRY_FLAG);
 }
 
 // 0x20
-void jr_nz(uint8_t n) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc += (int8_t)n; }
+uint8_t jr_nz(uint8_t n) {
+	if (!FLAG_ISSET(ZERO_FLAG)) {
+		registers.pc += (int8_t)n;
+		return 12;
+	}
+	return 8;
+}
 
 // 0x21
 void ld_hl_nn(uint16_t nn) { registers.hl = nn; }
@@ -430,7 +436,7 @@ void ld_h_n(uint8_t n) { registers.h = n; }
 
 // 0x27
 void daa(void) {
-  uint16_t result = registers.a;
+	uint16_t result = registers.a;
 
 	if(FLAG_ISSET(NEGATIVE_FLAG)) {
 		if(FLAG_ISSET(HALFCARRY_FLAG)) result = (result - 6) & 0xff;
@@ -440,24 +446,30 @@ void daa(void) {
 		if(FLAG_ISSET(HALFCARRY_FLAG) || (result & 0xf) > 9) result += 6;
 		if(FLAG_ISSET(CARRY_FLAG) || result > 0x9f) result += 0x60;
 	}
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if(result) FLAG_CLEAR(ZERO_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if(result) FLAG_CLEAR(ZERO_FLAG);
 	else FLAG_SET(ZERO_FLAG);
 	if(result > 0xff) FLAG_SET(CARRY_FLAG);
 
-  registers.a = result;
+	registers.a = result;
 }
 
 // 0x28
-void jr_z(uint8_t n) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc += (int8_t)n; }
+uint8_t jr_z(uint8_t n) {
+	if (FLAG_ISSET(ZERO_FLAG)) {
+		registers.pc += (int8_t)n;
+		return 12;
+	}
+	return 8;
+}
 
 // 0x29
 void add_hl_hl(void) { add16(&(registers.hl), registers.hl); }
 
 // 0x2a
 void ldi_a_hlp(void) {
-  registers.a = read8(registers.hl);
-  registers.hl++;
+	registers.a = read8(registers.hl);
+	registers.hl++;
 }
 
 // 0x2b
@@ -474,21 +486,27 @@ void ld_l_n(uint8_t n) { registers.l = n; }
 
 // 0x2f
 void cpl(void) {
-  registers.a = ~(registers.a);
-  FLAG_SET(NEGATIVE_FLAG);
-  FLAG_SET(HALFCARRY_FLAG);
+	registers.a = ~(registers.a);
+	FLAG_SET(NEGATIVE_FLAG);
+	FLAG_SET(HALFCARRY_FLAG);
 }
 
 // 0x30
-void jr_nc(uint8_t n) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc += (int8_t)n; }
+uint8_t jr_nc(uint8_t n) {
+	if (!FLAG_ISSET(CARRY_FLAG)) {
+		registers.pc += (int8_t)n;
+		return 12;
+	}
+	return 8;
+}
 
 // 0x31
 void ld_sp_nn(uint16_t nn) { registers.sp = nn; }
 
 // 0x32
 void ldd_hlp_a(void) {
-  write8(registers.hl, registers.a);
-  registers.hl--;
+	write8(registers.hl, registers.a);
+	registers.hl--;
 }
 
 // 0x33
@@ -496,16 +514,16 @@ void inc_sp(void) { registers.sp++; }
 
 // 0x34
 void inc_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  inc(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	inc(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x35
 void dec_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  dec(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	dec(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x36
@@ -513,21 +531,27 @@ void ld_hlp_n(uint8_t n) { write8(registers.hl, n); }
 
 // 0x37
 void scf(void) {
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  FLAG_SET(CARRY_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	FLAG_SET(CARRY_FLAG);
 }
 
 // 0x38
-void jr_c(uint8_t n) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc += (int8_t)n; }
+uint8_t jr_c(uint8_t n) {
+	if (FLAG_ISSET(CARRY_FLAG)) {
+		registers.pc += (int8_t)n;
+		return 12;
+	}
+	return 8;
+}
 
 // 0x39
 void add_hl_sp(void) { add16(&(registers.hl), registers.sp); }
 
 // 0x3a
 void ldd_a_hlp(void) {
-  registers.a = read8(registers.hl);
-  registers.hl--;
+	registers.a = read8(registers.hl);
+	registers.hl--;
 }
 
 // 0x3b
@@ -544,10 +568,10 @@ void ld_a_n(uint8_t n) { registers.a = n; }
 
 // 0x3f
 void cff(void) {
-  FLAG_CLEAR(NEGATIVE_FLAG);
-  FLAG_CLEAR(HALFCARRY_FLAG);
-  if (FLAG_ISSET(CARRY_FLAG)) FLAG_CLEAR(CARRY_FLAG);
-  else FLAG_SET(CARRY_FLAG);
+	FLAG_CLEAR(NEGATIVE_FLAG);
+	FLAG_CLEAR(HALFCARRY_FLAG);
+	if (FLAG_ISSET(CARRY_FLAG)) FLAG_CLEAR(CARRY_FLAG);
+	else FLAG_SET(CARRY_FLAG);
 }
 
 // 0x40
@@ -935,23 +959,37 @@ void cp_hlp(void) { cp(registers.a, read8(registers.hl)); }
 void cp_a(void) { cp(registers.a, registers.a); }
 
 // 0xc0
-void ret_nz(void) { if (!FLAG_ISSET(ZERO_FLAG)) pop(&(registers.pc)); }
+uint8_t ret_nz(void) {
+	if (!FLAG_ISSET(ZERO_FLAG)) {
+		pop(&(registers.pc));
+		return 20;
+	}
+	return 8;
+}
 
 // 0xc1
 void pop_bc(void) { pop(&(registers.bc)); }
 
 // 0xc2
-void jp_nz(uint16_t nn) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
+uint8_t jp_nz(uint16_t nn) {
+	if (!FLAG_ISSET(ZERO_FLAG)) {
+		registers.pc = nn;
+		return 16;
+	}
+	return 12;
+}
 
 // 0xc3
 void jp(uint16_t nn) { registers.pc = nn; }
 
 // 0xc4
-void call_nz(uint16_t nn) {
-  if (!FLAG_ISSET(ZERO_FLAG)) {
-    push(registers.pc);
-    registers.pc = nn;
-  }
+uint8_t call_nz(uint16_t nn) {
+	if (!FLAG_ISSET(ZERO_FLAG)) {
+		push(registers.pc);
+		registers.pc = nn;
+		return 24;
+	}
+	return 12;
 }
 
 // 0xc5
@@ -962,31 +1000,45 @@ void add_a_n(uint8_t n) { add8(&(registers.a), n); }
 
 // 0xc7
 void rst_00h(void) {
-  push(registers.pc);
-  registers.pc = 0x00;
+	push(registers.pc);
+	registers.pc = 0x00;
 }
 
 // 0xc8
-void ret_z(void) { if (FLAG_ISSET(ZERO_FLAG)) pop(&(registers.pc)); }
+uint8_t ret_z(void) {
+	if (FLAG_ISSET(ZERO_FLAG)) {
+		pop(&(registers.pc));
+		return 20;
+	}
+	return 8;
+}
 
 // 0xc9
 void ret(void) { pop(&(registers.pc)); }
 
 // 0xca
-void jp_z(uint16_t nn) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
+uint8_t jp_z(uint16_t nn) {
+	if (FLAG_ISSET(ZERO_FLAG)) {
+		registers.pc = nn;
+		return 16;
+	}
+	return 12;
+}
 
 // 0xcc
-void call_z(uint16_t nn) {
-  if (FLAG_ISSET(ZERO_FLAG)) {
-    push(registers.pc);
-    registers.pc = nn;
-  }
+uint8_t call_z(uint16_t nn) {
+	if (FLAG_ISSET(ZERO_FLAG)) {
+		push(registers.pc);
+		registers.pc = nn;
+		return 24;
+	}
+	return 12;
 }
 
 // 0xcd
 void call(uint16_t nn) {
-  push(registers.pc);
-  registers.pc = nn;
+	push(registers.pc);
+	registers.pc = nn;
 }
 
 // 0xce
@@ -994,25 +1046,39 @@ void adc_n(uint8_t n) { adc(&(registers.a), n); }
 
 // 0xcf
 void rst_08h(void) {
-  push(registers.pc);
-  registers.pc = 0x08;
+	push(registers.pc);
+	registers.pc = 0x08;
 }
 
 // 0xd0
-void ret_nc(void) { if (!FLAG_ISSET(CARRY_FLAG)) pop(&(registers.pc)); }
+uint8_t ret_nc(void) {
+	if (!FLAG_ISSET(CARRY_FLAG)) {
+		pop(&(registers.pc));
+		return 20;
+	}
+	return 8;
+}
 
 // 0xd1
 void pop_de(void) { pop(&(registers.de)); }
 
 // 0xd2
-void jp_nc(uint16_t nn) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
+uint8_t jp_nc(uint16_t nn) {
+	if (!FLAG_ISSET(CARRY_FLAG)) {
+		registers.pc = nn;
+		return 16;
+	}
+	return 12;
+}
 
 // 0xd4
-void call_nc(uint16_t nn) {
-  if (!FLAG_ISSET(CARRY_FLAG)) {
-    push(registers.pc);
-    registers.pc = nn;
-  }
+uint8_t call_nc(uint16_t nn) {
+	if (!FLAG_ISSET(CARRY_FLAG)) {
+		push(registers.pc);
+		registers.pc = nn;
+		return 24;
+	}
+	return 12;
 }
 
 // 0xd5
@@ -1023,28 +1089,42 @@ void sub_n(uint8_t n) { sub(&(registers.a), n); }
 
 // 0xd7
 void rst_10h(void) {
-  push(registers.pc);
-  registers.pc = 0x10;
+	push(registers.pc);
+	registers.pc = 0x10;
 }
 
 // 0xd8
-void ret_c(void) { if (FLAG_ISSET(CARRY_FLAG)) pop(&(registers.pc)); }
+uint8_t ret_c(void) {
+	if (FLAG_ISSET(CARRY_FLAG)) {
+		pop(&(registers.pc));
+		return 20;
+	}
+	return 8;
+}
 
 // 0xd9
 void reti(void) {
-  pop(&(registers.pc));
-  // enable interrupts
+	pop(&(registers.pc));
+	// enable interrupts
 }
 
 // 0xda
-void jp_c(uint16_t nn) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
+uint8_t jp_c(uint16_t nn) {
+	if (FLAG_ISSET(CARRY_FLAG)) {
+		registers.pc = nn;
+		return 16;
+	}
+	return 12;
+}
 
 // 0xdc
-void call_c(uint16_t nn) {
-  if (FLAG_ISSET(CARRY_FLAG)) {
-    push(registers.pc);
-    registers.pc = nn;
-  }
+uint8_t call_c(uint16_t nn) {
+	if (FLAG_ISSET(CARRY_FLAG)) {
+		push(registers.pc);
+		registers.pc = nn;
+		return 24;
+	}
+	return 12;
 }
 
 // 0xde
@@ -1052,8 +1132,8 @@ void sbc_n(uint8_t n) { sbc(&(registers.a), n); }
 
 // 0xdf
 void rst_18h(void) {
-  push(registers.pc);
-  registers.pc = 0x18;
+	push(registers.pc);
+	registers.pc = 0x18;
 }
 
 // 0xe0
@@ -1073,8 +1153,8 @@ void and_n(uint8_t n) { and(&(registers.a), n ); }
 
 // 0xe7
 void rst_20h(void) {
-  push(registers.pc);
-  registers.pc = 0x20;
+	push(registers.pc);
+	registers.pc = 0x20;
 }
 
 // 0xe8
@@ -1091,8 +1171,8 @@ void xor_n(uint8_t n) { xor(&(registers.a), n); }
 
 //0xef
 void rst_28h(void) {
-  push(registers.pc);
-  registers.pc = 0x28;
+	push(registers.pc);
+	registers.pc = 0x28;
 }
 
 // 0xf0
@@ -1115,8 +1195,8 @@ void or_n(uint8_t n) { or(&(registers.a), n); }
 
 // 0xf7
 void rst_30h(void) {
-  push(registers.pc);
-  registers.pc = 0x30;
+	push(registers.pc);
+	registers.pc = 0x30;
 }
 
 // 0xf8
@@ -1136,8 +1216,8 @@ void cp_n(uint8_t n) { cp(registers.a, n); }
 
 //0xff
 void rst_38h(void) {
-  push(registers.pc);
-  registers.pc = 0x38;
+	push(registers.pc);
+	registers.pc = 0x38;
 }
 
 /**** prefix cb ****/
@@ -1162,9 +1242,9 @@ void rlc_l(void) { rlc(&(registers.l)); }
 
 // 0x06
 void rlc_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  rlc(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	rlc(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x07
@@ -1190,9 +1270,9 @@ void rrc_l(void) { rrc(&(registers.l)); }
 
 // 0x0e
 void rrc_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  rrc(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	rrc(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x0f
@@ -1218,9 +1298,9 @@ void rl_l(void) { rl(&(registers.l)); }
 
 // 0x16
 void rl_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  rl(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	rl(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x17
@@ -1246,9 +1326,9 @@ void rr_l(void) { rr(&(registers.l)); }
 
 // 0x1e
 void rr_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  rr(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	rr(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x1f
@@ -1274,9 +1354,9 @@ void sla_l(void) { sla(&(registers.l)); }
 
 // 0x26
 void sla_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  sla(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	sla(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x27
@@ -1302,9 +1382,9 @@ void sra_l(void) { sra(&(registers.l)); }
 
 // 0x2e
 void sra_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  sra(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	sra(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x2f
@@ -1330,9 +1410,9 @@ void swap_l(void) { swap(&(registers.l)); }
 
 // 0x36
 void swap_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  swap(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	swap(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x37
@@ -1358,9 +1438,9 @@ void srl_l(void) { srl(&(registers.l)); }
 
 // 0x3e
 void srl_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  srl(&temp);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	srl(&temp);
+	write8(registers.hl, temp);
 }
 
 // 0x3f
@@ -1578,9 +1658,9 @@ void res_0_l(void) { res(&(registers.l), 0); }
 
 // 0x86
 void res_0_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  res(&temp, 0);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	res(&temp, 0);
+	write8(registers.hl, temp);
 }
 
 // 0x87
@@ -1606,9 +1686,9 @@ void res_1_l(void) { res(&(registers.l), 1); }
 
 // 0x8e
 void res_1_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  res(&temp, 1);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	res(&temp, 1);
+	write8(registers.hl, temp);
 }
 
 // 0x8f
@@ -1634,9 +1714,9 @@ void res_2_l(void) { res(&(registers.l), 2); }
 
 // 0x96
 void res_2_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  res(&temp, 2);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	res(&temp, 2);
+	write8(registers.hl, temp);
 }
 
 // 0x97
@@ -1662,9 +1742,9 @@ void res_3_l(void) { res(&(registers.l), 3); }
 
 // 0x9e
 void res_3_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  res(&temp, 3);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	res(&temp, 3);
+	write8(registers.hl, temp);
 }
 
 // 0x9f
@@ -1690,9 +1770,9 @@ void res_4_l(void) { res(&(registers.l), 4); }
 
 // 0xa6
 void res_4_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  res(&temp, 4);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	res(&temp, 4);
+	write8(registers.hl, temp);
 }
 
 // 0xa7
@@ -1718,9 +1798,9 @@ void res_5_l(void) { res(&(registers.l), 5); }
 
 // 0xae
 void res_5_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  res(&temp, 5);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	res(&temp, 5);
+	write8(registers.hl, temp);
 }
 
 // 0xaf
@@ -1746,9 +1826,9 @@ void res_6_l(void) { res(&(registers.l), 6); }
 
 // 0xb6
 void res_6_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  res(&temp, 6);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	res(&temp, 6);
+	write8(registers.hl, temp);
 }
 
 // 0xb7
@@ -1774,9 +1854,9 @@ void res_7_l(void) { res(&(registers.l), 7); }
 
 // 0xbe
 void res_7_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  res(&temp, 7);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	res(&temp, 7);
+	write8(registers.hl, temp);
 }
 
 // 0xbf
@@ -1802,9 +1882,9 @@ void set_0_l(void) { set(&(registers.l), 0); }
 
 // 0xc6
 void set_0_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  set(&temp, 0);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	set(&temp, 0);
+	write8(registers.hl, temp);
 }
 
 // 0xc7
@@ -1830,9 +1910,9 @@ void set_1_l(void) { set(&(registers.l), 1); }
 
 // 0xce
 void set_1_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  set(&temp, 1);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	set(&temp, 1);
+	write8(registers.hl, temp);
 }
 
 // 0xcf
@@ -1858,9 +1938,9 @@ void set_2_l(void) { set(&(registers.l), 2); }
 
 // 0xd6
 void set_2_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  set(&temp, 2);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	set(&temp, 2);
+	write8(registers.hl, temp);
 }
 
 // 0xd7
@@ -1886,9 +1966,9 @@ void set_3_l(void) { set(&(registers.l), 3); }
 
 // 0xde
 void set_3_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  set(&temp, 3);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	set(&temp, 3);
+	write8(registers.hl, temp);
 }
 
 // 0xdf
@@ -1914,9 +1994,9 @@ void set_4_l(void) { set(&(registers.l), 4); }
 
 // 0xe6
 void set_4_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  set(&temp, 4);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	set(&temp, 4);
+	write8(registers.hl, temp);
 }
 
 // 0xe7
@@ -1942,9 +2022,9 @@ void set_5_l(void) { set(&(registers.l), 5); }
 
 // 0xee
 void set_5_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  set(&temp, 5);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	set(&temp, 5);
+	write8(registers.hl, temp);
 }
 
 // 0xef
@@ -1970,9 +2050,9 @@ void set_6_l(void) { set(&(registers.l), 6); }
 
 // 0xf6
 void set_6_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  set(&temp, 6);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	set(&temp, 6);
+	write8(registers.hl, temp);
 }
 
 // 0xf7
@@ -1998,9 +2078,9 @@ void set_7_l(void) { set(&(registers.l), 7); }
 
 // 0xfe
 void set_7_hlp(void) {
-  uint8_t temp = read8(registers.hl);
-  set(&temp, 7);
-  write8(registers.hl, temp);
+	uint8_t temp = read8(registers.hl);
+	set(&temp, 7);
+	write8(registers.hl, temp);
 }
 
 // 0xff

@@ -8,6 +8,7 @@ typedef struct {
 	uint8_t length;
 	uint8_t duration;
 	void *execute;
+	uint8_t conditional_duration;
 } instruction_t;
 
 extern const instruction_t instruction_set[256];

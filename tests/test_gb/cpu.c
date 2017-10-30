@@ -5,45 +5,71 @@
 
 registers_t registers;
 
-void cpu_cycle(void) {
+uint8_t cpu_cycle(void) {
 	uint8_t opcode;
 	uint8_t n;
 	uint16_t nn;
+	uint8_t cycles = 0;
 
-  opcode = memory.MEM[registers.pc];
-  switch (instruction_set[opcode].length) {
-    case 0 :
+	opcode = memory.MEM[registers.pc];
+	switch (instruction_set[opcode].length) {
+		case 0 :
 			(registers.pc)++;
-      ((void (*)(void))instruction_set[opcode].execute)();
-      break;
-    case 1 :
-      n = memory.MEM[registers.pc+1];
+			if (instruction_set[opcode].conditional_duration == 0) {
+				((void (*)(void))instruction_set[opcode].execute)();
+				cycles = instruction_set[opcode].duration;
+			}
+			else {
+				cycles = ((uint8_t (*)(void))instruction_set[opcode].execute)();
+			}
+			break;
+		case 1 :
+			n = memory.MEM[registers.pc+1];
 			(registers.pc)+=2;
-      if (opcode == 0xcb) ((void (*)(void))prefix_cb[n].execute)();
-      else ((void (*)(uint8_t))instruction_set[opcode].execute)(n);
-      break;
-    case 2 :
-      nn = memory.MEM[registers.pc+1] | (memory.MEM[registers.pc+2] << 8);
+			if (opcode == 0xcb) {
+				((void (*)(void))prefix_cb[n].execute)();
+				cycles = instruction_set[opcode].duration;
+				cycles += prefix_cb[n].duration;
+			}
+			else {
+				if (instruction_set[opcode].conditional_duration == 0) {
+					((void (*)(uint8_t))instruction_set[opcode].execute)(n);
+					cycles = instruction_set[opcode].duration;
+				}
+				else {
+					cycles = ((uint8_t (*)(uint8_t))instruction_set[opcode].execute)(n);
+				}
+			}
+			break;
+		case 2 :
+			nn = memory.MEM[registers.pc+1] | (memory.MEM[registers.pc+2] << 8);
 			(registers.pc)+=3;
-      ((void (*)(uint16_t))instruction_set[opcode].execute)(nn);
-      break;
-    default : break;
-  }
+			if (instruction_set[opcode].conditional_duration == 0) {
+				((void (*)(uint16_t))instruction_set[opcode].execute)(nn);
+				cycles = instruction_set[opcode].duration;
+			}
+			else {
+				cycles = ((uint8_t (*)(uint16_t))instruction_set[opcode].execute)(nn);
+			}
+			break;
+		default : break;
+	}
+	return cycles;
 }
 
 void print_registers(void) {
   printf("AF : 0x%04x\n"
-          "BC : 0x%04x\n"
-          "DE : 0x%04x\n"
-          "HL : 0x%04x\n"
-          "SP : 0x%04x\n"
-          "PC : 0x%04x\n"
-          "Z|N|H|C : %d|%d|%d|%d\n\n",
-          registers.af, registers.bc,
-          registers.de, registers.hl,
-          registers.sp, registers.pc,
-          FLAG_ISSET(ZERO_FLAG) ? 1 : 0, FLAG_ISSET(NEGATIVE_FLAG) ? 1 : 0,
-          FLAG_ISSET(HALFCARRY_FLAG) ? 1 : 0, FLAG_ISSET(CARRY_FLAG) ? 1 : 0);
+         "BC : 0x%04x\n"
+         "DE : 0x%04x\n"
+         "HL : 0x%04x\n"
+         "SP : 0x%04x\n"
+         "PC : 0x%04x\n"
+         "Z|N|H|C : %d|%d|%d|%d\n\n",
+         registers.af, registers.bc,
+         registers.de, registers.hl,
+         registers.sp, registers.pc,
+      	FLAG_ISSET(ZERO_FLAG) ? 1 : 0, FLAG_ISSET(NEGATIVE_FLAG) ? 1 : 0,
+         FLAG_ISSET(HALFCARRY_FLAG) ? 1 : 0, FLAG_ISSET(CARRY_FLAG) ? 1 : 0);
 }
 
 void print_instruction(void) {
