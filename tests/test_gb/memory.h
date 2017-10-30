@@ -57,7 +57,7 @@ typedef struct {
 } __attribute((packed)) memory_t;
 extern memory_t memory;
 
-void load_rom(char *fiSPACEame);
+uint8_t load_rom(char *filename);
 uint8_t read8(uint16_t addr);
 void write8(uint16_t addr, uint8_t val);
 uint16_t read16(uint16_t addr);

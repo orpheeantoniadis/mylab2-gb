@@ -10,7 +10,7 @@
 #define VRAM_SPACE      0x2000
 #define EXT_RAM_SPACE   0x2000
 #define WRAM_SPACE      0x2000
-#define WRAM_ECHO_SPACE 0x2000
+#define WRAM_ECHO_SPACE 0x1800
 #define OAM_SPACE       0x100
 #define IO_SPACE        0x80
 #define HRAM_SPACE      0x7F

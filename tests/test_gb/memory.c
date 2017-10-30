@@ -38,12 +38,12 @@ memory_t memory = {.bootstrap = { 0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32
                                 }
                   };
 
-void load_rom(char *filename) {
+uint8_t load_rom(char *filename) {
   FILE *rom;
   int cnt = 0;
   if ((rom = fopen(filename,"r")) == NULL) {
     fprintf(stderr,"File not found\n");
-    return;
+    return 1;
   }
   fseek(rom, 0x100, SEEK_SET);
   // while (!feof(rom)) {
@@ -52,6 +52,7 @@ void load_rom(char *filename) {
     cnt++;
   }
   fclose(rom);
+  return 0;
 }
 
 uint8_t read8(uint16_t addr) {

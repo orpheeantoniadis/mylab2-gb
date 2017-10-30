@@ -11,9 +11,9 @@
 #include "vars.h"
 
 void init_project(void) {
-	init_touchscreen();
-	init_lcd();
-	clear_screen(LCD_BLACK);
+	//init_touchscreen();
+	//init_lcd();
+	//clear_screen(LCD_BLACK);
 }
 
 int main(void) {

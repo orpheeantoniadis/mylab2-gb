@@ -40,8 +40,8 @@
 #include "touchscreen.h"
 
 // gb_lib libraries
-#include "cpu.h"
-#include "memory.h"
+//#include "cpu.h"
+//#include "memory.h"
 
 #define SLEEP(mseconds)	vTaskDelay(mseconds / portTICK_RATE_MS)
 #define TASK_CREATE(function, name, args, priority) xTaskCreate(function, (signed portCHAR*)name, configMINIMAL_STACK_SIZE, args, priority, NULL)

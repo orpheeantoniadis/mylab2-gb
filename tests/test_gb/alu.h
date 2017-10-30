@@ -1,6 +1,8 @@
 #ifndef _ALU_H
 #define _ALU_H
 
+#include <stdint.h>
+
 // instruction set
 void nop(void);                           // 0x00
 void ld_bc_nn(uint16_t nn);               // 0x01

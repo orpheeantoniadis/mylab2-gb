@@ -9,7 +9,7 @@
 
 int main(int argc, char** argv) {
   if (argc == 2) {
-    load_rom(argv[1]);
+    if (load_rom(argv[1]) == 1) return EXIT_FAILURE;
     while(registers.pc < 0x100) {
       print_instruction();
       cycle();
