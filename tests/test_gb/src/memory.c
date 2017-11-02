@@ -64,6 +64,7 @@ void write8(uint16_t addr, uint8_t val) {
 		print_instruction();
 		fprintf(stderr,"Cannot write in ROM space\n");
 	}
+	else if (addr == 0xff04) memory.MEM[addr] = 0;
 	else if (addr == 0xff44) memory.MEM[addr] = 0;
 	else memory.MEM[addr] = val;
 }
