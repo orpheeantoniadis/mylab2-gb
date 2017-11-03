@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "commands.h"
 #include "alu.h"
+#include "interrupts.h"
 
 typedef struct {
 	struct {

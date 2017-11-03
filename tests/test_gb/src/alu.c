@@ -163,12 +163,12 @@ static void cp(uint8_t reg, uint8_t val) {
 	else FLAG_CLEAR(CARRY_FLAG);
 }
 
-static void push(uint16_t val) {
+void push(uint16_t val) {
 	registers.sp-=2;
 	write16(registers.sp, val);
 }
 
-static void pop(uint16_t *dst) {
+void pop(uint16_t *dst) {
 	(*dst) = read16(registers.sp);
 	registers.sp+=2;
 }
@@ -1185,7 +1185,7 @@ void pop_af(void) { pop(&(registers.af)); }
 void ldh_a_cp(void) { registers.a = read8(0xff00 + registers.c); }
 
 // 0xf3
-void di(void) {  }
+void di(void) { interrupt_master = 0; }
 
 // 0xf5
 void push_af(void) { push(registers.af); }
@@ -1209,7 +1209,7 @@ void ld_sp_hl(void) { registers.sp = registers.hl; }
 void ld_a_nnp(uint16_t nn) { registers.a = read8(nn); }
 
 // 0xfb
-void ei(void) {  }
+void ei(void) { interrupt_master = 1; }
 
 // 0xfe
 void cp_n(uint8_t n) { cp(registers.a, n); }

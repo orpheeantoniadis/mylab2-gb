@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+void push(uint16_t val);
+void pop(uint16_t *dst);
+
 // instruction set
 void nop(void);                           // 0x00
 void ld_bc_nn(uint16_t nn);               // 0x01

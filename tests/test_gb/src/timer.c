@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "interrupts.h"
 #include "timer.h"
 
 static uint16_t timer_cycles_counter = 1024;
@@ -20,6 +21,7 @@ void timer_cycle(uint8_t cycles) {
 			set_frequency();
 			if (read8(TIMA) == TIMER_OVERFLOW) {
 				write8(TIMA, read8(TMA));
+				interrupt_request(IR_TIMER);
 			}
 			else {
 				write8(TIMA, read8(TIMA) + 1);

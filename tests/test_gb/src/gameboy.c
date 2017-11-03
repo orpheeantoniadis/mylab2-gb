@@ -8,6 +8,7 @@
 #include "memory.h"
 #include "lcd.h"
 #include "timer.h"
+#include "interrupts.h"
 
 int main(int argc, char** argv) {
 	uint8_t cycles;
@@ -19,6 +20,7 @@ int main(int argc, char** argv) {
 			cycles = cpu_cycle();
 			lcd_cycle(cycles);
 			timer_cycle(cycles);
+			interrupts_cycle();
 			// print_registers();
 		}
 		print_registers();
