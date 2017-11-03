@@ -5,7 +5,7 @@
 static uint16_t timer_cycles_counter = 1024;
 static uint8_t divider_cycles_counter = 255;
 
-void set_frequency(void) {
+static void set_frequency(void) {
 	switch (read8(TAC) & 0b11) {
 		case 0: timer_cycles_counter = 1024; break;	// CLOCKSPEED / 4096
 		case 1: timer_cycles_counter = 16; break;		// CLOCKSPEED / 262144

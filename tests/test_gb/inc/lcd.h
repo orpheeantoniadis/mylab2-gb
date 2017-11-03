@@ -13,6 +13,8 @@
 #define LY		0xff44
 #define LYC		0xff45
 
+#define LCD_IS_ENABLE()	((read8(LCDC) >> 7) & 1)
+
 void lcd_cycle(uint8_t cycles);
 
 #endif

@@ -11,7 +11,7 @@ uint8_t cpu_cycle(void) {
 	uint16_t nn;
 	uint8_t cycles = 0;
 
-	opcode = memory.MEM[registers.pc];
+	opcode = read8(registers.pc);
 	switch (instruction_set[opcode].length) {
 		case 0 :
 			(registers.pc)++;
@@ -24,7 +24,7 @@ uint8_t cpu_cycle(void) {
 			}
 			break;
 		case 1 :
-			n = memory.MEM[registers.pc+1];
+			n = read8(registers.pc+1);
 			(registers.pc)+=2;
 			if (opcode == 0xcb) {
 				((void (*)(void))prefix_cb[n].execute)();
@@ -42,7 +42,7 @@ uint8_t cpu_cycle(void) {
 			}
 			break;
 		case 2 :
-			nn = memory.MEM[registers.pc+1] | (memory.MEM[registers.pc+2] << 8);
+			nn = read16(registers.pc+1);
 			(registers.pc)+=3;
 			if (instruction_set[opcode].conditional_duration == 0) {
 				((void (*)(uint16_t))instruction_set[opcode].execute)(nn);
@@ -78,13 +78,13 @@ void print_instruction(void) {
 	uint8_t n;
 	uint16_t nn;
 
-	opcode = memory.MEM[registers.pc];
+	opcode = read8(registers.pc);
 	switch (instruction_set[opcode].length) {
 		case 0 :
 			printf("0x%02x : %s (0x%02x)\n", registers.pc, instruction_set[opcode].disassembly, opcode);
 			break;
 		case 1 :
-			n = memory.MEM[registers.pc+1];
+			n = read8(registers.pc+1);
 			if (opcode == 0xcb) {
 				printf("0x%02x : %s (0x%02x 0x%02x)\n", registers.pc, prefix_cb[n].disassembly, opcode, n);
 			} else {
@@ -93,7 +93,7 @@ void print_instruction(void) {
 			}
 			break;
 		case 2 :
-			nn = memory.MEM[registers.pc+1] | (memory.MEM[registers.pc+2] << 8);
+			nn = read16(registers.pc+1);
 			sprintf(buffer, instruction_set[opcode].disassembly, nn);
 			printf("0x%02x : %s (0x%02x)\n", registers.pc, buffer, opcode);
 			break;
