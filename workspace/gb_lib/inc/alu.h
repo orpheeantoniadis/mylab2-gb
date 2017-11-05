@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+void push(uint16_t val);
+void pop(uint16_t *dst);
+
 // instruction set
 void nop(void);                           // 0x00
 void ld_bc_nn(uint16_t nn);               // 0x01
@@ -36,7 +39,7 @@ void inc_e(void);                         // 0x1c
 void dec_e(void);                         // 0x1d
 void ld_e_n(uint8_t n);                   // 0x1e
 void rra(void);                           // 0x1f
-void jr_nz(uint8_t n);                    // 0x20
+uint8_t jr_nz(uint8_t n);                 // 0x20
 void ld_hl_nn(uint16_t nn);               // 0x21
 void ldi_hlp_a(void);                     // 0x22
 void inc_hl(void);                        // 0x23
@@ -44,7 +47,7 @@ void inc_h(void);                         // 0x24
 void dec_h(void);                         // 0x25
 void ld_h_n(uint8_t n);                   // 0x26
 void daa(void);                           // 0x27
-void jr_z(uint8_t n);                     // 0x28
+uint8_t jr_z(uint8_t n);                  // 0x28
 void add_hl_hl(void);                     // 0x29
 void ldi_a_hlp(void);                     // 0x2a
 void dec_hl(void);                        // 0x2b
@@ -52,7 +55,7 @@ void inc_l(void);                         // 0x2c
 void dec_l(void);                         // 0x2d
 void ld_l_n(uint8_t n);                   // 0x2e
 void cpl(void);                           // 0x2f
-void jr_nc(uint8_t n);                    // 0x30
+uint8_t jr_nc(uint8_t n);                 // 0x30
 void ld_sp_nn(uint16_t nn);               // 0x31
 void ldd_hlp_a(void);                     // 0x32
 void inc_sp(void);                        // 0x33
@@ -60,7 +63,7 @@ void inc_hlp(void);                       // 0x34
 void dec_hlp(void);                       // 0x35
 void ld_hlp_n(uint8_t n);                 // 0x36
 void scf(void);                           // 0x37
-void jr_c(uint8_t n);                     // 0x38
+uint8_t jr_c(uint8_t n);                  // 0x38
 void add_hl_sp(void);                     // 0x39
 void ldd_a_hlp(void);                     // 0x3a
 void dec_sp(void);                        // 0x3b
@@ -196,32 +199,32 @@ void cp_h(void);                          // 0xbc
 void cp_l(void);                          // 0xbd
 void cp_hlp(void);                        // 0xbe
 void cp_a(void);                          // 0xbf
-void ret_nz(void);                        // 0xc0
+uint8_t ret_nz(void);                     // 0xc0
 void pop_bc(void);                        // 0xc1
-void jp_nz(uint16_t nn);                  // 0xc2
+uint8_t jp_nz(uint16_t nn);               // 0xc2
 void jp(uint16_t nn);                     // 0xc3
-void call_nz(uint16_t nn);                // 0xc4
+uint8_t call_nz(uint16_t nn);             // 0xc4
 void push_bc(void);                       // 0xc5
 void add_a_n(uint8_t n);                  // 0xc6
 void rst_00h(void);                       // 0xc7
-void ret_z(void);                         // 0xc8
+uint8_t ret_z(void);                      // 0xc8
 void ret(void);                           // 0xc9
-void jp_z(uint16_t);                      // 0xca
-void call_z(uint16_t nn);                 // 0xcc
+uint8_t jp_z(uint16_t);                   // 0xca
+uint8_t call_z(uint16_t nn);              // 0xcc
 void call(uint16_t nn);                   // 0xcd
 void adc_n(uint8_t n);                    // 0xce
 void rst_08h(void);                       // 0xcf
-void ret_nc(void);                        // 0xd0
+uint8_t ret_nc(void);                     // 0xd0
 void pop_de(void);                        // 0xd1
-void jp_nc(uint16_t nn);                  // 0xd2
-void call_nc(uint16_t nn);                // 0xd4
+uint8_t jp_nc(uint16_t nn);               // 0xd2
+uint8_t call_nc(uint16_t nn);             // 0xd4
 void push_de(void);                       // 0xd5
 void sub_n(uint8_t n);                    // 0xd6
 void rst_10h(void);                       // 0xd7
-void ret_c(void);                         // 0xd8
+uint8_t ret_c(void);                      // 0xd8
 void reti(void);                          // 0xd9
-void jp_c(uint16_t nn);                   // 0xda
-void call_c(uint16_t nn);                 // 0xdc
+uint8_t jp_c(uint16_t nn);                // 0xda
+uint8_t call_c(uint16_t nn);              // 0xdc
 void sbc_n(uint8_t n);                    // 0xde
 void rst_18h(void);                       // 0xdf
 void ldh_np_a(uint8_t n);                 // 0xe0

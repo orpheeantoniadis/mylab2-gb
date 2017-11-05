@@ -4,46 +4,47 @@
 #include <stdint.h>
 #include "commands.h"
 #include "alu.h"
+#include "interrupts.h"
 
 typedef struct {
-	struct {
-		union {
+  struct {
+    union {
       uint16_t af;
-			struct {
-				uint8_t f;
+      struct {
+        uint8_t f;
         uint8_t a;
-			};
-		};
-	};
-	struct {
-		union {
+      };
+    };
+  };
+  struct {
+    union {
       uint16_t bc;
-			struct {
-				uint8_t c;
+      struct {
+        uint8_t c;
         uint8_t b;
-			};
-		};
-	};
-	struct {
-		union {
+      };
+    };
+  };
+  struct {
+    union {
       uint16_t de;
-			struct {
-				uint8_t e;
+      struct {
+        uint8_t e;
         uint8_t d;
-			};
-		};
-	};
-	struct {
-		union {
+      };
+    };
+  };
+  struct {
+    union {
       uint16_t hl;
-			struct {
-				uint8_t l;
+      struct {
+        uint8_t l;
         uint8_t h;
-			};
-		};
-	};
-	uint16_t sp;
-	uint16_t pc;
+      };
+    };
+  };
+  uint16_t sp;
+  uint16_t pc;
 } registers_t;
 extern registers_t registers;
 
@@ -56,7 +57,7 @@ extern registers_t registers;
 #define FLAG_SET(x) (registers.f |= (x))
 #define FLAG_CLEAR(x) (registers.f &= ~(x))
 
-void cycle(void);
+uint8_t cpu_cycle(void);
 void print_registers(void);
 void print_instruction(void);
 

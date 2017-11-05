@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "alu.h"
 #include "cpu.h"
 #include "memory.h"
-#include "alu.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 static void inc(uint8_t *reg) {
   if (((*reg) & 0x0f) == 0x0f) FLAG_SET(HALFCARRY_FLAG);
@@ -117,7 +117,7 @@ static void sbc(uint8_t *dst, uint8_t val) {
   FLAG_SET(NEGATIVE_FLAG);
 }
 
-static void and(uint8_t *dst, uint8_t val) {
+static void and(uint8_t * dst, uint8_t val) {
   (*dst) &= val;
 
   if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
@@ -128,7 +128,7 @@ static void and(uint8_t *dst, uint8_t val) {
   FLAG_CLEAR(CARRY_FLAG);
 }
 
-static void or(uint8_t *dst, uint8_t val) {
+static void or(uint8_t * dst, uint8_t val) {
   (*dst) |= val;
 
   if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
@@ -139,7 +139,7 @@ static void or(uint8_t *dst, uint8_t val) {
   FLAG_CLEAR(CARRY_FLAG);
 }
 
-static void xor(uint8_t *dst, uint8_t val) {
+static void xor(uint8_t * dst, uint8_t val) {
   (*dst) ^= val;
 
   if ((*dst) == 0) FLAG_SET(ZERO_FLAG);
@@ -163,14 +163,14 @@ static void cp(uint8_t reg, uint8_t val) {
   else FLAG_CLEAR(CARRY_FLAG);
 }
 
-static void push(uint16_t val) {
-  registers.sp-=2;
+void push(uint16_t val) {
+  registers.sp -= 2;
   write16(registers.sp, val);
 }
 
-static void pop(uint16_t *dst) {
+void pop(uint16_t *dst) {
   (*dst) = read16(registers.sp);
-  registers.sp+=2;
+  registers.sp += 2;
 }
 
 static void rlc(uint8_t *reg) {
@@ -240,7 +240,7 @@ static void sra(uint8_t *reg) {
 }
 
 static void swap(uint8_t *reg) {
-	(*reg) = (((*reg) & 0xf) << 4) | (((*reg) & 0xf0) >> 4);
+  (*reg) = (((*reg) & 0xf) << 4) | (((*reg) & 0xf0) >> 4);
   if ((*reg) == 0) FLAG_SET(ZERO_FLAG);
   else FLAG_CLEAR(ZERO_FLAG);
   FLAG_CLEAR(NEGATIVE_FLAG);
@@ -260,10 +260,10 @@ static void srl(uint8_t *reg) {
 }
 
 static void bit(uint8_t reg, uint8_t bit) {
-	if((reg & (1 << bit)) == 0) FLAG_SET(ZERO_FLAG);
-	else FLAG_CLEAR(ZERO_FLAG);
-	FLAG_CLEAR(NEGATIVE_FLAG);
-	FLAG_SET(HALFCARRY_FLAG);
+  if ((reg & (1 << bit)) == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
+  FLAG_CLEAR(NEGATIVE_FLAG);
+  FLAG_SET(HALFCARRY_FLAG);
 }
 
 static void set(uint8_t *reg, uint8_t bit) { (*reg) |= (1 << bit); }
@@ -273,7 +273,7 @@ static void res(uint8_t *reg, uint8_t bit) { (*reg) &= ~(1 << bit); }
 /**** instruction set ****/
 
 // 0x00
-void nop(void) { }
+void nop(void) {}
 
 // 0x01
 void ld_bc_nn(uint16_t nn) { registers.bc = nn; }
@@ -339,7 +339,7 @@ void rrca(void) {
 }
 
 // 0x10
-void stop(void) {  }
+void stop(void) {}
 
 // 0x11
 void ld_de_nn(uint16_t nn) { registers.de = nn; }
@@ -405,7 +405,13 @@ void rra(void) {
 }
 
 // 0x20
-void jr_nz(uint8_t n) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc += (int8_t)n; }
+uint8_t jr_nz(uint8_t n) {
+  if (!FLAG_ISSET(ZERO_FLAG)) {
+    registers.pc += (int8_t)n;
+    return 12;
+  }
+  return 8;
+}
 
 // 0x21
 void ld_hl_nn(uint16_t nn) { registers.hl = nn; }
@@ -432,24 +438,29 @@ void ld_h_n(uint8_t n) { registers.h = n; }
 void daa(void) {
   uint16_t result = registers.a;
 
-	if(FLAG_ISSET(NEGATIVE_FLAG)) {
-		if(FLAG_ISSET(HALFCARRY_FLAG)) result = (result - 6) & 0xff;
-		if(FLAG_ISSET(CARRY_FLAG)) result -= 0x60;
-	}
-	else {
-		if(FLAG_ISSET(HALFCARRY_FLAG) || (result & 0xf) > 9) result += 6;
-		if(FLAG_ISSET(CARRY_FLAG) || result > 0x9f) result += 0x60;
-	}
+  if (FLAG_ISSET(NEGATIVE_FLAG)) {
+    if (FLAG_ISSET(HALFCARRY_FLAG)) result = (result - 6) & 0xff;
+    if (FLAG_ISSET(CARRY_FLAG)) result -= 0x60;
+  } else {
+    if (FLAG_ISSET(HALFCARRY_FLAG) || (result & 0xf) > 9) result += 6;
+    if (FLAG_ISSET(CARRY_FLAG) || result > 0x9f) result += 0x60;
+  }
   FLAG_CLEAR(HALFCARRY_FLAG);
-  if(result) FLAG_CLEAR(ZERO_FLAG);
-	else FLAG_SET(ZERO_FLAG);
-	if(result > 0xff) FLAG_SET(CARRY_FLAG);
+  if (result) FLAG_CLEAR(ZERO_FLAG);
+  else FLAG_SET(ZERO_FLAG);
+  if (result > 0xff) FLAG_SET(CARRY_FLAG);
 
   registers.a = result;
 }
 
 // 0x28
-void jr_z(uint8_t n) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc += (int8_t)n; }
+uint8_t jr_z(uint8_t n) {
+  if (FLAG_ISSET(ZERO_FLAG)) {
+    registers.pc += (int8_t)n;
+    return 12;
+  }
+  return 8;
+}
 
 // 0x29
 void add_hl_hl(void) { add16(&(registers.hl), registers.hl); }
@@ -480,7 +491,13 @@ void cpl(void) {
 }
 
 // 0x30
-void jr_nc(uint8_t n) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc += (int8_t)n; }
+uint8_t jr_nc(uint8_t n) {
+  if (!FLAG_ISSET(CARRY_FLAG)) {
+    registers.pc += (int8_t)n;
+    return 12;
+  }
+  return 8;
+}
 
 // 0x31
 void ld_sp_nn(uint16_t nn) { registers.sp = nn; }
@@ -519,7 +536,13 @@ void scf(void) {
 }
 
 // 0x38
-void jr_c(uint8_t n) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc += (int8_t)n; }
+uint8_t jr_c(uint8_t n) {
+  if (FLAG_ISSET(CARRY_FLAG)) {
+    registers.pc += (int8_t)n;
+    return 12;
+  }
+  return 8;
+}
 
 // 0x39
 void add_hl_sp(void) { add16(&(registers.hl), registers.sp); }
@@ -713,7 +736,7 @@ void ld_hlp_h(void) { write8(registers.hl, registers.h); }
 void ld_hlp_l(void) { write8(registers.hl, registers.l); }
 
 // 0x76
-void halt(void) {  }
+void halt(void) {}
 
 // 0x77
 void ld_hlp_a(void) { write8(registers.hl, registers.a); }
@@ -887,28 +910,28 @@ void xor_hlp(void) { xor(&(registers.a), read8(registers.hl)); }
 void xor_a(void) { xor(&(registers.a), registers.a); }
 
 // 0xb0
-void or_b(void) { or(&(registers.a), registers.b); }
+void or_b(void) { or (&(registers.a), registers.b); }
 
 // 0xb1
-void or_c(void) { or(&(registers.a), registers.c); }
+void or_c(void) { or (&(registers.a), registers.c); }
 
 // 0xb2
-void or_d(void) { or(&(registers.a), registers.d); }
+void or_d(void) { or (&(registers.a), registers.d); }
 
 // 0xb3
-void or_e(void) { or(&(registers.a), registers.e); }
+void or_e(void) { or (&(registers.a), registers.e); }
 
 // 0xb4
-void or_h(void) { or(&(registers.a), registers.h); }
+void or_h(void) { or (&(registers.a), registers.h); }
 
 // 0xb5
-void or_l(void) { or(&(registers.a), registers.l); }
+void or_l(void) { or (&(registers.a), registers.l); }
 
 // 0xb6
-void or_hlp(void) { or(&(registers.a), read8(registers.hl)); }
+void or_hlp(void) { or (&(registers.a), read8(registers.hl)); }
 
 // 0xb7
-void or_a(void) { or(&(registers.a), registers.a); }
+void or_a(void) { or (&(registers.a), registers.a); }
 
 // 0xb8
 void cp_b(void) { cp(registers.a, registers.b); }
@@ -935,23 +958,37 @@ void cp_hlp(void) { cp(registers.a, read8(registers.hl)); }
 void cp_a(void) { cp(registers.a, registers.a); }
 
 // 0xc0
-void ret_nz(void) { if (!FLAG_ISSET(ZERO_FLAG)) pop(&(registers.pc)); }
+uint8_t ret_nz(void) {
+  if (!FLAG_ISSET(ZERO_FLAG)) {
+    pop(&(registers.pc));
+    return 20;
+  }
+  return 8;
+}
 
 // 0xc1
 void pop_bc(void) { pop(&(registers.bc)); }
 
 // 0xc2
-void jp_nz(uint16_t nn) { if (!FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
+uint8_t jp_nz(uint16_t nn) {
+  if (!FLAG_ISSET(ZERO_FLAG)) {
+    registers.pc = nn;
+    return 16;
+  }
+  return 12;
+}
 
 // 0xc3
 void jp(uint16_t nn) { registers.pc = nn; }
 
 // 0xc4
-void call_nz(uint16_t nn) {
+uint8_t call_nz(uint16_t nn) {
   if (!FLAG_ISSET(ZERO_FLAG)) {
     push(registers.pc);
     registers.pc = nn;
+    return 24;
   }
+  return 12;
 }
 
 // 0xc5
@@ -967,20 +1004,34 @@ void rst_00h(void) {
 }
 
 // 0xc8
-void ret_z(void) { if (FLAG_ISSET(ZERO_FLAG)) pop(&(registers.pc)); }
+uint8_t ret_z(void) {
+  if (FLAG_ISSET(ZERO_FLAG)) {
+    pop(&(registers.pc));
+    return 20;
+  }
+  return 8;
+}
 
 // 0xc9
 void ret(void) { pop(&(registers.pc)); }
 
 // 0xca
-void jp_z(uint16_t nn) { if (FLAG_ISSET(ZERO_FLAG)) registers.pc = nn; }
+uint8_t jp_z(uint16_t nn) {
+  if (FLAG_ISSET(ZERO_FLAG)) {
+    registers.pc = nn;
+    return 16;
+  }
+  return 12;
+}
 
 // 0xcc
-void call_z(uint16_t nn) {
+uint8_t call_z(uint16_t nn) {
   if (FLAG_ISSET(ZERO_FLAG)) {
     push(registers.pc);
     registers.pc = nn;
+    return 24;
   }
+  return 12;
 }
 
 // 0xcd
@@ -999,20 +1050,34 @@ void rst_08h(void) {
 }
 
 // 0xd0
-void ret_nc(void) { if (!FLAG_ISSET(CARRY_FLAG)) pop(&(registers.pc)); }
+uint8_t ret_nc(void) {
+  if (!FLAG_ISSET(CARRY_FLAG)) {
+    pop(&(registers.pc));
+    return 20;
+  }
+  return 8;
+}
 
 // 0xd1
 void pop_de(void) { pop(&(registers.de)); }
 
 // 0xd2
-void jp_nc(uint16_t nn) { if (!FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
+uint8_t jp_nc(uint16_t nn) {
+  if (!FLAG_ISSET(CARRY_FLAG)) {
+    registers.pc = nn;
+    return 16;
+  }
+  return 12;
+}
 
 // 0xd4
-void call_nc(uint16_t nn) {
+uint8_t call_nc(uint16_t nn) {
   if (!FLAG_ISSET(CARRY_FLAG)) {
     push(registers.pc);
     registers.pc = nn;
+    return 24;
   }
+  return 12;
 }
 
 // 0xd5
@@ -1028,7 +1093,13 @@ void rst_10h(void) {
 }
 
 // 0xd8
-void ret_c(void) { if (FLAG_ISSET(CARRY_FLAG)) pop(&(registers.pc)); }
+uint8_t ret_c(void) {
+  if (FLAG_ISSET(CARRY_FLAG)) {
+    pop(&(registers.pc));
+    return 20;
+  }
+  return 8;
+}
 
 // 0xd9
 void reti(void) {
@@ -1037,14 +1108,22 @@ void reti(void) {
 }
 
 // 0xda
-void jp_c(uint16_t nn) { if (FLAG_ISSET(CARRY_FLAG)) registers.pc = nn; }
+uint8_t jp_c(uint16_t nn) {
+  if (FLAG_ISSET(CARRY_FLAG)) {
+    registers.pc = nn;
+    return 16;
+  }
+  return 12;
+}
 
 // 0xdc
-void call_c(uint16_t nn) {
+uint8_t call_c(uint16_t nn) {
   if (FLAG_ISSET(CARRY_FLAG)) {
     push(registers.pc);
     registers.pc = nn;
+    return 24;
   }
+  return 12;
 }
 
 // 0xde
@@ -1069,7 +1148,7 @@ void ldh_cp_a(void) { write8(0xff00 + registers.c, registers.a); }
 void push_hl(void) { push(registers.hl); }
 
 // 0xe6
-void and_n(uint8_t n) { and(&(registers.a), n ); }
+void and_n(uint8_t n) { and(&(registers.a), n); }
 
 // 0xe7
 void rst_20h(void) {
@@ -1089,7 +1168,7 @@ void ld_nnp_a(uint16_t nn) { write8(nn, registers.a); }
 // 0xee
 void xor_n(uint8_t n) { xor(&(registers.a), n); }
 
-//0xef
+// 0xef
 void rst_28h(void) {
   push(registers.pc);
   registers.pc = 0x28;
@@ -1105,13 +1184,13 @@ void pop_af(void) { pop(&(registers.af)); }
 void ldh_a_cp(void) { registers.a = read8(0xff00 + registers.c); }
 
 // 0xf3
-void di(void) {  }
+void di(void) { interrupt_master = 0; }
 
 // 0xf5
 void push_af(void) { push(registers.af); }
 
 // 0xf6
-void or_n(uint8_t n) { or(&(registers.a), n); }
+void or_n(uint8_t n) { or (&(registers.a), n); }
 
 // 0xf7
 void rst_30h(void) {
@@ -1129,12 +1208,12 @@ void ld_sp_hl(void) { registers.sp = registers.hl; }
 void ld_a_nnp(uint16_t nn) { registers.a = read8(nn); }
 
 // 0xfb
-void ei(void) {  }
+void ei(void) { interrupt_master = 1; }
 
 // 0xfe
 void cp_n(uint8_t n) { cp(registers.a, n); }
 
-//0xff
+// 0xff
 void rst_38h(void) {
   push(registers.pc);
   registers.pc = 0x38;
