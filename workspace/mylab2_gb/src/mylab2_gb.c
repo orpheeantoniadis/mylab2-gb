@@ -13,7 +13,7 @@
 void init_project(void) {
 	init_lcd();
 	clear_screen(LCD_BLACK);
-	//load_rom(FILENAME);
+	load_rom(FILENAME);
 }
 
 void draw_tileline(uint16_t pixels) {

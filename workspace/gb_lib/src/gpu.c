@@ -77,9 +77,9 @@ void gpu_cycle(uint8_t cycles) {
       STAT_SET_MODE(0);
       ir_selection = (read8(STAT) >> 3) & 1;
     } else { // mode 1
-      memory.MEM[LY]++;
+      IO[0x44]++;
       cpu_cycles_counter = 0;
-      if (read8(LY) > SCANLINES_NB) memory.MEM[LY] = 0;
+      if (read8(LY) > SCANLINES_NB) IO[0x44] = 0;
       else if (read8(LY) == GB_LCD_HEIGHT) {
         change_mode = STAT_GET_MODE() != 1;
         STAT_SET_MODE(1);
@@ -94,7 +94,7 @@ void gpu_cycle(uint8_t cycles) {
     } else STAT_CLEAR_BIT(2);
   } else { // LCD disabled so mode 1 and reset counters
     cpu_cycles_counter = 0;
-    memory.MEM[LY] = 0;
+    IO[0x44] = 0;
     STAT_SET_BIT(0);
     STAT_CLEAR_BIT(1);
   }

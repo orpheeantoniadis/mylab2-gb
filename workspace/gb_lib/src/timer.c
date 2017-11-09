@@ -27,6 +27,6 @@ void timer_cycle(uint8_t cycles) {
   }
   if (divider_cycles_counter < cycles) {
     divider_cycles_counter = 255;
-    (memory.MEM[DIV])++;
+    IO[0x04]++;
   } else divider_cycles_counter -= cycles;
 }
