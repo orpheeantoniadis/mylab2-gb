@@ -1,4 +1,4 @@
-#include "lcd.h"
+#include "gpu.h"
 #include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +20,7 @@ static void draw_tiles(void) {
 	int16_t tile_id;
 	uint16_t data_addr;
 	uint8_t pixel_offset;
-	uint8_t i, j;
+	uint8_t i;
 	
   if (LCDC_BIT_ISSET(3)) BG_tilemap_startregion = TILEMAP_STARTREGION1;
   else BG_tilemap_startregion = TILEMAP_STARTREGION0;
@@ -43,7 +43,7 @@ static void draw_tiles(void) {
 			data_addr += (tile_id + 128) * 16;
 		}
 		data_addr += pixel_offset;
-		read16(data_addr);
+		draw_tileline(read16(data_addr));
 	}
 }
 
@@ -60,7 +60,7 @@ static void draw_scanline(void) {
   }
 }
 
-void lcd_cycle(uint8_t cycles) {
+void gpu_cycle(uint8_t cycles) {
   uint8_t ir_selection = 0;
   uint8_t change_mode = 0;
   if (LCD_IS_ENABLE()) {

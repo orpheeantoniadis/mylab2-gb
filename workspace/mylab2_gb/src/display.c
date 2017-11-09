@@ -16,7 +16,7 @@
  */
 void display(void *arg) {
 	while(1) {
-		//SLEEP(10);
+		// SLEEP(10);
 	}
 }
 

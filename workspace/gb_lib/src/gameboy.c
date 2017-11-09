@@ -4,9 +4,13 @@
 
 #include "cpu.h"
 #include "interrupts.h"
-#include "lcd.h"
+#include "gpu.h"
 #include "memory.h"
 #include "timer.h"
+
+void draw_tileline(uint16_t pixels) {
+	
+}
 
 int main(int argc, char **argv) {
   uint8_t cycles;
@@ -17,7 +21,7 @@ int main(int argc, char **argv) {
     while (registers.pc < 0x100) {
       // print_instruction();
       cycles = cpu_cycle();
-      lcd_cycle(cycles);
+      gpu_cycle(cycles);
       timer_cycle(cycles);
       interrupts_cycle();
       // print_registers();

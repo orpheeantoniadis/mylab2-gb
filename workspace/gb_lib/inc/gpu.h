@@ -1,5 +1,5 @@
-#ifndef _LCD_H
-#define _LCD_H
+#ifndef _GPU_H
+#define _GPU_H
 
 #include "memory.h"
 #include <stdint.h>
@@ -35,6 +35,7 @@ static inline void STAT_CLEAR_BIT(uint8_t bit) {write8(STAT,read8(STAT)&~(1<<bit
 static inline void STAT_SET_MODE(uint8_t mode) {write8(STAT,(read8(STAT)&~3)|mode);}
 static inline uint8_t STAT_GET_MODE(void) {return read8(STAT)&3;}
 
-void lcd_cycle(uint8_t cycles);
+void draw_tileline(uint16_t pixels);
+void gpu_cycle(uint8_t cycles);
 
 #endif
