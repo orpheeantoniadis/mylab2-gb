@@ -28,10 +28,10 @@
 #include <stdio.h>
 
 // FreeRTOS libraries
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "semphr.h"
+//#include "FreeRTOS.h"
+//#include "task.h"
+//#include "queue.h"
+//#include "semphr.h"
 
 // myLab2_lib libraries
 #include "gpio.h"
