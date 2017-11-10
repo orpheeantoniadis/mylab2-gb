@@ -32,10 +32,10 @@ void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 			lcd_write_data_16(LCD_WHITE);
 			break;
 		case 1:
-			lcd_write_data_16(LCD_BLACK);
+			lcd_write_data_16(LCD_LIGHT_GRAY);
 			break;
 		case 2:
-			lcd_write_data_16(LCD_BLACK);
+			lcd_write_data_16(LCD_GRAY);
 			break;
 		case 3:
 			lcd_write_data_16(LCD_BLACK);
@@ -45,6 +45,10 @@ void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 	NOP();
 	LCD_CS(1);
 }
+
+//void draw_tileline(uint16_t pixels, uint8_t tilenum) {
+//
+//}
 
 int main(void) {
 	uint8_t cycles;

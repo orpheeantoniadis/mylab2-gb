@@ -1103,8 +1103,8 @@ uint8_t ret_c(void) {
 
 // 0xd9
 void reti(void) {
+	interrupt_master = 1;
   pop(&(registers.pc));
-  // enable interrupts
 }
 
 // 0xda
@@ -1160,7 +1160,7 @@ void rst_20h(void) {
 void add_sp_n(uint8_t n) { add_sp(&(registers.sp), (int8_t)n); }
 
 // 0xe9
-void jp_hl(void) { registers.pc = read8(registers.hl); }
+void jp_hl(void) { registers.pc = registers.hl; }
 
 // 0xea
 void ld_nnp_a(uint16_t nn) { write8(nn, registers.a); }

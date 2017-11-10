@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
-#include "rom.c"
 #include "memory.h"
 
 //__DATA(RAM2) uint8_t mapped_ROM[0x4000];
@@ -74,8 +73,8 @@ uint8_t read8(uint16_t addr) {
 
 void write8(uint16_t addr, uint8_t val) {
   if (addr < 0x8000) {
-    print_instruction();
-    fprintf(stderr,"Cannot write in ROM space\n");
+    //print_instruction();
+    //fprintf(stderr,"Cannot write in ROM space\n");
   }
 	else if (addr < 0xa000) VRAM[addr - 0x8000] = val;
 	else if (addr < 0xc000) external_RAM[addr - 0xa000] = val;
@@ -84,6 +83,11 @@ void write8(uint16_t addr, uint8_t val) {
 	else if (addr < 0xff00) OAM[addr - 0xfe00] = val;
 	else if (addr == 0xff04) IO[addr - 0xff00] = 0;
 	else if (addr == 0xff44) IO[addr - 0xff00] = 0;
+	else if (addr == 0xff46) {
+		uint8_t i;
+		uint16_t address = val << 8;
+		for (i = 0; i < 0xa0; i++) write8(0xfe00+i, read8(address+i));
+	}
 	else if (addr < 0xff80) IO[addr - 0xff00] = val;
 	else if (addr < 0xffff) HRAM[addr - 0xff80] = val;
 	else INT_En = val;

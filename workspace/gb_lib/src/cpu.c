@@ -14,7 +14,7 @@ uint8_t cpu_cycle(void) {
   opcode = read8(registers.pc);
   switch (instruction_set[opcode].length) {
   case 0:
-    (registers.pc)++;
+    registers.pc++;
     if (instruction_set[opcode].conditional_duration == 0) {
       ((void (*)(void))instruction_set[opcode].execute)();
       cycles = instruction_set[opcode].duration;
@@ -24,7 +24,7 @@ uint8_t cpu_cycle(void) {
     break;
   case 1:
     n = read8(registers.pc + 1);
-    (registers.pc) += 2;
+    registers.pc += 2;
     if (opcode == 0xcb) {
       ((void (*)(void))prefix_cb[n].execute)();
       cycles = instruction_set[opcode].duration;
@@ -40,7 +40,7 @@ uint8_t cpu_cycle(void) {
     break;
   case 2:
     nn = read16(registers.pc + 1);
-    (registers.pc) += 3;
+    registers.pc += 3;
     if (instruction_set[opcode].conditional_duration == 0) {
       ((void (*)(uint16_t))instruction_set[opcode].execute)(nn);
       cycles = instruction_set[opcode].duration;

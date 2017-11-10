@@ -24,11 +24,13 @@
 
 #define USE_SD_CARD		1
 
-#define LCD_BLUE  (0xF<<1)
-#define LCD_GREEN (0x3f<<5)
-#define LCD_RED   (0x1f<<11)
-#define LCD_WHITE 0xFFFF
-#define LCD_BLACK 0
+#define LCD_BLUE  		(0xF<<1)
+#define LCD_GREEN 		(0x3f<<5)
+#define LCD_RED   		(0x1f<<11)
+#define LCD_WHITE 		0xFFFF
+#define LCD_LIGHT_GRAY	0x7BCF
+#define LCD_GRAY		0x3186
+#define LCD_BLACK 		0
 
 #define LCD_MAX_HEIGHT	320
 #define LCD_MAX_WIDTH	240

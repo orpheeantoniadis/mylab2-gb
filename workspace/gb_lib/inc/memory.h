@@ -21,6 +21,7 @@
 #define IO_SPACE        0x80
 #define HRAM_SPACE      0x7F
 
+extern const uint8_t rom[ROM_SPACE];
 //extern uint8_t mapped_ROM[0x4000];			// 0x0000-0x3FFF
 extern uint8_t switchable_ROM[0x4000];		// 0x4000-0x7FFF
 extern uint8_t VRAM[VRAM_SPACE];			// 0x8000-0x9FFF

@@ -17,12 +17,13 @@ int main(int argc, char **argv) {
 
   if (argc == 2) {
     load_rom(argv[1]);
-    while (registers.pc < 0x100) {
+    while (1) {
       // print_instruction();
       cycles = cpu_cycle();
       gpu_cycle(cycles);
       timer_cycle(cycles);
       interrupts_cycle();
+			// printf("%d\n", BOOT_ROM_IS_ENABLE());
       // print_registers();
     }
     print_registers();

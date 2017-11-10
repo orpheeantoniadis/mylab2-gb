@@ -229,7 +229,7 @@ const instruction_t instruction_set[256] = {
 	{ "SBC 0x%02x", 1, 8, sbc_n, 0 },                  // 0xde
 	{ "RST 0x18", 0, 16, rst_18h, 0 },                 // 0xdf
 	{ "LD (0xFF00 + 0x%02x), A", 1, 12, ldh_np_a, 0 },	// 0xe0
-	{ "POP HL", 0, 12, NULL, 0 },                     	// 0xe1
+	{ "POP HL", 0, 12, pop_hl, 0 },                     	// 0xe1
 	{ "LD (0xFF00 + C), A", 0, 8, ldh_cp_a, 0 },       // 0xe2
 	{ "UNKNOWN", 0, 0, NULL, 0 },                 		// 0xe3
 	{ "UNKNOWN", 0, 0, NULL, 0 },                 		// 0xe4

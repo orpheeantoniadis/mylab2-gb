@@ -15,7 +15,8 @@ int main(int argc, char** argv) {
 
 	if (argc == 2) {
 		if (load_rom(argv[1]) == 1) return EXIT_FAILURE;
-		while(registers.pc < 0x100) {
+		// while(registers.pc < 0x100) {
+		while(1) {
 			// print_instruction();
 			cycles = cpu_cycle();
 			lcd_cycle(cycles);
