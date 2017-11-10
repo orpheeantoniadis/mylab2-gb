@@ -9,7 +9,7 @@
 
 #include <stdbool.h>
 #include "gpio.h"
-#include "timer.h"
+#include "timers.h"
 #include "utils.h"
 
 static bool last_state[5] = {false,false,false,false,false};

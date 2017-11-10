@@ -7,7 +7,7 @@
 ===============================================================================
 */
 
-#include "timer.h"
+#include "timers.h"
 
 void initTimer(LPC_TIM_TypeDef* timer, uint32_t pclk) {
 	if (timer == TIMER2) {

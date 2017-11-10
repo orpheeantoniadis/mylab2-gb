@@ -30,7 +30,7 @@ static void init_LCD_GPIO(void) {
  * @param 	cmd		1 byte instruction
  * @return 	none
  * ***********************************************************/
-static void lcd_write_instruction(uint8_t cmd) {
+void lcd_write_instruction(uint8_t cmd) {
 	LCD_DC(0); // command mode
 	write_spi(cmd);
 }
@@ -54,7 +54,7 @@ static void lcd_write_data_8(uint8_t data) {
  * @param 	data		2 bytes of data
  * @return 	none
  * ***********************************************************/
-static void lcd_write_data_16(uint16_t data) {
+void lcd_write_data_16(uint16_t data) {
 	uint8_t data1 = data >> 8;
 	uint8_t data2 = data & 0xFF;
 	lcd_write_data_8(data1);
@@ -196,7 +196,7 @@ static void ILI9341_Initial(void) {
  * @param	y2		y coordinate of the lower right side
  * @return 	none
  * ***********************************************************/
-static void select_frame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+void select_frame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	nb_pixel = (x2 - x1 + 1) * (y2 - y1 + 1);
 	LCD_CS(0);
 	COLUMN_ADDRESS_SET();

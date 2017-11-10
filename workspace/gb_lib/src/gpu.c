@@ -43,7 +43,7 @@ static void draw_tiles(void) {
 			data_addr += (tile_id + 128) * 16;
 		}
 		data_addr += pixel_offset;
-		draw_tileline(read16(data_addr));
+		draw_tileline(read16(data_addr), i);
 	}
 }
 
@@ -85,7 +85,7 @@ void gpu_cycle(uint8_t cycles) {
         STAT_SET_MODE(1);
         ir_selection = (read8(STAT) >> 4) & 1;
         interrupt_request(IR_VBLANK);
-      } else draw_scanline();
+      } else if (read8(LY) < GB_LCD_HEIGHT) draw_scanline();
     }
     if (change_mode && ir_selection) interrupt_request(IR_LCD);
     if (read8(LY) == read8(LYC)) { // check coincidence flag

@@ -7,8 +7,8 @@
 ===============================================================================
 */
 
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#ifndef _TIMERS_H_
+#define _TIMERS_H_
 
 #ifdef __USE_CMSIS
 #include "LPC17xx.h"

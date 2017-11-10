@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
+#include "rom.c"
 #include "memory.h"
 
-__DATA(RAM2) uint8_t mapped_ROM[0x4000];
+//__DATA(RAM2) uint8_t mapped_ROM[0x4000];
 __DATA(RAM2) uint8_t switchable_ROM[0x4000];
 uint8_t VRAM[VRAM_SPACE];
 uint8_t external_RAM[EXT_RAM_SPACE];
@@ -48,26 +49,17 @@ const uint8_t bootstrap[0x100] = {
 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
 };
 
-uint8_t load_rom(char *filename) {
-  FILE *rom;
-  int cnt = 0;
-  if ((rom = fopen(filename,"r")) == NULL) {
-    fprintf(stderr,"File not found\n");
-    return 1;
-  }
-  while (cnt < ROM_SPACE) {
-		if (cnt < 0x4000) fread(&mapped_ROM[cnt], sizeof(uint8_t), 1, rom);
-    else fread(&switchable_ROM[cnt - 0x4000], sizeof(uint8_t), 1, rom);
-    cnt++;
-  }
-  fclose(rom);
-  return 0;
+void load_rom(char *filename) {
+	uint16_t i;
+	for (i = 0x4000; i < 0x8000; i++) {
+		switchable_ROM[i-0x4000] = rom[i];
+	}
 }
 
 uint8_t read8(uint16_t addr) {
-  if (addr < 0x100 && BOOT_ROM_IS_ENABLE()) return bootstrap[addr];
-  else {
-		if (addr < 0x4000) return mapped_ROM[addr];
+	if (addr < 0x100 && BOOT_ROM_IS_ENABLE()) return bootstrap[addr];
+	else {
+		if (addr < 0x4000) return rom[addr];
 		else if (addr < 0x8000) return switchable_ROM[addr - 0x4000];
 		else if (addr < 0xa000) return VRAM[addr - 0x8000];
 		else if (addr < 0xc000) return external_RAM[addr - 0xa000];
@@ -91,7 +83,7 @@ void write8(uint16_t addr, uint8_t val) {
 	else if (addr < 0xfe00) return;
 	else if (addr < 0xff00) OAM[addr - 0xfe00] = val;
 	else if (addr == 0xff04) IO[addr - 0xff00] = 0;
-  else if (addr == 0xff44) IO[addr - 0xff00] = 0;
+	else if (addr == 0xff44) IO[addr - 0xff00] = 0;
 	else if (addr < 0xff80) IO[addr - 0xff00] = val;
 	else if (addr < 0xffff) HRAM[addr - 0xff80] = val;
 	else INT_En = val;

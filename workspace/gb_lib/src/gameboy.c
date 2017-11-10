@@ -8,7 +8,7 @@
 #include "memory.h"
 #include "timer.h"
 
-void draw_tileline(uint16_t pixels) {
+void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 	
 }
 
@@ -16,8 +16,7 @@ int main(int argc, char **argv) {
   uint8_t cycles;
 
   if (argc == 2) {
-    if (load_rom(argv[1]) == 1)
-      return EXIT_FAILURE;
+    load_rom(argv[1]);
     while (registers.pc < 0x100) {
       // print_instruction();
       cycles = cpu_cycle();

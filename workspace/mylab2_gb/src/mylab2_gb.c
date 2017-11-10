@@ -16,11 +16,43 @@ void init_project(void) {
 	load_rom(FILENAME);
 }
 
-void draw_tileline(uint16_t pixels) {
-	
+void draw_tileline(uint16_t pixels, uint8_t tilenum) {
+	uint8_t i;
+	uint8_t part1, part2, color;
+
+	part1 = pixels & 0xff;
+	part2 = (pixels >> 8) & 0xff;
+	select_frame(8 * tilenum, read8(LY), GB_LCD_WIDTH, read8(LY));
+	LCD_CS(0);
+	MEMORY_WRITE();
+	for (i = 0; i < 8; i++) {
+		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 0b10) << 1);
+		switch(color) {
+		case 0:
+			lcd_write_data_16(LCD_WHITE);
+			break;
+		case 1:
+			lcd_write_data_16(LCD_BLACK);
+			break;
+		case 2:
+			lcd_write_data_16(LCD_BLACK);
+			break;
+		case 3:
+			lcd_write_data_16(LCD_BLACK);
+			break;
+		}
+	}
+	NOP();
+	LCD_CS(1);
 }
 
 int main(void) {
+	uint8_t cycles;
 	init_project();
-	lcd_print(LCD_CENTER("Hello World!"), 160, SMALLFONT, LCD_WHITE, LCD_BLACK, "Hello World!");
+	while(1) {
+		cycles = cpu_cycle();
+		gpu_cycle(cycles);
+		timer_cycle(cycles);
+		interrupts_cycle();
+	}
 }

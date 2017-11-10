@@ -52,6 +52,9 @@ static inline void LCD_BL(uint8_t val) {if (val) LPC_GPIO1->FIOSET=1<<PIN_LCD_BL
 
 void init_lcd(void);
 void clear_screen(uint16_t color);
+void lcd_write_instruction(uint8_t cmd);
+void lcd_write_data_16(uint16_t data);
+void select_frame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void lcd_print_char(char c, uint16_t x, uint16_t y, uint16_t color, uint16_t back_color, uint8_t font_size);
 void lcd_print(uint16_t x, uint16_t y, uint8_t font_size, uint16_t color, uint16_t back_color, char *st, ...);
 void read_bmp_file(uint16_t *bitmap, char *filename, uint16_t *width, uint16_t *height);
