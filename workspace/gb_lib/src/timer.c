@@ -19,14 +19,14 @@ void timer_cycle(uint8_t cycles) {
   if (TIMER_IS_ENABLE()) {
     if (timer_cycles_counter < cycles) {
       set_frequency();
-      if (read8(TIMA) == TIMER_OVERFLOW) {
-        write8(TIMA, read8(TMA));
+      if (TIMA == TIMER_OVERFLOW) {
+        TIMA = TMA;
         interrupt_request(IR_TIMER);
-      } else write8(TIMA, read8(TIMA) + 1);
+      } else TIMA = TIMA + 1;
     } else timer_cycles_counter -= cycles;
   }
   if (divider_cycles_counter < cycles) {
     divider_cycles_counter = 255;
-    IO[0x04]++;
+    DIV++;
   } else divider_cycles_counter -= cycles;
 }

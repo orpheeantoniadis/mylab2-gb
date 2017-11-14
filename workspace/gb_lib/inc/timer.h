@@ -11,12 +11,12 @@
 #define FREQ3           16384
 #define TIMER_OVERFLOW  255
 
-#define DIV   0xff04
-#define TIMA  0xff05
-#define TMA   0xff06
-#define TAC   0xff07
+#define DIV   (RAMBANK2.MEM[0xff04 - 0xa000])
+#define TIMA  (RAMBANK2.MEM[0xff05 - 0xa000])
+#define TMA   (RAMBANK2.MEM[0xff06 - 0xa000])
+#define TAC   (RAMBANK2.MEM[0xff07 - 0xa000])
 
-#define TIMER_IS_ENABLE() ((read8(TAC) >> 2) & 1)
+#define TIMER_IS_ENABLE() ((TAC >> 2) & 1)
 
 void timer_cycle(uint8_t cycles);
 

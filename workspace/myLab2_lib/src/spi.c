@@ -16,9 +16,10 @@
  * @return 	none
  * ***********************************************************/
 void init_spi(void) {
+	LPC_SC->PCLKSEL0 |= 0b01<<16;
 	LPC_PINCON->PINSEL0 |= 0b11<<30; // SCK
 	LPC_PINCON->PINSEL1 |= 0b111100; // !SSEL & MISO & MOSI
-	LPC_SPI->SPCCR = 8;				 // setup clock to 3.125MHz (max speed) (25Mhz/8)
+	LPC_SPI->SPCCR = 10;				 // setup clock to 3.125MHz (max speed) (25Mhz/8)
 	LPC_SPI->SPCR |= 1<<5;	 // master mode & enable interrupt
 }
 
