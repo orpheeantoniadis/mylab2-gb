@@ -9,6 +9,10 @@
 
 #include "spi.h"
 
+void SPI_IRQHandler(void) {
+	LPC_SPI->SPINT = 1;
+}
+
 /* ***********************************************************
  * @brief	Init the SPI device.
  *
@@ -16,11 +20,12 @@
  * @return 	none
  * ***********************************************************/
 void init_spi(void) {
-	LPC_SC->PCLKSEL0 |= 0b01<<16;
-	LPC_PINCON->PINSEL0 |= 0b11<<30; // SCK
-	LPC_PINCON->PINSEL1 |= 0b111100; // !SSEL & MISO & MOSI
-	LPC_SPI->SPCCR = 10;				 // setup clock to 3.125MHz (max speed) (25Mhz/8)
-	LPC_SPI->SPCR |= 1<<5;	 // master mode & enable interrupt
+	LPC_SC->PCLKSEL0 |= 0b01<<16; 		// SPI clock set to 100MHz
+	LPC_PINCON->PINSEL0 |= 0b11<<30; 	// SCK
+	LPC_PINCON->PINSEL1 |= 0b111100; 	// !SSEL & MISO & MOSI
+	LPC_SPI->SPCCR = 10;				// setup clock to 10MHz (max speed) (100Mhz/10)
+	LPC_SPI->SPCR |= 0b101<<5;	 		// master mode & enable interrupt
+	NVIC_EnableIRQ(SPI_IRQn);
 }
 
 /* ***********************************************************
