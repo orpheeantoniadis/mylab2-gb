@@ -57,8 +57,9 @@ static void lcd_write_data_8(uint8_t data) {
 void lcd_write_data_16(uint16_t data) {
 	uint8_t data1 = data >> 8;
 	uint8_t data2 = data & 0xFF;
-	lcd_write_data_8(data1);
-	lcd_write_data_8(data2);
+	LCD_DC(1); // data mode
+	write_spi(data1);
+	write_spi(data2);
 }
 
 /* ***********************************************************
@@ -198,14 +199,14 @@ static void ILI9341_Initial(void) {
  * ***********************************************************/
 void select_frame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	nb_pixel = (x2 - x1 + 1) * (y2 - y1 + 1);
-	LCD_CS(0);
+	//LCD_CS(0);
 	COLUMN_ADDRESS_SET();
 	lcd_write_data_16(x1);
 	lcd_write_data_16(x2);
 	PAGE_ADDRESS_SET();
 	lcd_write_data_16(y1);
 	lcd_write_data_16(y2);
-	LCD_CS(1);
+	//LCD_CS(1);
 }
 
 /* ***********************************************************

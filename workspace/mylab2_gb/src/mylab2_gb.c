@@ -51,11 +51,11 @@ void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 
 	part1 = pixels & 0xff;
 	part2 = (pixels >> 8) & 0xff;
-	select_frame(8 * tilenum, LY, GB_LCD_WIDTH, LY);
 	LCD_CS(0);
+	select_frame(8 * tilenum, LY, 8 * tilenum + 8, LY);
 	MEMORY_WRITE();
 	for (i = 0; i < 8; i++) {
-		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 0b10) << 1);
+		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
 		switch(color) {
 		case 0:
 			lcd_write_data_16(LCD_WHITE);
@@ -92,8 +92,8 @@ void draw_tiledata(void) {
 			if (((data_addr - 0x8000) % 16) == 0) tilenum++;
 		line = ((tilenum / 20) * 8) + tileline;
 
-		select_frame((tilenum % 20) * 8, line, (tilenum % 20) * 8 + 8, line);
 		LCD_CS(0);
+		select_frame((tilenum % 20) * 8, line, (tilenum % 20) * 8 + 8, line);
 		MEMORY_WRITE();
 		for (i = 0; i < 8; i++) {
 			color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
@@ -135,8 +135,8 @@ int main(void) {
 		timer_cycle(cycles);
 		interrupts_cycle();
 		//if (registers.pc == 0x282a) do_debug = 1;
-		if (registers.pc == 0x27f8) do_debug = 1;
-		if (do_debug) draw_tiledata();
+		//if (registers.pc == 0x27f8) do_debug = 1;
+		//if (do_debug) draw_tiledata();
 		nb_instructions++;
 	}
 	print_registers();

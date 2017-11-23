@@ -16,7 +16,7 @@ static void draw_tiles(void) {
 	uint16_t window_tilemap_startregion;
 	uint16_t tiledata_startregion;
 
-	uint16_t tile_num;
+	uint16_t tile_line;
 	int16_t tile_id;
 	uint16_t data_addr;
 	uint8_t pixel_offset;
@@ -27,26 +27,27 @@ static void draw_tiles(void) {
 	if (LCDC_BIT_ISSET(4)) tiledata_startregion = TILEDATA_STARTREGION1;
 	else tiledata_startregion = TILEDATA_STARTREGION0;
 	if (LCDC_BIT_ISSET(5)) {
-		fprintf(stderr, "hello");
+		fprintf(stderr, "WINDOW ENABLED");
 	}
 	if (LCDC_BIT_ISSET(6)) window_tilemap_startregion = TILEMAP_STARTREGION1;
 	else window_tilemap_startregion = TILEMAP_STARTREGION0;
 	
-	tile_num = tileline_num();
-	tile_num += SCROLLX / 8; // 8 is the number of cols in a tile
+	tile_line = tileline_num();
+	tile_line += SCROLLX / 8; // 8 is the number of cols in a tile
 	pixel_offset = ((LY + SCROLLY) % 8) << 1; // 2 bytes per pixel
 	
-	for (i = 0; i < 32; i++) { // loop the tiles
+	for (i = 0; i < 20; i++) { // loop the tiles
 		data_addr = tiledata_startregion;
 		if (LCDC_BIT_ISSET(4)) {
-			tile_id = (uint8_t)read8(BG_tilemap_startregion + tile_num + i);
+			tile_id = (uint8_t)read8(BG_tilemap_startregion + tile_line + i);
 			data_addr += tile_id * 16;
 		} else {
-			tile_id = (int8_t)read8(BG_tilemap_startregion + tile_num + i);
+			tile_id = (int8_t)read8(BG_tilemap_startregion + tile_line + i);
 			data_addr += (tile_id + 128) * 16;
 		}
 		data_addr += pixel_offset;
-		//draw_tileline(read16(data_addr), i);
+		//if (data_addr != 0x82f2) fprintf(stderr, "NO BLANK TILE");
+		draw_tileline(read16(data_addr), i);
 	}
 }
 
