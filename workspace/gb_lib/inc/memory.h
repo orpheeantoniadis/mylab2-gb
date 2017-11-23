@@ -54,7 +54,7 @@ typedef struct {
 } rambank2_t;
 extern rambank2_t RAMBANK2;
 
-#define BOOT_ROM_IS_ENABLE() (RAMBANK2.MEM[0xff50-0xa000]== 0)
+#define BOOT_ROM_IS_ENABLE() (RAMBANK2.MEM[0xff50-0xa000]==0)
 
 void load_rom(char *filename);
 uint8_t read8(uint16_t addr);

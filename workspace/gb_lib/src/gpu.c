@@ -12,22 +12,25 @@ static uint16_t tileline_num(void) {
 }
 
 static void draw_tiles(void) {
-  uint16_t BG_tilemap_startregion;
-  //uint16_t window_tilemap_startregion;
-  uint16_t tiledata_startregion;
-	
+	uint16_t BG_tilemap_startregion;
+	uint16_t window_tilemap_startregion;
+	uint16_t tiledata_startregion;
+
 	uint16_t tile_num;
 	int16_t tile_id;
 	uint16_t data_addr;
 	uint8_t pixel_offset;
 	uint8_t i;
 	
-  if (LCDC_BIT_ISSET(3)) BG_tilemap_startregion = TILEMAP_STARTREGION1;
-  else BG_tilemap_startregion = TILEMAP_STARTREGION0;
-  if (LCDC_BIT_ISSET(4)) tiledata_startregion = TILEDATA_STARTREGION1;
-  else tiledata_startregion = TILEDATA_STARTREGION0;
-  //if (LCDC_BIT_ISSET(6)) window_tilemap_startregion = TILEMAP_STARTREGION1;
-  //else window_tilemap_startregion = TILEMAP_STARTREGION0;
+	if (LCDC_BIT_ISSET(3)) BG_tilemap_startregion = TILEMAP_STARTREGION1;
+	else BG_tilemap_startregion = TILEMAP_STARTREGION0;
+	if (LCDC_BIT_ISSET(4)) tiledata_startregion = TILEDATA_STARTREGION1;
+	else tiledata_startregion = TILEDATA_STARTREGION0;
+	if (LCDC_BIT_ISSET(5)) {
+		fprintf(stderr, "hello");
+	}
+	if (LCDC_BIT_ISSET(6)) window_tilemap_startregion = TILEMAP_STARTREGION1;
+	else window_tilemap_startregion = TILEMAP_STARTREGION0;
 	
 	tile_num = tileline_num();
 	tile_num += SCROLLX / 8; // 8 is the number of cols in a tile
@@ -43,7 +46,7 @@ static void draw_tiles(void) {
 			data_addr += (tile_id + 128) * 16;
 		}
 		data_addr += pixel_offset;
-		draw_tileline(read16(data_addr), i);
+		//draw_tileline(read16(data_addr), i);
 	}
 }
 
@@ -52,12 +55,12 @@ static void draw_sprites(void) {
 }
 
 static void draw_scanline(void) {
-  if (LCDC_BIT_ISSET(0)) {
-    draw_tiles();
-  }
-  if (LCDC_BIT_ISSET(1)) {
-    draw_sprites();
-  }
+	if (LCDC_BIT_ISSET(0)) {
+		draw_tiles();
+	}
+	if (LCDC_BIT_ISSET(1)) {
+		draw_sprites();
+	}
 }
 
 void gpu_cycle(uint8_t cycles) {

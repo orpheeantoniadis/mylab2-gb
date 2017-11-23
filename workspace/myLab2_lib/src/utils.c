@@ -17,7 +17,7 @@ static bool last_state[5] = {false,false,false,false,false};
 void Delay(uint32_t val){
 	initTimer(TIMER2, 25000);
 	startTimer(TIMER2);
-	while(getTime(TIMER2) != val);
+	while(getTime(TIMER2) < val);
 	stopTimer(TIMER2);
 }
 

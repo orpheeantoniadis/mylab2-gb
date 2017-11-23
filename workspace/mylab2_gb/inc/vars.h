@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 
 // FreeRTOS libraries
 //#include "FreeRTOS.h"
@@ -49,7 +50,7 @@
 #define SLEEP(mseconds)	vTaskDelay(mseconds / portTICK_RATE_MS)
 #define TASK_CREATE(function, name, args, priority) xTaskCreate(function, (signed portCHAR*)name, configMINIMAL_STACK_SIZE, args, priority, NULL)
 
-//#define BUFFER_SIZE	255
+#define USE_BOOTROM	0
 #define FILENAME	"Tetris.gb"
 
 void gameboy(void *arg);

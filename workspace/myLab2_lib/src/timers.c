@@ -32,7 +32,7 @@ uint32_t getTime(LPC_TIM_TypeDef* timer) {
 }
 
 void enableTimerInterrupt(LPC_TIM_TypeDef* timer, uint32_t time, uint8_t reset, uint8_t stop) {
-	timer->MCR |= 1;
+	timer->MCR = 1;
 	timer->MCR |= reset<<1;
 	timer->MCR |= stop<<2;
 	timer->MR0 = time;

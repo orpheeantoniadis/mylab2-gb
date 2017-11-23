@@ -47,6 +47,8 @@ enum {
 #define COLUMN_ADDRESS_SET()	lcd_write_instruction(0x2A) // Column set
 #define PAGE_ADDRESS_SET()		lcd_write_instruction(0x2B) // Line set
 #define MEMORY_WRITE()			lcd_write_instruction(0x2C) // Write in LCD memory
+#define FRAME_RATE_CONTROL()	lcd_write_instruction(0xB1)
+#define BLANKING_PORCH_CONTROL()	lcd_write_instruction(0xB5)
 
 static inline void LCD_CS(uint8_t val) {if (val) LPC_GPIO0->FIOSET=1<<PIN_LCD_CS; else LPC_GPIO0->FIOCLR=1<<PIN_LCD_CS;}
 static inline void LCD_DC(uint8_t val) {if (val) LPC_GPIO1->FIOSET=1<<PIN_LCD_DC; else LPC_GPIO1->FIOCLR=1<<PIN_LCD_DC;}
