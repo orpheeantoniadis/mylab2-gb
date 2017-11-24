@@ -6,15 +6,15 @@
 
 uint8_t interrupt_master = 0;
 
-void interrupt_request(uint8_t id) { write8(IF, read8(IF) | (1 << id)); }
+void interrupt_request(uint8_t id) { IF = IF | (1 << id); }
 
 void interrupts_cycle(void) {
   uint8_t i;
-  if ((interrupt_master == 1) && (read8(IF) != 0)) {
+  if ((interrupt_master == 1) && (IF != 0)) {
     for (i = IR_VBLANK; i <= IR_JOYPAD; i++) {
-      if (((read8(IF) >> i) & 1) && ((read8(IE) >> i) & 1)) {
+      if (((IF >> i) & 1) && ((IE >> i) & 1)) {
         interrupt_master = 0;
-        write8(IF, read8(IF) & ~(1 << i));
+        IF = IF & ~(1 << i);
         push(registers.pc);
         switch (i) {
         case IR_VBLANK: registers.pc = 0x40; break;

@@ -1,4 +1,3 @@
-/* http://srecord.sourceforge.net/ */
 #include <stdint.h>
 #include "memory.h"
 

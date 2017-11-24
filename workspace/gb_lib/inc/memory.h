@@ -21,7 +21,7 @@
 #define IO_SPACE        0x80
 #define HRAM_SPACE      0x7F
 
-extern const uint8_t rom[ROM_SPACE];
+extern const uint8_t rom[];
 
 typedef struct {
 	struct {

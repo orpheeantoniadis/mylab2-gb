@@ -103,8 +103,8 @@ static void sub(uint8_t *dst, uint8_t val) {
 static void sbc(uint8_t *dst, uint8_t val) {
   uint8_t carry = FLAG_ISSET(CARRY_FLAG) ? 1 : 0;
 
-  if (((val + carry) & 0x0f) > ((*dst) & 0x0f)) FLAG_SET(HALFCARRY_FLAG);
-  else FLAG_CLEAR(HALFCARRY_FLAG);
+  if ((((*dst)^val^(((*dst)-val-carry)&0xff))&(1<<4)) != 0) FLAG_SET(HALFCARRY_FLAG);
+  else FLAG_CLEAR(HALFCARRY_FLAG);	
 
   if ((val + carry) > (*dst)) FLAG_SET(CARRY_FLAG);
   else FLAG_CLEAR(CARRY_FLAG);
@@ -339,7 +339,7 @@ void rrca(void) {
 }
 
 // 0x10
-void stop(void) {}
+void stop(void) { fprintf(stderr, "stop\n"); }
 
 // 0x11
 void ld_de_nn(uint16_t nn) { registers.de = nn; }
@@ -736,7 +736,7 @@ void ld_hlp_h(void) { write8(registers.hl, registers.h); }
 void ld_hlp_l(void) { write8(registers.hl, registers.l); }
 
 // 0x76
-void halt(void) {}
+void halt(void) { printf("halt\n"); }
 
 // 0x77
 void ld_hlp_a(void) { write8(registers.hl, registers.a); }
@@ -1184,7 +1184,9 @@ void pop_af(void) { pop(&(registers.af)); }
 void ldh_a_cp(void) { registers.a = read8(0xff00 + registers.c); }
 
 // 0xf3
-void di(void) { interrupt_master = 0; }
+void di(void) { 
+	interrupt_master = 0;
+}
 
 // 0xf5
 void push_af(void) { push(registers.af); }
@@ -1208,7 +1210,9 @@ void ld_sp_hl(void) { registers.sp = registers.hl; }
 void ld_a_nnp(uint16_t nn) { registers.a = read8(nn); }
 
 // 0xfb
-void ei(void) { interrupt_master = 1; }
+void ei(void) {
+	interrupt_master = 1;
+}
 
 // 0xfe
 void cp_n(uint8_t n) { cp(registers.a, n); }

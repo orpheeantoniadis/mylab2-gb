@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
       timer_cycle(cycles);
       interrupts_cycle();
 			// printf("%d\n", BOOT_ROM_IS_ENABLE());
-      // print_registers();
+			if (registers.pc == 0x100) print_registers();
     }
     print_registers();
     // print_instructions(memory.ROM, 0x100);
