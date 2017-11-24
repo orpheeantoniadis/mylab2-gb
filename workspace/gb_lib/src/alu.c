@@ -440,19 +440,20 @@ void ld_h_n(uint8_t n) { registers.h = n; }
 
 // 0x27
 void daa(void) {
-  uint16_t result = registers.a;
+  int result = registers.a;
 
   if (FLAG_ISSET(NEGATIVE_FLAG)) {
     if (FLAG_ISSET(HALFCARRY_FLAG)) result = (result - 6) & 0xff;
-    if (FLAG_ISSET(CARRY_FLAG)) result -= 0x60;
+    if (FLAG_ISSET(CARRY_FLAG)) result = (result - 0x60) & 0xff;
   } else {
     if (FLAG_ISSET(HALFCARRY_FLAG) || (result & 0xf) > 9) result += 6;
     if (FLAG_ISSET(CARRY_FLAG) || result > 0x9f) result += 0x60;
   }
   FLAG_CLEAR(HALFCARRY_FLAG);
-  if (result) FLAG_CLEAR(ZERO_FLAG);
-  else FLAG_SET(ZERO_FLAG);
-  if (result > 0xff) FLAG_SET(CARRY_FLAG);
+	if (result > 0xff) FLAG_SET(CARRY_FLAG);
+	result &= 0xff;
+  if (result == 0) FLAG_SET(ZERO_FLAG);
+  else FLAG_CLEAR(ZERO_FLAG);
 
   registers.a = result;
 }
@@ -1182,7 +1183,10 @@ void rst_28h(void) {
 void ldh_a_np(uint8_t n) { registers.a = read8(0xff00 + n); }
 
 // 0xf1
-void pop_af(void) { pop(&(registers.af)); }
+void pop_af(void) {
+	registers.af = read16(registers.sp) & ~0xf;
+  registers.sp += 2;
+}
 
 // 0xf2
 void ldh_a_cp(void) { registers.a = read8(0xff00 + registers.c); }
