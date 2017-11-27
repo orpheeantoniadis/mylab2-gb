@@ -1108,7 +1108,7 @@ uint8_t ret_c(void) {
 
 // 0xd9
 void reti(void) {
-	interrupt_master = 1;
+	enable_interrupts(0);
   pop(&(registers.pc));
 }
 
@@ -1219,7 +1219,7 @@ void ld_a_nnp(uint16_t nn) { registers.a = read8(nn); }
 
 // 0xfb
 void ei(void) {
-	interrupt_master = 1;
+	enable_interrupts(1);
 }
 
 // 0xfe

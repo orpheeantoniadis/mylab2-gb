@@ -21,8 +21,8 @@ int main(int argc, char **argv) {
       // print_instruction();
       cycles = cpu_cycle();
       gpu_cycle(cycles);
+			interrupts_cycle();
       timer_cycle(cycles);
-      interrupts_cycle();
 			// printf("%d\n", BOOT_ROM_IS_ENABLE());
 			if (registers.pc == 0x100) print_registers();
     }

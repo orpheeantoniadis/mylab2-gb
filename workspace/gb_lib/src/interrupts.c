@@ -5,8 +5,17 @@
 #include <stdlib.h>
 
 uint8_t interrupt_master = 0;
+static uint8_t pending_interrupt = 0;
 
 void interrupt_request(uint8_t id) { IF = IF | (1 << id); }
+
+void enable_interrupts(uint8_t wait_cycle) {
+	if (wait_cycle) {
+		pending_interrupt = 1;
+	} else {
+		interrupt_master = 1;
+	}
+}
 
 void interrupts_cycle(void) {
   uint8_t i;
@@ -26,4 +35,8 @@ void interrupts_cycle(void) {
       }
     }
   }
+	if (pending_interrupt == 1) {
+		pending_interrupt = 0;
+		interrupt_master = 1;
+	}
 }

@@ -131,9 +131,9 @@ int main(void) {
 	while(1) {
 		cycles = cpu_cycle();
 		nb_cycles += cycles;
+		interrupts_cycle();
 		gpu_cycle(cycles);
 		timer_cycle(cycles);
-		interrupts_cycle();
 		//if (registers.pc == 0x282a) do_debug = 1;
 		//if (registers.pc == 0x27f8) do_debug = 1;
 		//if (do_debug) draw_tiledata();
