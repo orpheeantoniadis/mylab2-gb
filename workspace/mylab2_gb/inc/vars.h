@@ -51,7 +51,6 @@
 #define TASK_CREATE(function, name, args, priority) xTaskCreate(function, (signed portCHAR*)name, configMINIMAL_STACK_SIZE, args, priority, NULL)
 
 #define USE_BOOTROM	0
-#define FILENAME	"Tetris.gb"
 
 void gameboy(void *arg);
 void display(void *arg);

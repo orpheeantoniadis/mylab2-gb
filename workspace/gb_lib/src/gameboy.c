@@ -8,8 +8,8 @@
 #include "memory.h"
 #include "timer.h"
 
-#define SB (RAMBANK2.MEM[0xff01 - 0xa000])
-#define SC (RAMBANK2.MEM[0xff02 - 0xa000])
+#define SB (memory.MEM[0xff01 - 0x9e00])
+#define SC (memory.MEM[0xff02 - 0x9e00])
 
 void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 	
@@ -17,28 +17,19 @@ void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 
 int main(int argc, char **argv) {
   uint8_t cycles;
-
-  if (argc == 2) {
-    load_rom(argv[1]);
-    while (1) {
-      // print_instruction();
-      cycles = cpu_cycle();
-      gpu_cycle(cycles);
-			interrupts_cycle();
-      timer_cycle(cycles);
-			// printf("%d\n", BOOT_ROM_IS_ENABLE());
-			if (SC == 0x81) {
-				printf("%c", SB);
-				SC = 0;
-			}
-			// print_registers();
-			// if (registers.pc == 0x100) print_registers();
-    }
-    print_registers();
-    // print_instructions(memory.ROM, 0x100);
-  } else {
-    printf("Usage : %s <game_file>\n", argv[0]);
-    return EXIT_FAILURE;
+  load_rom();
+  while (1) {
+    // print_instruction();
+    cycles = cpu_cycle();
+		interrupts_cycle();
+    gpu_cycle(cycles);
+    timer_cycle(cycles);
+		if (SC == 0x81) {
+			printf("%c", SB);
+			SC = 0;
+		}
+		// print_registers();
+		// if (registers.pc == 0x100) print_registers();
   }
   return EXIT_SUCCESS;
 }

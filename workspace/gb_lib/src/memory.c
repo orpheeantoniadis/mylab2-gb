@@ -3,8 +3,10 @@
 #include "cpu.h"
 #include "memory.h"
 
-__DATA(RAM1) rambank1_t RAMBANK1;
-__DATA(RAM2) rambank2_t RAMBANK2;
+__DATA(RAM2) memory_t memory;
+static uint8_t MBC = 0;
+static uint8_t rombank = 1;
+static uint8_t rambank = 0;
 
 volatile uint32_t read8_cnt = 0;
 
@@ -43,10 +45,13 @@ const uint8_t bootstrap[0x100] = {
 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
 };
 
-void load_rom(char *filename) {
-	uint16_t i;
-	for (i = 0x4000; i < 0x8000; i++) {
-		RAMBANK1.MEM[i-0x4000] = rom[i];
+void load_rom(void) {
+	switch (rom[0x147]) {
+		case 1: MBC = 1; break;
+		case 2: MBC = 1; break;
+		case 3: MBC = 1; break;
+		case 5: MBC = 2; break;
+		case 6: MBC = 2; break;
 	}
 }
 
@@ -55,24 +60,30 @@ uint8_t read8(uint16_t addr) {
 	if (addr < 0x100 && BOOT_ROM_IS_ENABLE()) return bootstrap[addr];
 	else {
 		if (addr < 0x4000) return rom[addr];
-		else if (addr < 0xa000) return RAMBANK1.MEM[addr - 0x4000];
-		else return RAMBANK2.MEM[addr - 0xa000];
+		else if (addr < 0x8000) return rom[addr-0x4000+rombank*0x4000];
+		else if (addr < 0xe000) return memory.MEM[addr - 0x8000];
+		else if(addr < 0xfe00) return memory.WRAM[addr - 0xa000];
+		else return memory.MEM[addr - 0x9e00];
 	}
 }
 
 void write8(uint16_t addr, uint8_t val) {
 	if (addr > 0x7fff) {
-		if (addr < 0xa000) RAMBANK1.MEM[addr - 0x4000] = val;
-		else if ((addr != 0xff04) && (addr != 0xff44) && (addr != 0xff46)) {
-			RAMBANK2.MEM[addr - 0xa000] = val;
-		} else if (addr == 0xff46) {
+		if (addr < 0xe000) memory.MEM[addr - 0x8000] = val;
+		else if(addr < 0xfe00) memory.WRAM[addr - 0xa000] = val;
+		else if (addr == 0xff04 || addr == 0xff44) memory.MEM[addr - 0x9e00] = 0;
+		else if (addr == 0xff46) { // DMA
 			uint8_t i;
 			uint16_t address = val << 8;
 			for (i = 0; i < 0xa0; i++) {
-				RAMBANK2.MEM[0xfe00+i - 0xa000] = RAMBANK2.MEM[address+i - 0xa000];
+				memory.MEM[0xfe00+i - 0x9e00] = memory.MEM[address+i - 0x9e00];
 			}
-		} else RAMBANK2.MEM[addr - 0xa000] = 0;
-	} else return;
+		}
+		else memory.MEM[addr - 0x9e00] = val;
+	} else {
+		// fprintf(stderr, "Writing in ROM !\n");
+		return;
+	}
 }
 
 uint16_t read16(uint16_t addr) {

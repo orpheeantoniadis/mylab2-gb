@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-// #define __USE_MYLAB2
+//#define __USE_MYLAB2
 
 #ifndef __USE_MYLAB2
 #define __DATA(RAM2)
@@ -26,24 +26,11 @@ extern const uint8_t rom[];
 typedef struct {
 	struct {
 		union {
-			uint8_t MEM[0x6000];
+			uint8_t MEM[0x6200];
 			struct {
-				uint8_t switchable_ROM[0x4000];		// 0x4000-0x7FFF
 				uint8_t VRAM[VRAM_SPACE];			// 0x8000-0x9FFF
-			};
-		};
-	};
-} rambank1_t;
-extern rambank1_t RAMBANK1;
-
-typedef struct {
-	struct {
-		union {
-			uint8_t MEM[0x6000];
-			struct {
 				uint8_t external_RAM[EXT_RAM_SPACE];	// 0xA000-0xBFFF
 				uint8_t WRAM[WRAM_SPACE];				// 0xC000-0xDFFF
-				uint8_t WRAM_ECHO[WRAM_ECHO_SPACE];
 				uint8_t OAM[OAM_SPACE];					// 0xFE00-0xFEFF
 				uint8_t IO[IO_SPACE];					// 0xFF00-0xFF7F
 				uint8_t HRAM[HRAM_SPACE];				// 0xFF80-0xFFFE
@@ -51,12 +38,12 @@ typedef struct {
 			};
 		};
 	};
-} rambank2_t;
-extern rambank2_t RAMBANK2;
+} memory_t;
+extern memory_t memory;
 
-#define BOOT_ROM_IS_ENABLE() (RAMBANK2.MEM[0xff50-0xa000]==0)
+#define BOOT_ROM_IS_ENABLE() (memory.MEM[0xff50-0xbe00]==0)
 
-void load_rom(char *filename);
+void load_rom(void);
 uint8_t read8(uint16_t addr);
 void write8(uint16_t addr, uint8_t val);
 uint16_t read16(uint16_t addr);

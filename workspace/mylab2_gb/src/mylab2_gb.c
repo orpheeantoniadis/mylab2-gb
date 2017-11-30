@@ -13,7 +13,7 @@
 void init_project(void) {
 	init_lcd();
 	clear_screen(LCD_BLACK);
-	load_rom(FILENAME);
+	load_rom();
 	if (USE_BOOTROM == 0) {
 		registers.af = 0x01b0;
 		registers.bc = 0x0013;

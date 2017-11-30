@@ -10,8 +10,8 @@
 #define IR_SERIAL 3
 #define IR_JOYPAD 4
 
-#define IF  (RAMBANK2.MEM[0xff0f - 0xa000])
-#define IE  (RAMBANK2.MEM[0xffff - 0xa000])
+#define IF  (memory.MEM[0xff0f - 0x9e00])
+#define IE  (memory.MEM[0xffff - 0x9e00])
 
 extern uint8_t interrupt_master;
 

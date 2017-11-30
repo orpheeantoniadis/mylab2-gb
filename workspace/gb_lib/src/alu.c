@@ -733,7 +733,7 @@ void ld_hlp_h(void) { write8(registers.hl, registers.h); }
 void ld_hlp_l(void) { write8(registers.hl, registers.l); }
 
 // 0x76
-void halt(void) { printf("halt\n"); }
+void halt(void) { fprintf(stderr, "halt\n"); }
 
 // 0x77
 void ld_hlp_a(void) { write8(registers.hl, registers.a); }
