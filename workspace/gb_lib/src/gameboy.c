@@ -8,6 +8,9 @@
 #include "memory.h"
 #include "timer.h"
 
+#define SB (RAMBANK2.MEM[0xff01 - 0xa000])
+#define SC (RAMBANK2.MEM[0xff02 - 0xa000])
+
 void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 	
 }
@@ -24,7 +27,12 @@ int main(int argc, char **argv) {
 			interrupts_cycle();
       timer_cycle(cycles);
 			// printf("%d\n", BOOT_ROM_IS_ENABLE());
-			if (registers.pc == 0x100) print_registers();
+			if (SC == 0x81) {
+				printf("%c", SB);
+				SC = 0;
+			}
+			// print_registers();
+			// if (registers.pc == 0x100) print_registers();
     }
     print_registers();
     // print_instructions(memory.ROM, 0x100);

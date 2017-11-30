@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define __USE_MYLAB2
+// #define __USE_MYLAB2
 
 #ifndef __USE_MYLAB2
 #define __DATA(RAM2)

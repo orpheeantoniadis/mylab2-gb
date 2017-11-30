@@ -12,9 +12,6 @@ uint8_t cpu_cycle(void) {
   uint8_t cycles = 0;
 
   opcode = read8(registers.pc);
-  if (opcode == 0xc5) {
-	  //fprintf(stderr, "hello");
-  }
   switch (instruction_set[opcode].length) {
   case 0:
     registers.pc++;
