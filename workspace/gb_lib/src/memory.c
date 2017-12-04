@@ -79,6 +79,7 @@ void write8(uint16_t addr, uint8_t val) {
 				memory.MEM[0xfe00+i - 0x9e00] = memory.MEM[address+i - 0x9e00];
 			}
 		}
+		else if (addr == 0xff4d) fprintf(stderr, "Writing %d in 0xFF4D !\n", val);
 		else memory.MEM[addr - 0x9e00] = val;
 	} else {
 		// fprintf(stderr, "Writing in ROM !\n");

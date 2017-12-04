@@ -49,7 +49,7 @@ uint8_t cpu_cycle(void) {
     }
     break;
   }
-  return cycles;
+  return 2 * cycles;
 }
 
 void print_registers(void) {

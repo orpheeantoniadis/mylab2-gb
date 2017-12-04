@@ -19,7 +19,6 @@ int main(int argc, char **argv) {
   uint8_t cycles;
   load_rom();
   while (1) {
-    // print_instruction();
     cycles = cpu_cycle();
 		interrupts_cycle();
     gpu_cycle(cycles);
@@ -28,8 +27,6 @@ int main(int argc, char **argv) {
 			printf("%c", SB);
 			SC = 0;
 		}
-		// print_registers();
-		// if (registers.pc == 0x100) print_registers();
   }
   return EXIT_SUCCESS;
 }
