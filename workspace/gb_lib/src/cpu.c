@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 registers_t registers;
+uint8_t halted = 0;
 
 uint8_t cpu_cycle(void) {
   uint8_t opcode;
@@ -11,45 +12,51 @@ uint8_t cpu_cycle(void) {
   uint16_t nn;
   uint8_t cycles = 0;
 
-  opcode = read8(registers.pc);
-  switch (instruction_set[opcode].length) {
-  case 0:
-    registers.pc++;
-    if (instruction_set[opcode].conditional_duration == 0) {
-      ((void (*)(void))instruction_set[opcode].execute)();
-      cycles = instruction_set[opcode].duration;
-    } else {
-      cycles = ((uint8_t(*)(void))instruction_set[opcode].execute)();
-    }
-    break;
-  case 1:
-    n = read8(registers.pc + 1);
-    registers.pc += 2;
-    if (opcode == 0xcb) {
-      ((void (*)(void))prefix_cb[n].execute)();
-      cycles = instruction_set[opcode].duration;
-      cycles += prefix_cb[n].duration;
-    } else {
-      if (instruction_set[opcode].conditional_duration == 0) {
-        ((void (*)(uint8_t))instruction_set[opcode].execute)(n);
-        cycles = instruction_set[opcode].duration;
-      } else {
-        cycles = ((uint8_t(*)(uint8_t))instruction_set[opcode].execute)(n);
-      }
-    }
-    break;
-  case 2:
-    nn = read16(registers.pc + 1);
-    registers.pc += 3;
-    if (instruction_set[opcode].conditional_duration == 0) {
-      ((void (*)(uint16_t))instruction_set[opcode].execute)(nn);
-      cycles = instruction_set[opcode].duration;
-    } else {
-      cycles = ((uint8_t(*)(uint16_t))instruction_set[opcode].execute)(nn);
-    }
-    break;
-  }
-  return 2 * cycles;
+	if (halted != 1) {
+	  opcode = read8(registers.pc);
+	  switch (instruction_set[opcode].length) {
+	  case 0:
+	    if (halted == 2) halted = 0;
+			else registers.pc++;
+	    if (instruction_set[opcode].conditional_duration == 0) {
+	      ((void (*)(void))instruction_set[opcode].execute)();
+	      cycles = instruction_set[opcode].duration;
+	    } else {
+	      cycles = ((uint8_t(*)(void))instruction_set[opcode].execute)();
+	    }
+	    break;
+	  case 1:
+	    n = read8(registers.pc + 1);
+			if (halted == 2) halted = 0;
+	    else registers.pc += 2;
+	    if (opcode == 0xcb) {
+	      ((void (*)(void))prefix_cb[n].execute)();
+	      cycles = instruction_set[opcode].duration;
+	      cycles += prefix_cb[n].duration;
+	    } else {
+	      if (instruction_set[opcode].conditional_duration == 0) {
+	        ((void (*)(uint8_t))instruction_set[opcode].execute)(n);
+	        cycles = instruction_set[opcode].duration;
+	      } else {
+	        cycles = ((uint8_t(*)(uint8_t))instruction_set[opcode].execute)(n);
+	      }
+	    }
+	    break;
+	  case 2:
+	    nn = read16(registers.pc + 1);
+			if (halted == 2) halted = 0;
+	    else registers.pc += 3;
+	    if (instruction_set[opcode].conditional_duration == 0) {
+	      ((void (*)(uint16_t))instruction_set[opcode].execute)(nn);
+	      cycles = instruction_set[opcode].duration;
+	    } else {
+	      cycles = ((uint8_t(*)(uint16_t))instruction_set[opcode].execute)(nn);
+	    }
+	    break;
+	  }
+	  return 2 * cycles;
+	}
+	return 2;
 }
 
 void print_registers(void) {

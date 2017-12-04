@@ -47,6 +47,7 @@ typedef struct {
   uint16_t pc;
 } registers_t;
 extern registers_t registers;
+extern uint8_t halted;
 
 #define ZERO_FLAG (1 << 7)
 #define NEGATIVE_FLAG (1 << 6)

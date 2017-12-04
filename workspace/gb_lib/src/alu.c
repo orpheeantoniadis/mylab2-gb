@@ -733,7 +733,10 @@ void ld_hlp_h(void) { write8(registers.hl, registers.h); }
 void ld_hlp_l(void) { write8(registers.hl, registers.l); }
 
 // 0x76
-void halt(void) { fprintf(stderr, "halt\n"); }
+void halt(void) {
+	if (interrupt_master == 0 && ((IE & IF & 0x1f) != 0)) halted = 2;
+	else halted = 1;
+}
 
 // 0x77
 void ld_hlp_a(void) { write8(registers.hl, registers.a); }

@@ -23,6 +23,7 @@ void interrupts_cycle(void) {
     for (i = IR_VBLANK; i <= IR_JOYPAD; i++) {
       if (((IF >> i) & 1) && ((IE >> i) & 1)) {
         interrupt_master = 0;
+				halted = 0;
         IF = IF & ~(1 << i);
         push(registers.pc);
         switch (i) {
@@ -38,5 +39,12 @@ void interrupts_cycle(void) {
 	if (pending_interrupt == 1) {
 		pending_interrupt = 0;
 		interrupt_master = 1;
+	}
+	if (halted == 1) {
+		for (i = IR_VBLANK; i <= IR_JOYPAD; i++) {
+      if (((IF >> i) & 1) && ((IE >> i) & 1)) {
+        halted = 0;
+      }
+    }
 	}
 }

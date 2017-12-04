@@ -1,11 +1,11 @@
 01:ok
-02:X
+02:ok
 03:X
 04:ok
 05:ok
 06:ok
-07:X (loop)
-08:X (loop)
+07:X
+08:X
 09:ok
 10:ok
 11:ok
