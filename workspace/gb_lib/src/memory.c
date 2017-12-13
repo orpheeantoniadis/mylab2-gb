@@ -7,6 +7,13 @@ __DATA(RAM2) memory_t memory;
 static uint8_t MBC = 0;
 static uint8_t rombank = 1;
 static uint8_t rambank = 0;
+static uint8_t ram_enable = 0;
+
+#ifndef __USE_MYLAB2
+static uint8_t rambanks[0x8000] ;
+#else
+static uint8_t rambanks[0x2000];
+#endif
 
 volatile uint32_t read8_cnt = 0;
 
@@ -45,6 +52,43 @@ const uint8_t bootstrap[0x100] = {
 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
 };
 
+static void banking_handler(uint16_t addr, uint8_t val) {
+	if (addr < 0x2000) {
+		if (MBC == 1 || MBC == 2) {
+			if (MBC == 2) {
+     		if ((val >> 4) & 1) return;
+   		}
+			if (val == 0xa) ram_enable = 1;
+			else if (val == 0) ram_enable = 0;
+		}
+	} else if ((addr >= 0x200) && (addr < 0x4000)) {
+		if (MBC == 1 || MBC == 2) {
+			if (MBC == 2) {
+				rombank = val;
+				if (rombank == 0) rombank++;
+				return;
+			}
+			rombank &= 0xe0;
+			rombank |= val & 0x1f;
+			if (rombank == 0) rombank++;
+		}
+	} else if ((addr >= 0x4000) && (addr < 0x6000)) {
+		if (MBC == 1) {
+			if(rombank) {
+				rombank &= 0x1f; 
+				rombank |= val & 0xe0;
+				if (rombank == 0) rombank++;
+			} else {
+				rambank = val & 3;
+			} 
+		}
+	} else if ((addr >= 0x6000) && (addr < 0x8000)) {
+		if (MBC == 1) {
+			if ((val & 1) == 0) rambank = 0 ; 
+		}
+	}
+}
+
 void load_rom(void) {
 	switch (rom[0x147]) {
 		case 1: MBC = 1; break;
@@ -61,6 +105,7 @@ uint8_t read8(uint16_t addr) {
 	else {
 		if (addr < 0x4000) return rom[addr];
 		else if (addr < 0x8000) return rom[addr-0x4000+rombank*0x4000];
+		else if ((addr > 0x9fff) && (addr < 0xc000)) return rambanks[addr-0xa000+(rambank*0x2000)];
 		else if (addr < 0xe000) return memory.MEM[addr - 0x8000];
 		else if(addr < 0xfe00) return memory.WRAM[addr - 0xa000];
 		else return memory.MEM[addr - 0x9e00];
@@ -69,7 +114,10 @@ uint8_t read8(uint16_t addr) {
 
 void write8(uint16_t addr, uint8_t val) {
 	if (addr > 0x7fff) {
-		if (addr < 0xe000) memory.MEM[addr - 0x8000] = val;
+		if ((addr > 0x9fff) && (addr < 0xc000)) {
+			if (ram_enable) rambanks[addr-0xa000+(rambank*0x2000)] = val;
+		}
+		else if (addr < 0xe000) memory.MEM[addr - 0x8000] = val;
 		else if(addr < 0xfe00) memory.WRAM[addr - 0xa000] = val;
 		else if (addr == 0xff04 || addr == 0xff44) memory.MEM[addr - 0x9e00] = 0;
 		else if (addr == 0xff46) { // DMA
@@ -82,8 +130,7 @@ void write8(uint16_t addr, uint8_t val) {
 		else if (addr == 0xff4d) fprintf(stderr, "Writing %d in 0xFF4D !\n", val);
 		else memory.MEM[addr - 0x9e00] = val;
 	} else {
-		// fprintf(stderr, "Writing in ROM !\n");
-		return;
+		banking_handler(addr, val);
 	}
 }
 

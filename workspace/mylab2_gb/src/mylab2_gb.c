@@ -136,7 +136,11 @@ int main(void) {
 		timer_cycle(cycles);
 		//if (registers.pc == 0x282a) do_debug = 1;
 		//if (registers.pc == 0x27f8) do_debug = 1;
-		//if (do_debug) draw_tiledata();
+		//if (registers.pc == 0x284d) do_debug = 1;
+		//if (do_debug) {
+		//	debug();
+		//	do_debug = 0;
+		//}
 		nb_instructions++;
 	}
 	print_registers();

@@ -46,7 +46,6 @@ static void draw_tiles(void) {
 			data_addr += (tile_id + 128) * 16;
 		}
 		data_addr += pixel_offset;
-		//if (data_addr != 0x82f2) fprintf(stderr, "NO BLANK TILE");
 		draw_tileline(read16(data_addr), i);
 	}
 }

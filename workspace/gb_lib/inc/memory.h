@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-//#define __USE_MYLAB2
-
 #ifndef __USE_MYLAB2
 #define __DATA(RAM2)
 #else
@@ -41,7 +39,7 @@ typedef struct {
 } memory_t;
 extern memory_t memory;
 
-#define BOOT_ROM_IS_ENABLE() (memory.MEM[0xff50-0xbe00]==0)
+#define BOOT_ROM_IS_ENABLE() (memory.MEM[0xff50-0x9e00]==0)
 
 void load_rom(void);
 uint8_t read8(uint16_t addr);
