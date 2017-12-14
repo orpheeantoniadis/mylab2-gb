@@ -118,10 +118,6 @@ void draw_tiledata(void) {
 	}
 }
 
-void debug(void) {
-	fprintf(stderr, "cpu stopped");
-}
-
 int main(void) {
 	uint8_t cycles;
 	uint8_t do_debug = 0;
@@ -134,13 +130,8 @@ int main(void) {
 		interrupts_cycle();
 		gpu_cycle(cycles);
 		timer_cycle(cycles);
-		//if (registers.pc == 0x282a) do_debug = 1;
 		//if (registers.pc == 0x27f8) do_debug = 1;
-		//if (registers.pc == 0x284d) do_debug = 1;
-		//if (do_debug) {
-		//	debug();
-		//	do_debug = 0;
-		//}
+		//if (do_debug) draw_tiledata();
 		nb_instructions++;
 	}
 	print_registers();
