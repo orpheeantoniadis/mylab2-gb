@@ -305,7 +305,7 @@ void rlca(void) {
 }
 
 // 0x08
-void ld_nnp_sp(uint16_t nn) { write8(nn, registers.sp); }
+void ld_nnp_sp(uint16_t nn) { write16(nn, registers.sp); }
 
 // 0x09
 void add_hl_bc(void) { add16(&(registers.hl), registers.bc); }
