@@ -10,6 +10,8 @@
 #define VAR_DECLS
 #include "vars.h"
 
+uint8_t do_debug = 0;
+
 void init_project(void) {
 	init_lcd();
 	clear_screen(LCD_BLACK);
@@ -57,8 +59,7 @@ void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 	for (i = 0; i < 8; i++) {
 		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
 		if (color != 0) {
-			fprintf(stderr, "0x%02x\n", pixels);
-			fprintf(stderr, "%d\n", color);
+			do_debug = 1;
 		}
 		switch(color) {
 		case 0:
@@ -124,7 +125,6 @@ void draw_tiledata(void) {
 
 int main(void) {
 	uint8_t cycles;
-	uint8_t do_debug = 0;
 	volatile uint32_t nb_cycles = 0;
 	volatile uint32_t nb_instructions = 0;
 	init_project();

@@ -30,6 +30,7 @@ void SDL2_init(void) {
 
 void init_project(void) {
 	load_rom();
+	//memcpy(memory.IO, bootstrap, sizeof(memory.IO));
 	if (USE_BOOTROM == 0) {
 		registers.af = 0x01b0;
 		registers.bc = 0x0013;

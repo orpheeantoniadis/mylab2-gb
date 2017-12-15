@@ -32,14 +32,21 @@ typedef struct {
 				uint8_t VRAM[VRAM_SPACE];				// 0x8000-0x9FFF
 				uint8_t WRAM[WRAM_SPACE];				// 0xC000-0xDFFF
 				uint8_t OAM[OAM_SPACE];					// 0xFE00-0xFEFF
-				uint8_t IO[IO_SPACE];						// 0xFF00-0xFF7F
-				uint8_t HRAM[HRAM_SPACE];				// 0xFF80-0xFFFE
-				uint8_t INT_En;									// 0xFFFF
+				union {
+					uint8_t IO[0x100];
+					struct {
+						uint8_t IO_REGS[IO_SPACE];			// 0xFF00-0xFF7F
+						uint8_t HRAM[HRAM_SPACE];				// 0xFF80-0xFFFE
+						uint8_t INT_En;									// 0xFFFF
+					};
+				};
 			};
 		};
 	};
 } memory_t;
+
 extern memory_t memory;
+extern const uint8_t bootstrap[];
 
 #define SB (memory.MEM[0xff01-OAM_OFFSET])
 #define SC (memory.MEM[0xff02-OAM_OFFSET])
