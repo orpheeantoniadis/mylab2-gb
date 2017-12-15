@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL2/SDL.h>
+#include <stdbool.h>
 
 #include "cpu.h"
 #include "interrupts.h"
@@ -8,9 +10,24 @@
 #include "memory.h"
 #include "timer.h"
 
+#define USE_LCD			0
 #define USE_BOOTROM 0
 #define SB (memory.MEM[0xff01 - 0x9e00])
 #define SC (memory.MEM[0xff02 - 0x9e00])
+
+SDL_Window* window;
+SDL_Renderer *renderer;
+SDL_Texture *texture;
+SDL_Event e;
+uint32_t pixels[GB_LCD_WIDTH*GB_LCD_HEIGHT];
+
+void SDL2_init(void) {
+	SDL_Init(SDL_INIT_VIDEO);
+  window = SDL_CreateWindow("myLab2 GB",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GB_LCD_WIDTH, GB_LCD_HEIGHT, SDL_WINDOW_SHOWN);
+	renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, GB_LCD_WIDTH, GB_LCD_HEIGHT);
+	memset(pixels, 255, GB_LCD_WIDTH * GB_LCD_HEIGHT * sizeof(uint32_t));
+}
 
 void init_project(void) {
 	load_rom();
@@ -45,23 +62,64 @@ void init_project(void) {
 	}
 }
 
-void draw_tileline(uint16_t pixels, uint8_t tilenum) {
+void draw_tileline(uint16_t data, uint8_t tilenum) {
+	uint8_t i, x;
+	uint8_t part1, part2, color;
+
+	part1 = data & 0xff;
+	part2 = (data >> 8) & 0xff;
+	x = 8 * tilenum;
 	
+	for (i = 0; i < 8; i++) {
+		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
+		switch(color) {
+		case 0:
+			pixels[LY * GB_LCD_WIDTH + x+i] = 0xffffff;
+			break;
+		case 1:
+			pixels[LY * GB_LCD_WIDTH + x+i] = 0;
+			break;
+		case 2:
+			pixels[LY * GB_LCD_WIDTH + x+i] = 0;
+			break;
+		case 3:
+			pixels[LY * GB_LCD_WIDTH + x+i] = 0;
+			break;
+		}
+	}
+	if (USE_LCD == 1) {
+		if (LY == GB_LCD_HEIGHT - 1) {
+			SDL_UpdateTexture(texture, NULL, pixels, GB_LCD_WIDTH * sizeof(uint32_t));
+			SDL_RenderClear(renderer);
+			SDL_RenderCopy(renderer, texture, NULL, NULL);
+			SDL_RenderPresent(renderer);
+		}
+	}
 }
 
-int main(int argc, char **argv) {
+int main(void) {
   uint8_t cycles;
   init_project();
-  while (1) {
-		// print_instruction();
+	if (USE_LCD == 1) SDL2_init();
+	bool quit = false;
+	while (!quit){
+		// print_registers();
     cycles = cpu_cycle();
 		cycles += interrupts_cycle();
     gpu_cycle(cycles);
     timer_cycle(cycles);
-		if (SC == 0x81) {
-			printf("%c", SB);
-			SC = 0;
-		}
+		// if (SC == 0x81) {
+		// 	printf("%c", SB);
+		// 	SC = 0;
+		// }
+		if (USE_LCD == 1) if (SDL_PollEvent(&e) && e.type == SDL_QUIT) quit = true;
   }
+	print_registers();
+	if (USE_LCD == 1) {
+		SDL_DestroyTexture(texture);
+	  SDL_DestroyRenderer(renderer);
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+	}
   return EXIT_SUCCESS;
 }

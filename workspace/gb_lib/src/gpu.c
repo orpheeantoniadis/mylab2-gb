@@ -7,8 +7,8 @@ static uint16_t cpu_cycles_counter = 0;
 
 static uint16_t tileline_num(void) {
 	uint8_t draw_line = LY + SCROLLY;
-	uint8_t tile_line = draw_line / 8; // 8 is the number of lines in a tile
-	return tile_line * 32; // 32 is the number of tiles in a line
+	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
+	return tile_line << 5; // 32 is the number of tiles in a line
 }
 
 static void draw_tiles(void) {
@@ -33,17 +33,17 @@ static void draw_tiles(void) {
 	else window_tilemap_startregion = TILEMAP_STARTREGION0;
 	
 	tile_line = tileline_num();
-	tile_line += SCROLLX / 8; // 8 is the number of cols in a tile
+	tile_line += SCROLLX >> 3; // 8 is the number of cols in a tile
 	pixel_offset = ((LY + SCROLLY) % 8) << 1; // 2 bytes per pixel
 	
 	for (i = 0; i < 20; i++) { // loop the tiles
 		data_addr = tiledata_startregion;
 		if (LCDC_BIT_ISSET(4)) {
 			tile_id = (uint8_t)read8(BG_tilemap_startregion + tile_line + i);
-			data_addr += tile_id * 16;
+			data_addr += tile_id << 4;
 		} else {
 			tile_id = (int8_t)read8(BG_tilemap_startregion + tile_line + i);
-			data_addr += (tile_id + 128) * 16;
+			data_addr += (tile_id + 128) << 4;
 		}
 		data_addr += pixel_offset;
 		draw_tileline(read16(data_addr), i);
