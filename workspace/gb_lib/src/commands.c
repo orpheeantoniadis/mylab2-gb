@@ -1,7 +1,7 @@
-#include "alu.h"
-#include "commands.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "alu.h"
+#include "commands.h"
 
 const instruction_t instruction_set[256] = {
   {"NOP", 0, nop, 0},                           // 0x00

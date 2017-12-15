@@ -56,6 +56,10 @@ void draw_tileline(uint16_t pixels, uint8_t tilenum) {
 	MEMORY_WRITE();
 	for (i = 0; i < 8; i++) {
 		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
+		if (color != 0) {
+			fprintf(stderr, "0x%02x\n", pixels);
+			fprintf(stderr, "%d\n", color);
+		}
 		switch(color) {
 		case 0:
 			lcd_write_data_16(LCD_WHITE);

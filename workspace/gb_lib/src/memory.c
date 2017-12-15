@@ -15,8 +15,6 @@ static uint8_t rambanks[0x8000] ;
 static uint8_t rambanks[0x2000];
 #endif
 
-volatile uint32_t read8_cnt = 0;
-
 const uint8_t bootstrap[0x100] = {
 0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32,
 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
@@ -89,6 +87,14 @@ static void banking_handler(uint16_t addr, uint8_t val) {
 	}
 }
 
+static void dma_transfer(uint8_t data) {
+	uint8_t i;
+	uint16_t addr = data << 8;
+	for (i = 0; i < 0xa0; i++) {
+		memory.OAM[i] = read8(addr+i);
+	}
+}
+
 void load_rom(void) {
 	switch (rom[0x147]) {
 		case 1: MBC = 1; break;
@@ -100,38 +106,26 @@ void load_rom(void) {
 }
 
 uint8_t read8(uint16_t addr) {
-	read8_cnt++;
 	if (addr < 0x100 && BOOT_ROM_IS_ENABLE()) return bootstrap[addr];
-	else {
-		if (addr < 0x4000) return rom[addr];
-		else if (addr < 0x8000) return rom[addr-0x4000+rombank*0x4000];
-		else if ((addr > 0x9fff) && (addr < 0xc000)) return rambanks[addr-0xa000+(rambank*0x2000)];
-		else if (addr < 0xe000) return memory.MEM[addr - 0x8000];
-		else if(addr < 0xfe00) return memory.WRAM[addr - 0xa000];
-		else return memory.MEM[addr - 0x9e00];
-	}
+	else if (addr < 0x4000) return rom[addr];
+	else if (addr < 0x8000) return rom[addr-0x4000+rombank*0x4000];
+	else if (addr < 0xa000) return memory.VRAM[addr-0x8000];
+	else if (addr < 0xc000) return rambanks[addr-0xa000+(rambank*0x2000)];
+	else if (addr < 0xfe00) return memory.WRAM[(addr-0xc000)%0x2000];
+	else return memory.MEM[addr-OAM_OFFSET];
 }
 
-void write8(uint16_t addr, uint8_t val) {
-	if (addr > 0x7fff) {
-		if ((addr > 0x9fff) && (addr < 0xc000)) {
-			if (ram_enable) rambanks[addr-0xa000+(rambank*0x2000)] = val;
-		}
-		else if (addr < 0xe000) memory.MEM[addr - 0x8000] = val;
-		else if(addr < 0xfe00) memory.WRAM[addr - 0xa000] = val;
-		else if (addr == 0xff04 || addr == 0xff44) memory.MEM[addr - 0x9e00] = 0;
-		else if (addr == 0xff46) { // DMA
-			uint8_t i;
-			uint16_t address = val << 8;
-			for (i = 0; i < 0xa0; i++) {
-				memory.MEM[0xfe00+i - 0x9e00] = memory.MEM[address+i - 0x9e00];
-			}
-		}
-		else if (addr == 0xff4d) fprintf(stderr, "Writing %d in 0xFF4D !\n", val);
-		else memory.MEM[addr - 0x9e00] = val;
-	} else {
-		banking_handler(addr, val);
-	}
+void write8(uint16_t addr, uint8_t data) {
+	if (addr < 0x8000) banking_handler(addr, data);
+	else if (addr < 0xa000) memory.VRAM[addr-0x8000] = data;
+	else if (addr < 0xc000 && ram_enable)  rambanks[addr-0xa000+(rambank*0x2000)] = data;
+	else if (addr < 0xfe00) memory.WRAM[(addr-0xc000)%0x2000] = data;
+	else if (addr < 0xfea0) memory.OAM[addr-0xfe00] = data;
+	else if (addr == 0xff04) DIV = 0;
+	else if (addr == 0xff44) LY = 0;
+	else if (addr == 0xff46) dma_transfer(data);
+	else if ((addr > 0xff4b) && (addr < 0xff80) && (addr != 0xff50)) return;
+	else memory.MEM[addr-OAM_OFFSET] = data;
 }
 
 uint16_t read16(uint16_t addr) {

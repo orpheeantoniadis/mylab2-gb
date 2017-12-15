@@ -50,7 +50,7 @@
 #define SLEEP(mseconds)	vTaskDelay(mseconds / portTICK_RATE_MS)
 #define TASK_CREATE(function, name, args, priority) xTaskCreate(function, (signed portCHAR*)name, configMINIMAL_STACK_SIZE, args, priority, NULL)
 
-#define USE_BOOTROM	0
+#define USE_BOOTROM	1
 
 void gameboy(void *arg);
 void display(void *arg);

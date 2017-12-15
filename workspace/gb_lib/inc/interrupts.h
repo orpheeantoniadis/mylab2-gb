@@ -10,9 +10,6 @@
 #define IR_SERIAL 3
 #define IR_JOYPAD 4
 
-#define IF  (memory.MEM[0xff0f - 0x9e00])
-#define IE  (memory.MEM[0xffff - 0x9e00])
-
 extern uint8_t interrupt_master;
 
 void interrupt_request(uint8_t id);

@@ -1,7 +1,7 @@
-#include "interrupts.h"
-#include "timer.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "interrupts.h"
+#include "timer.h"
 
 static uint16_t timer_cycles_counter = 0;
 static uint16_t divider_cycles_counter = 0;

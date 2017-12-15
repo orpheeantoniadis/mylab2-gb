@@ -1,7 +1,7 @@
-#include "gpu.h"
-#include "cpu.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "cpu.h"
+#include "gpu.h"
 
 static uint16_t cpu_cycles_counter = 0;
 

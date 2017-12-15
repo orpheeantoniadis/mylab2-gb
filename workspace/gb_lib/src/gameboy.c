@@ -10,16 +10,15 @@
 #include "memory.h"
 #include "timer.h"
 
-#define USE_LCD			0
-#define USE_BOOTROM 0
-#define SB (memory.MEM[0xff01 - 0x9e00])
-#define SC (memory.MEM[0xff02 - 0x9e00])
+#define USE_LCD			1
+#define USE_BOOTROM 1
 
 SDL_Window* window;
 SDL_Renderer *renderer;
 SDL_Texture *texture;
 SDL_Event e;
 uint32_t pixels[GB_LCD_WIDTH*GB_LCD_HEIGHT];
+uint8_t rom[0x10000];
 
 void SDL2_init(void) {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -62,6 +61,21 @@ void init_project(void) {
 	}
 }
 
+uint8_t load_rom2(char *filename) {
+	FILE *file;
+	int cnt = 0;
+	if ((file = fopen(filename,"r")) == NULL) {
+		fprintf(stderr,"File not found\n");
+		return 1;
+	}
+	while (!feof(file)) {
+		fread(&rom[cnt], sizeof(uint8_t), 1, file);
+		cnt++;
+	}
+	fclose(file);
+	return 0;
+}
+
 void draw_tileline(uint16_t data, uint8_t tilenum) {
 	uint8_t i, x;
 	uint8_t part1, part2, color;
@@ -74,16 +88,16 @@ void draw_tileline(uint16_t data, uint8_t tilenum) {
 		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
 		switch(color) {
 		case 0:
-			pixels[LY * GB_LCD_WIDTH + x+i] = 0xffffff;
+			pixels[LY * GB_LCD_WIDTH + x+i] = 0x9bbc0f;
 			break;
 		case 1:
-			pixels[LY * GB_LCD_WIDTH + x+i] = 0;
+			pixels[LY * GB_LCD_WIDTH + x+i] = 0x8bac0f;
 			break;
 		case 2:
-			pixels[LY * GB_LCD_WIDTH + x+i] = 0;
+			pixels[LY * GB_LCD_WIDTH + x+i] = 0x306230;
 			break;
 		case 3:
-			pixels[LY * GB_LCD_WIDTH + x+i] = 0;
+			pixels[LY * GB_LCD_WIDTH + x+i] = 0x0f380f;
 			break;
 		}
 	}
@@ -97,29 +111,36 @@ void draw_tileline(uint16_t data, uint8_t tilenum) {
 	}
 }
 
-int main(void) {
+int main(int argc, char** argv) {
   uint8_t cycles;
-  init_project();
-	if (USE_LCD == 1) SDL2_init();
-	bool quit = false;
-	while (!quit){
-		// print_registers();
-    cycles = cpu_cycle();
-		interrupts_cycle();
-    gpu_cycle(cycles);
-    timer_cycle(cycles);
-		if (SC == 0x81) {
-			printf("%c", SB);
-			SC = 0;
+	
+	if (argc == 2) {
+		if (load_rom2(argv[1]) == 1) return EXIT_FAILURE;
+		init_project();
+		if (USE_LCD == 1) SDL2_init();
+		bool quit = false;
+		while (!quit){
+			// print_registers();
+	    cycles = cpu_cycle();
+			interrupts_cycle();
+	    gpu_cycle(cycles);
+	    timer_cycle(cycles);
+			if (SC == 0x81) {
+				printf("%c", SB);
+				SC = 0;
+			}
+			if (USE_LCD == 1) if (SDL_PollEvent(&e) && e.type == SDL_QUIT) quit = true;
+	  }
+		print_registers();
+		if (USE_LCD == 1) {
+			SDL_DestroyTexture(texture);
+		  SDL_DestroyRenderer(renderer);
+			SDL_DestroyWindow(window);
+			SDL_Quit();
 		}
-		if (USE_LCD == 1) if (SDL_PollEvent(&e) && e.type == SDL_QUIT) quit = true;
-  }
-	print_registers();
-	if (USE_LCD == 1) {
-		SDL_DestroyTexture(texture);
-	  SDL_DestroyRenderer(renderer);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
+	} else {
+		printf("Usage : %s <game_file>\n", argv[0]);
+		return EXIT_FAILURE;
 	}
-  return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

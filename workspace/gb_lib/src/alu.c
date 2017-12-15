@@ -1,8 +1,8 @@
-#include "alu.h"
-#include "cpu.h"
-#include "memory.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "cpu.h"
+#include "memory.h"
+#include "alu.h"
 
 static void inc(uint8_t *reg) {
   if (((*reg) & 0x0f) == 0x0f) FLAG_SET(HALFCARRY_FLAG);

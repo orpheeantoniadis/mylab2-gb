@@ -1,8 +1,8 @@
-#include "cpu.h"
-#include "interrupts.h"
-#include "memory.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "cpu.h"
+#include "interrupts.h"
 
 uint8_t interrupt_master = 0;
 static uint8_t pending_interrupt = 0;

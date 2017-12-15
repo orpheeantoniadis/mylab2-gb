@@ -1,7 +1,7 @@
-#include "cpu.h"
-#include "memory.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "memory.h"
+#include "cpu.h"
 
 registers_t registers;
 uint8_t halted = 0;
@@ -54,7 +54,7 @@ uint8_t cpu_cycle(void) {
 	    }
 	    break;
 	  }
-	  return cycles*4;
+	  return cycles<<2;
 	}
 	return 4;
 }
