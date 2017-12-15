@@ -404,9 +404,9 @@ void rra(void) {
 uint8_t jr_nz(uint8_t n) {
   if (!FLAG_ISSET(ZERO_FLAG)) {
     registers.pc += (int8_t)n;
-    return 12;
+    return taken_op_times[0x20];
   }
-  return 8;
+  return op_times[0x20];
 }
 
 // 0x21
@@ -454,9 +454,9 @@ void daa(void) {
 uint8_t jr_z(uint8_t n) {
   if (FLAG_ISSET(ZERO_FLAG)) {
     registers.pc += (int8_t)n;
-    return 12;
+		return taken_op_times[0x28];
   }
-  return 8;
+  return op_times[0x28];
 }
 
 // 0x29
@@ -491,9 +491,9 @@ void cpl(void) {
 uint8_t jr_nc(uint8_t n) {
   if (!FLAG_ISSET(CARRY_FLAG)) {
     registers.pc += (int8_t)n;
-    return 12;
+		return taken_op_times[0x30];
   }
-  return 8;
+  return op_times[0x30];
 }
 
 // 0x31
@@ -536,9 +536,9 @@ void scf(void) {
 uint8_t jr_c(uint8_t n) {
   if (FLAG_ISSET(CARRY_FLAG)) {
     registers.pc += (int8_t)n;
-    return 12;
+		return taken_op_times[0x38];
   }
-  return 8;
+  return op_times[0x38];
 }
 
 // 0x39
@@ -961,9 +961,9 @@ void cp_a(void) { cp(registers.a, registers.a); }
 uint8_t ret_nz(void) {
   if (!FLAG_ISSET(ZERO_FLAG)) {
     pop(&(registers.pc));
-    return 20;
+		return taken_op_times[0xc0];
   }
-  return 8;
+  return op_times[0xc0];
 }
 
 // 0xc1
@@ -973,9 +973,9 @@ void pop_bc(void) { pop(&(registers.bc)); }
 uint8_t jp_nz(uint16_t nn) {
   if (!FLAG_ISSET(ZERO_FLAG)) {
     registers.pc = nn;
-    return 16;
+		return taken_op_times[0xc2];
   }
-  return 12;
+  return op_times[0xc2];
 }
 
 // 0xc3
@@ -986,9 +986,9 @@ uint8_t call_nz(uint16_t nn) {
   if (!FLAG_ISSET(ZERO_FLAG)) {
     push(registers.pc);
     registers.pc = nn;
-    return 24;
+		return taken_op_times[0xc4];
   }
-  return 12;
+  return op_times[0xc4];
 }
 
 // 0xc5
@@ -1007,9 +1007,9 @@ void rst_00h(void) {
 uint8_t ret_z(void) {
   if (FLAG_ISSET(ZERO_FLAG)) {
     pop(&(registers.pc));
-    return 20;
+		return taken_op_times[0xc8];
   }
-  return 8;
+  return op_times[0xc8];
 }
 
 // 0xc9
@@ -1019,9 +1019,9 @@ void ret(void) { pop(&(registers.pc)); }
 uint8_t jp_z(uint16_t nn) {
   if (FLAG_ISSET(ZERO_FLAG)) {
     registers.pc = nn;
-    return 16;
+		return taken_op_times[0xca];
   }
-  return 12;
+  return op_times[0xca];
 }
 
 // 0xcc
@@ -1029,9 +1029,9 @@ uint8_t call_z(uint16_t nn) {
   if (FLAG_ISSET(ZERO_FLAG)) {
     push(registers.pc);
     registers.pc = nn;
-    return 24;
+		return taken_op_times[0xcc];
   }
-  return 12;
+  return op_times[0xcc];
 }
 
 // 0xcd
@@ -1053,9 +1053,9 @@ void rst_08h(void) {
 uint8_t ret_nc(void) {
   if (!FLAG_ISSET(CARRY_FLAG)) {
     pop(&(registers.pc));
-    return 20;
+		return taken_op_times[0xd0];
   }
-  return 8;
+  return op_times[0xd0];
 }
 
 // 0xd1
@@ -1065,9 +1065,9 @@ void pop_de(void) { pop(&(registers.de)); }
 uint8_t jp_nc(uint16_t nn) {
   if (!FLAG_ISSET(CARRY_FLAG)) {
     registers.pc = nn;
-    return 16;
+		return taken_op_times[0xd2];
   }
-  return 12;
+  return op_times[0xd2];
 }
 
 // 0xd4
@@ -1075,9 +1075,9 @@ uint8_t call_nc(uint16_t nn) {
   if (!FLAG_ISSET(CARRY_FLAG)) {
     push(registers.pc);
     registers.pc = nn;
-    return 24;
+		return taken_op_times[0xd4];
   }
-  return 12;
+  return op_times[0xd4];
 }
 
 // 0xd5
@@ -1096,9 +1096,9 @@ void rst_10h(void) {
 uint8_t ret_c(void) {
   if (FLAG_ISSET(CARRY_FLAG)) {
     pop(&(registers.pc));
-    return 20;
+		return taken_op_times[0xd8];
   }
-  return 8;
+  return op_times[0xd8];
 }
 
 // 0xd9
@@ -1111,9 +1111,9 @@ void reti(void) {
 uint8_t jp_c(uint16_t nn) {
   if (FLAG_ISSET(CARRY_FLAG)) {
     registers.pc = nn;
-    return 16;
+		return taken_op_times[0xda];
   }
-  return 12;
+  return op_times[0xda];
 }
 
 // 0xdc
@@ -1121,9 +1121,9 @@ uint8_t call_c(uint16_t nn) {
   if (FLAG_ISSET(CARRY_FLAG)) {
     push(registers.pc);
     registers.pc = nn;
-    return 24;
+		return taken_op_times[0xdc];
   }
-  return 12;
+  return op_times[0xdc];
 }
 
 // 0xde

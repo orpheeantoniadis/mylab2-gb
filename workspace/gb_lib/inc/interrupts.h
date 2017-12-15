@@ -17,6 +17,6 @@ extern uint8_t interrupt_master;
 
 void interrupt_request(uint8_t id);
 void enable_interrupts(uint8_t wait_cycle);
-void interrupts_cycle(void);
+uint8_t interrupts_cycle(void);
 
 #endif

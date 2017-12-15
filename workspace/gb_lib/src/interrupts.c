@@ -17,7 +17,7 @@ void enable_interrupts(uint8_t wait_cycle) {
 	}
 }
 
-void interrupts_cycle(void) {
+uint8_t interrupts_cycle(void) {
 	uint8_t i;
 	if ((interrupt_master == 1) && (IF != 0)) {
 		for (i = IR_VBLANK; i <= IR_JOYPAD; i++) {
@@ -46,5 +46,7 @@ void interrupts_cycle(void) {
 				halted = 0;
 			}
 		}
+		return 24;
 	}
+	return 20;
 }

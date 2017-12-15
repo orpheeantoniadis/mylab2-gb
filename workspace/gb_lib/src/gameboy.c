@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
   while (1) {
 		// print_instruction();
     cycles = cpu_cycle();
-		interrupts_cycle();
+		cycles += interrupts_cycle();
     gpu_cycle(cycles);
     timer_cycle(cycles);
 		if (SC == 0x81) {
