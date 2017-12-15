@@ -54,9 +54,9 @@ uint8_t cpu_cycle(void) {
 	    }
 	    break;
 	  }
-	  return cycles;
+	  return cycles*4;
 	}
-	return 0;
+	return 4;
 }
 
 void print_registers(void) {

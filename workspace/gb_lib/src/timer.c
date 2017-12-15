@@ -3,30 +3,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static uint16_t timer_cycles_counter = 1024;
-static uint8_t divider_cycles_counter = 255;
+static uint16_t timer_cycles_counter = 0;
+static uint16_t divider_cycles_counter = 0;
 
-static void set_frequency(void) {
+static uint16_t get_frequency(void) {
   switch (TAC & 0b11) {
-  case 0: timer_cycles_counter = 1024; break; // CLOCKSPEED / 4096
-  case 1: timer_cycles_counter = 16; break; // CLOCKSPEED / 262144
-  case 2: timer_cycles_counter = 64; break; // CLOCKSPEED / 65536
-  case 3: timer_cycles_counter = 255; break; // CLOCKSPEED / 16384
+  case 0: return 1024; // CLOCKSPEED / 4096
+  case 1: return 16; // CLOCKSPEED / 262144
+  case 2: return 64; // CLOCKSPEED / 65536
+  case 3: return 255; // CLOCKSPEED / 16384
+	default: return 0;
   }
 }
 
 void timer_cycle(uint8_t cycles) {
   if (TIMER_IS_ENABLE()) {
-    if (timer_cycles_counter < cycles) {
-      set_frequency();
+		uint16_t freq = get_frequency();
+		timer_cycles_counter += cycles;
+    if (timer_cycles_counter > freq) {
       if (TIMA == TIMER_OVERFLOW) {
         TIMA = TMA;
         interrupt_request(IR_TIMER);
       } else TIMA++;
-    } else timer_cycles_counter -= cycles;
+			timer_cycles_counter -= freq;
+    }
   }
+	divider_cycles_counter += cycles;
   if (divider_cycles_counter < cycles) {
-    divider_cycles_counter = 255;
     DIV++;
-  } else divider_cycles_counter -= cycles;
+		divider_cycles_counter -= 255;
+  }
 }

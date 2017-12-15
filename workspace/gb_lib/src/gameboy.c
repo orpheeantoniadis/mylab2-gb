@@ -105,13 +105,13 @@ int main(void) {
 	while (!quit){
 		// print_registers();
     cycles = cpu_cycle();
-		cycles += interrupts_cycle();
+		interrupts_cycle();
     gpu_cycle(cycles);
     timer_cycle(cycles);
-		// if (SC == 0x81) {
-		// 	printf("%c", SB);
-		// 	SC = 0;
-		// }
+		if (SC == 0x81) {
+			printf("%c", SB);
+			SC = 0;
+		}
 		if (USE_LCD == 1) if (SDL_PollEvent(&e) && e.type == SDL_QUIT) quit = true;
   }
 	print_registers();
