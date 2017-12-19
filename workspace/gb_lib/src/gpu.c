@@ -6,15 +6,16 @@
 static uint16_t cpu_cycles_counter = 0;
 
 static uint16_t tileline_num(void) {
-	uint8_t draw_line = LY + SCROLLY;
+	uint8_t draw_line;
+	if (LCDC_BIT_ISSET(5)) draw_line = LY - WINDOWY;
+	else draw_line = LY + SCROLLY;
 	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
 	return tile_line << 5; // 32 is the number of tiles in a line
 }
 
 static void draw_tiles(void) {
-	uint16_t BG_tilemap_startregion;
-	uint16_t window_tilemap_startregion;
-	uint16_t tiledata_startregion;
+	uint16_t background_startregion;
+	uint16_t data_startregion;
 
 	uint16_t tile_line;
 	int16_t tile_id;
@@ -22,27 +23,27 @@ static void draw_tiles(void) {
 	uint8_t pixel_offset;
 	uint8_t i;
 	
-	if (LCDC_BIT_ISSET(3)) BG_tilemap_startregion = TILEMAP_STARTREGION1;
-	else BG_tilemap_startregion = TILEMAP_STARTREGION0;
-	if (LCDC_BIT_ISSET(4)) tiledata_startregion = TILEDATA_STARTREGION1;
-	else tiledata_startregion = TILEDATA_STARTREGION0;
+	if (LCDC_BIT_ISSET(4)) data_startregion = TILEDATA_STARTREGION1;
+	else data_startregion = TILEDATA_STARTREGION0;
 	if (LCDC_BIT_ISSET(5)) {
-		fprintf(stderr, "WINDOW ENABLED");
+		if (LCDC_BIT_ISSET(6)) background_startregion = TILEMAP_STARTREGION1;
+		else background_startregion = TILEMAP_STARTREGION0;
+	} else {
+		if (LCDC_BIT_ISSET(3)) background_startregion = TILEMAP_STARTREGION1;
+		else background_startregion = TILEMAP_STARTREGION0;
 	}
-	if (LCDC_BIT_ISSET(6)) window_tilemap_startregion = TILEMAP_STARTREGION1;
-	else window_tilemap_startregion = TILEMAP_STARTREGION0;
 	
 	tile_line = tileline_num();
 	tile_line += SCROLLX >> 3; // 8 is the number of cols in a tile
 	pixel_offset = ((LY + SCROLLY) % 8) << 1; // 2 bytes per pixel
 	
 	for (i = 0; i < 20; i++) { // loop the tiles
-		data_addr = tiledata_startregion;
+		data_addr = data_startregion;
 		if (LCDC_BIT_ISSET(4)) {
-			tile_id = (uint8_t)read8(BG_tilemap_startregion + tile_line + i);
+			tile_id = (uint8_t)read8(background_startregion + tile_line + i);
 			data_addr += tile_id << 4;
 		} else {
-			tile_id = (int8_t)read8(BG_tilemap_startregion + tile_line + i);
+			tile_id = (int8_t)read8(background_startregion + tile_line + i);
 			data_addr += (tile_id + 128) << 4;
 		}
 		data_addr += pixel_offset;
