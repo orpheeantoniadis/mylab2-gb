@@ -9,7 +9,7 @@ static uint8_t rombank = 1;
 static uint8_t rambank = 0;
 static uint8_t ram_enable = 0;
 
-#ifndef __USE_MYLAB2
+#ifdef __UNIX
 static uint8_t rambanks[0x8000] ;
 #else
 static uint8_t rambanks[0x2000];

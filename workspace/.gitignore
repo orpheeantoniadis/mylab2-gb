@@ -30,3 +30,4 @@
 .settings
 Debug
 makefile
+!gb_lib/makefile

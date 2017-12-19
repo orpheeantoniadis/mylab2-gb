@@ -3,9 +3,7 @@
 
 #include <stdint.h>
 
-//#define __USE_MYLAB2
-
-#ifndef __USE_MYLAB2
+#ifdef __UNIX
 #define __DATA(RAM2)
 #else
 #include <cr_section_macros.h>
@@ -18,7 +16,7 @@
 #define HRAM_SPACE      0x7F
 #define OAM_OFFSET			0xBE00
 
-#ifndef __USE_MYLAB2
+#ifdef __UNIX
 extern uint8_t rom[];
 #else
 extern const uint8_t rom[];

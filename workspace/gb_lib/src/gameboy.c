@@ -1,8 +1,15 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <time.h>
+#include <SDL2/SDL.h>
+
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 #include "cpu.h"
 #include "interrupts.h"
@@ -12,6 +19,8 @@
 
 #define USE_LCD			1
 #define USE_BOOTROM 1
+#define FREQ				60
+#define CYCLES_FREQ	(CLOCKSPEED/FREQ)
 
 SDL_Window* window;
 SDL_Renderer *renderer;
@@ -19,13 +28,43 @@ SDL_Texture *texture;
 SDL_Event e;
 uint32_t pixels[GB_LCD_WIDTH*GB_LCD_HEIGHT];
 uint8_t rom[0x10000];
+bool quit = false;
+double period = ((1.0 / FREQ) * 1e6);
+
+void current_utc_time(struct timespec *ts) {
+#ifdef __MACH__
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  ts->tv_sec = mts.tv_sec;
+  ts->tv_nsec = mts.tv_nsec;
+#else
+  clock_gettime(CLOCK_REALTIME, ts);
+#endif
+}
 
 void SDL2_init(void) {
 	SDL_Init(SDL_INIT_VIDEO);
   window = SDL_CreateWindow("myLab2 GB",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, GB_LCD_WIDTH, GB_LCD_HEIGHT, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, GB_LCD_WIDTH, GB_LCD_HEIGHT);
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_LCD_WIDTH, GB_LCD_HEIGHT);
 	memset(pixels, 255, GB_LCD_WIDTH * GB_LCD_HEIGHT * sizeof(uint32_t));
+}
+
+void SDL2_destroy(void) {
+	SDL_DestroyTexture(texture);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+}
+
+void SDL2_render(void) {
+	SDL_UpdateTexture(texture, NULL, pixels, GB_LCD_WIDTH * sizeof(uint32_t));
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, texture, NULL, NULL);
+	SDL_RenderPresent(renderer);
 }
 
 void init_project(void) {
@@ -102,43 +141,57 @@ void draw_tileline(uint16_t data, uint8_t tilenum) {
 			break;
 		}
 	}
-	if (USE_LCD == 1) {
-		if (LY == GB_LCD_HEIGHT - 1) {
-			SDL_UpdateTexture(texture, NULL, pixels, GB_LCD_WIDTH * sizeof(uint32_t));
-			SDL_RenderClear(renderer);
-			SDL_RenderCopy(renderer, texture, NULL, NULL);
-			SDL_RenderPresent(renderer);
-		}
-	}
 }
 
-int main(int argc, char** argv) {
-  uint8_t cycles;
-	
+void gb_update(void) {
+	uint8_t cycles;
+	uint32_t total_cycles = 0;
+	while (total_cycles < CYCLES_FREQ) {
+		cycles = cpu_cycle();
+		interrupts_cycle();
+		gpu_cycle(cycles);
+		timer_cycle(cycles);
+		total_cycles += cycles;
+		// Blargg's tests
+		if (SC == 0x81) {
+			printf("%c", SB);
+			SC = 0;
+		}
+	}
+	SDL2_render();
+}
+
+int gb_thread(void *arg) {
+	struct timespec start, finish;
+	double elapsed;
+	while(!quit && arg == NULL) {
+		current_utc_time(&start);
+		gb_update();
+		current_utc_time(&finish);
+		elapsed = (finish.tv_sec - start.tv_sec) * 1e6;
+		elapsed += (finish.tv_nsec - start.tv_nsec) / 1e3;
+		if (elapsed < period) {
+			useconds_t uperiod_sleep = period - elapsed;
+			usleep(uperiod_sleep);
+		}
+	}
+	return 0;
+}
+
+int main(int argc, char** argv) {	
 	if (argc == 2) {
 		if (load_rom2(argv[1]) == 1) return EXIT_FAILURE;
 		init_project();
 		if (USE_LCD == 1) SDL2_init();
-		bool quit = false;
+		SDL_Thread *t = SDL_CreateThread(gb_thread, "Gameboy Thread", NULL);
 		while (!quit){
-			// print_registers();
-	    cycles = cpu_cycle();
-			interrupts_cycle();
-	    gpu_cycle(cycles);
-	    timer_cycle(cycles);
-			if (SC == 0x81) {
-				printf("%c", SB);
-				SC = 0;
+			if (USE_LCD == 1) {
+				if (SDL_PollEvent(&e) && e.type == SDL_QUIT) quit = true;
 			}
-			if (USE_LCD == 1) if (SDL_PollEvent(&e) && e.type == SDL_QUIT) quit = true;
-	  }
-		print_registers();
-		if (USE_LCD == 1) {
-			SDL_DestroyTexture(texture);
-		  SDL_DestroyRenderer(renderer);
-			SDL_DestroyWindow(window);
-			SDL_Quit();
 		}
+		print_registers();
+		SDL_WaitThread(t, NULL);
+		if (USE_LCD == 1) SDL2_destroy();
 	} else {
 		printf("Usage : %s <game_file>\n", argv[0]);
 		return EXIT_FAILURE;
