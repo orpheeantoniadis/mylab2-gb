@@ -19,6 +19,8 @@
 #define TILEDATA_STARTREGION0 0x8800
 #define TILEDATA_STARTREGION1 0x8000
 
+#define WINDOW_DISPLAY				LCDC_BIT_ISSET(5)
+
 static inline uint8_t LCD_IS_ENABLE(void) {return (LCDC>>7)&1;}
 static inline uint8_t LCDC_BIT_ISSET(uint8_t bit) {return (LCDC>>bit)&1;}
 static inline void STAT_SET_BIT(uint8_t bit) {STAT=STAT|(1<<bit);}

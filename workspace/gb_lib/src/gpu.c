@@ -5,49 +5,67 @@
 
 static uint16_t cpu_cycles_counter = 0;
 
-static uint16_t tileline_num(void) {
-	uint8_t draw_line;
-	if (LCDC_BIT_ISSET(5)) draw_line = LY - WINDOWY;
-	else draw_line = LY + SCROLLY;
+static uint16_t background_line_num(void) {
+	uint8_t draw_line = LY + SCROLLY;
+	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
+	return tile_line << 5; // 32 is the number of tiles in a line
+}
+
+static uint16_t window_line_num(void) {
+	uint8_t draw_line = LY + WINDOWY;
 	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
 	return tile_line << 5; // 32 is the number of tiles in a line
 }
 
 static void draw_tiles(void) {
-	uint16_t background_startregion;
+	uint16_t tilemap_startregion;
 	uint16_t data_startregion;
 
-	uint16_t tile_line;
-	int16_t tile_id;
-	uint16_t data_addr;
-	uint8_t pixel_offset;
+	uint16_t background_line, window_line;
+	uint16_t background_col, window_col;
+	int16_t background_tile_id, window_tile_id;
+	uint16_t background_data_addr, window_data_addr;
+	uint8_t background_pixel_offset, window_pixel_offset;
 	uint8_t i;
 	
 	if (LCDC_BIT_ISSET(4)) data_startregion = TILEDATA_STARTREGION1;
 	else data_startregion = TILEDATA_STARTREGION0;
-	if (LCDC_BIT_ISSET(5)) {
-		if (LCDC_BIT_ISSET(6)) background_startregion = TILEMAP_STARTREGION1;
-		else background_startregion = TILEMAP_STARTREGION0;
+	if (WINDOW_DISPLAY) {
+		if (LCDC_BIT_ISSET(6)) tilemap_startregion = TILEMAP_STARTREGION1;
+		else tilemap_startregion = TILEMAP_STARTREGION0;
 	} else {
-		if (LCDC_BIT_ISSET(3)) background_startregion = TILEMAP_STARTREGION1;
-		else background_startregion = TILEMAP_STARTREGION0;
+		if (LCDC_BIT_ISSET(3)) tilemap_startregion = TILEMAP_STARTREGION1;
+		else tilemap_startregion = TILEMAP_STARTREGION0;
 	}
 	
-	tile_line = tileline_num();
-	tile_line += SCROLLX >> 3; // 8 is the number of cols in a tile
-	pixel_offset = ((LY + SCROLLY) % 8) << 1; // 2 bytes per pixel
+	background_line = background_line_num();
+	window_line = window_line_num();
+	background_pixel_offset = ((LY + SCROLLY) % 8 + SCROLLX % 8) << 1; // 2 bytes per pixel
+	window_pixel_offset = ((LY + WINDOWY) % 8 + WINDOWX % 8) << 1;
+	background_col = SCROLLX >> 3;
+	window_col = WINDOWX >> 3;
 	
 	for (i = 0; i < 20; i++) { // loop the tiles
-		data_addr = data_startregion;
+		background_data_addr = data_startregion;
+		window_data_addr = data_startregion;
 		if (LCDC_BIT_ISSET(4)) {
-			tile_id = (uint8_t)read8(background_startregion + tile_line + i);
-			data_addr += tile_id << 4;
+			background_tile_id = (uint8_t)memory.VRAM[tilemap_startregion+background_line+background_col+i-0x8000];
+			background_data_addr += background_tile_id << 4;
+			window_tile_id = (uint8_t)memory.VRAM[tilemap_startregion+window_line+window_col+i-0x8000];
+			window_data_addr += window_tile_id << 4;
 		} else {
-			tile_id = (int8_t)read8(background_startregion + tile_line + i);
-			data_addr += (tile_id + 128) << 4;
+			background_tile_id = (int8_t)memory.VRAM[tilemap_startregion+background_line+background_col+i-0x8000];
+			background_data_addr += (background_tile_id + 128) << 4;
+			window_tile_id = (int8_t)memory.VRAM[tilemap_startregion+window_line+window_col+i-0x8000];
+			window_data_addr += (window_tile_id + 128) << 4;
 		}
-		data_addr += pixel_offset;
-		draw_tileline(read16(data_addr), i);
+		background_data_addr += background_pixel_offset;
+		window_data_addr += window_pixel_offset;
+		// if (WINDOW_DISPLAY && i >= window_col) {
+    // 
+		// } else {
+			draw_tileline(read16(background_data_addr), i);
+		// }
 	}
 }
 

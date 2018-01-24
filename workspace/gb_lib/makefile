@@ -3,7 +3,7 @@ INCDIR = inc
 SRCDIR = src
 
 XFLAGS = -Wall -Wextra
-CFLAGS = -g -I$(INCDIR) $(XFLAGS) -std=gnu99
+CFLAGS = -g -I$(INCDIR) $(XFLAGS) -std=gnu99 -O3
 LDFLAGS = -lSDL2 -lpthread
 DFLAGS = -D__UNIX
 
