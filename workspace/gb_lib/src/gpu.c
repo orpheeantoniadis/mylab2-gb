@@ -12,7 +12,7 @@ static uint16_t background_line_num(void) {
 }
 
 static uint16_t window_line_num(void) {
-	uint8_t draw_line = LY + WINDOWY;
+	uint8_t draw_line = LY - WINDOWY;
 	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
 	return tile_line << 5; // 32 is the number of tiles in a line
 }
@@ -41,7 +41,7 @@ static void draw_tiles(void) {
 	background_line = background_line_num();
 	window_line = window_line_num();
 	background_pixel_offset = ((LY + SCROLLY) % 8 + SCROLLX % 8) << 1; // 2 bytes per pixel
-	window_pixel_offset = ((LY + WINDOWY) % 8 + WINDOWX % 8) << 1;
+	window_pixel_offset = ((LY - WINDOWY) % 8 - WINDOWX % 8) << 1;
 	background_col = SCROLLX >> 3;
 	window_col = WINDOWX >> 3;
 	
@@ -51,21 +51,29 @@ static void draw_tiles(void) {
 		if (LCDC_BIT_ISSET(4)) {
 			background_tile_id = (uint8_t)memory.VRAM[tilemap_startregion+background_line+background_col+i-0x8000];
 			background_data_addr += background_tile_id << 4;
-			window_tile_id = (uint8_t)memory.VRAM[tilemap_startregion+window_line+window_col+i-0x8000];
+			window_tile_id = (uint8_t)memory.VRAM[tilemap_startregion+window_line-window_col+i-0x8000];
 			window_data_addr += window_tile_id << 4;
 		} else {
 			background_tile_id = (int8_t)memory.VRAM[tilemap_startregion+background_line+background_col+i-0x8000];
 			background_data_addr += (background_tile_id + 128) << 4;
-			window_tile_id = (int8_t)memory.VRAM[tilemap_startregion+window_line+window_col+i-0x8000];
+			window_tile_id = (int8_t)memory.VRAM[tilemap_startregion+window_line-window_col+i-0x8000];
 			window_data_addr += (window_tile_id + 128) << 4;
 		}
 		background_data_addr += background_pixel_offset;
 		window_data_addr += window_pixel_offset;
-		// if (WINDOW_DISPLAY && i >= window_col) {
-    // 
-		// } else {
+		if (WINDOW_DISPLAY && i >= window_col) {
+    	if (i == window_col && (WINDOWX % 8) != 0) {
+				uint16_t background_data = read16(background_data_addr);
+				background_data = (background_data << (8 - (WINDOWX % 8)) << 1) >> (8 - (WINDOWX % 8)) >> 1;
+				uint16_t window_data = read16(window_data_addr);
+				window_data = (window_data >> (WINDOWX % 8) >> 1) << (WINDOWX % 8) << 1;
+				draw_tileline(background_data | window_data, i);
+			} else if (i >= window_col) {
+				draw_tileline(read16(window_data_addr), i);
+			}
+		} else {
 			draw_tileline(read16(background_data_addr), i);
-		// }
+		}
 	}
 }
 
