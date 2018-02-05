@@ -142,6 +142,10 @@ void draw_tileline(uint16_t data, uint8_t tilenum) {
 	}
 }
 
+void draw_spriteline(uint16_t pixels, uint8_t x, uint8_t flags) {
+  
+}
+
 void gb_update(void) {
 	uint8_t cycles;
 	uint32_t total_cycles = 0;
@@ -177,7 +181,7 @@ int gb_thread(void *arg) {
 	return 0;
 }
 
-int main(int argc, char** argv) {	
+int main(int argc, char **argv) {	
 	if (argc == 2) {
 		if (load_rom2(argv[1]) == 1) return EXIT_FAILURE;
 		init_project();
