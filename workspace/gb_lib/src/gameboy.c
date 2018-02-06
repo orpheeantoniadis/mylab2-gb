@@ -77,6 +77,8 @@ void init_project(void) {
 		registers.sp = 0xfffe;
 		registers.pc = 0x100;
 		interrupt_master = 1;
+    // important for tetris -> init the buttons (active low)
+    memory.MEM[0xff00-OAM_OFFSET] = 0x3F;
 		write8(0xFF10, 0x80);
 		write8(0xFF11, 0xBF);
 		write8(0xFF12, 0xF3);
