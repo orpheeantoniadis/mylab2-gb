@@ -116,7 +116,7 @@ static void draw_sprites(void) {
 				// 8 pixel per line and 2 bytes per pixel so x16
 				data_addr = (pattern_num << 4) + sprite_line;
 			}
-			draw_spriteline(read16(data_addr), x, flags);
+			// draw_spriteline(read16(data_addr), x, flags);
 		}
 	}
 }
@@ -127,6 +127,26 @@ static void draw_scanline(void) {
 	}
 	if (LCDC_BIT_ISSET(1)) {
 		draw_sprites();
+	}
+}
+
+int get_color(uint16_t addr, uint8_t color) {
+	uint8_t palette = memory.MEM[addr-OAM_OFFSET];
+	uint8_t new_color;
+	
+	switch(color) {
+		case 0: new_color = palette & 0b11; break;
+		case 1: new_color = (palette & 0b1100) >> 2; break;
+		case 2: new_color = (palette & 0b110000) >> 4; break;
+		case 3: new_color = (palette & 0b11000000) >> 6; break;
+	}
+	
+	switch(new_color) {
+		case 0: return WHITE;
+		case 1: return LIGHT_GRAY;
+		case 2: return DARK_GRAY;
+		case 3: return BLACK;
+		default: return WHITE;
 	}
 }
 

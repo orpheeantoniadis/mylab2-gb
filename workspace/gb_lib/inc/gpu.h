@@ -8,6 +8,18 @@
 #define GB_LCD_HEIGHT   144
 #define SCANLINES_NB    153
 
+#ifdef __UNIX
+#define WHITE				0x9bbc0f
+#define LIGHT_GRAY	0x8bac0f
+#define DARK_GRAY		0x306230
+#define BLACK				0x0f380f
+#else
+#define WHITE
+#define LIGHT_GRAY
+#define DARK_GRAY
+#define BLACK
+#endif
+
 #define LCD_SCAN_PERIOD 456
 #define MODE2_BOUND     80
 #define MODE3_BOUND     252
@@ -32,6 +44,7 @@ static inline uint8_t STAT_GET_MODE(void) {return STAT&3;}
 
 void draw_tileline(uint16_t pixels, uint8_t tilenum);
 void draw_spriteline(uint16_t pixels, uint8_t x, uint8_t flags);
+int get_color(uint16_t addr, uint8_t color);
 void gpu_cycle(uint8_t cycles);
 
 #endif

@@ -18,7 +18,7 @@
 #include "timer.h"
 
 #define USE_LCD			1
-#define USE_BOOTROM 0
+#define USE_BOOTROM 1
 #define FREQ				60
 #define CYCLES_FREQ	(CLOCKSPEED/FREQ)
 
@@ -125,25 +125,54 @@ void draw_tileline(uint16_t data, uint8_t tilenum) {
 	
 	for (i = 0; i < 8; i++) {
 		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
-		switch(color) {
-		case 0:
-			pixels[LY * GB_LCD_WIDTH + x+i] = 0x9bbc0f;
-			break;
-		case 1:
-			pixels[LY * GB_LCD_WIDTH + x+i] = 0x8bac0f;
-			break;
-		case 2:
-			pixels[LY * GB_LCD_WIDTH + x+i] = 0x306230;
-			break;
-		case 3:
-			pixels[LY * GB_LCD_WIDTH + x+i] = 0x0f380f;
-			break;
-		}
+    pixels[LY * GB_LCD_WIDTH + x+i] = get_color(0xff47, color);
+		// switch(color) {
+		// case 0:
+		// 	pixels[LY * GB_LCD_WIDTH + x+i] = WHITE;
+		// 	break;
+		// case 1:
+		// 	pixels[LY * GB_LCD_WIDTH + x+i] = LIGHT_GRAY;
+		// 	break;
+		// case 2:
+		// 	pixels[LY * GB_LCD_WIDTH + x+i] = DARK_GRAY;
+		// 	break;
+		// case 3:
+		// 	pixels[LY * GB_LCD_WIDTH + x+i] = BLACK;
+		// 	break;
+		// }
 	}
 }
 
-void draw_spriteline(uint16_t pixels, uint8_t x, uint8_t flags) {
+void draw_spriteline(uint16_t data, uint8_t x, uint8_t flags) {
+  uint8_t i, j;
+  uint8_t part1, part2, color;
+
+  part1 = data & 0xff;
+  part2 = (data >> 8) & 0xff;
+  j = 7;
   
+  for (i = 0; i < 8; i++) {
+    // X flip (bit 6 of flag register)
+    if ((flags >> 5) & 1)
+      color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
+    else
+      color = (part1 >> (7 - j) & 1) | ((part2 >> (7 - j) & 1) << 1);
+
+    switch(color) {
+    case 0:
+      break;
+    case 1:
+      pixels[LY * GB_LCD_WIDTH + x+i] = LIGHT_GRAY;
+      break;
+    case 2:
+      pixels[LY * GB_LCD_WIDTH + x+i] = DARK_GRAY;
+      break;
+    case 3:
+      pixels[LY * GB_LCD_WIDTH + x+i] = BLACK;
+      break;
+    }
+    j--;
+  }
 }
 
 void gb_update(void) {
