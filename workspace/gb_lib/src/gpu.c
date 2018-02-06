@@ -92,31 +92,40 @@ static void draw_sprites(void) {
 	uint8_t sprite_line;
 	uint8_t i;
 	
-  for (i = 0; i < 40; i++) {
-		// 4 bytes pers sprite so x4
-		id = i << 2;
-		if (SPRITE_SIZE == 0) size = 8;
-		else size = 16;
-		x = memory.OAM[i] - 16;
-		y = memory.OAM[i+1] - 8;
-		pattern_num = memory.OAM[i+2];
-		flags = memory.OAM[i+3];
-		
-		if (LY >= y && LY < (y + size)) {
-			sprite_line = LY - y;
-			// Y flip (bit 6 of flag register)
-			if ((flags >> 6) & 1) {
-				// 2 bytes per pixel so x2
-				sprite_line = (sprite_line - size) << 1;
-				// 8 pixel per line and 2 bytes per pixel so x16
-				data_addr = (pattern_num << 4) - sprite_line;
+	if (SPRITE_DISPLAY) {
+	  for (i = 0; i < 40; i++) {
+			// 4 bytes per sprite so x4
+			id = i * 4;
+			y = memory.OAM[i] - 16;
+			x = memory.OAM[i+1] - 8;
+			if (SIZE_FLAG == 0) {
+				size = 8;
+				pattern_num = memory.OAM[i+2];
 			} else {
-				// 2 bytes per pixel so x2
-				sprite_line = sprite_line << 1;
-				// 8 pixel per line and 2 bytes per pixel so x16
-				data_addr = (pattern_num << 4) + sprite_line;
+				size = 16;
+				// least significant bit to 0 when size = 16
+				pattern_num = memory.OAM[i+2] & ~1;
 			}
-			// draw_spriteline(read16(data_addr), x, flags);
+			flags = memory.OAM[i+3];
+			
+			if (x == 0 || y == 0 || y >= GB_LCD_HEIGHT) continue;
+			
+			if (LY >= y && LY < (y + size)) {
+				sprite_line = LY - y;
+				// Y flip (bit 6 of flag register)
+				if ((flags >> 6) & 1) {
+					// 2 bytes per pixel so x2
+					sprite_line = (sprite_line - size) * 2;
+					// 8 pixel per line and 2 bytes per pixel so x16
+					data_addr = 0x8000 + (pattern_num * 16) - sprite_line;
+				} else {
+					// 2 bytes per pixel so x2
+					sprite_line = sprite_line * 2;
+					// 8 pixel per line and 2 bytes per pixel so x16
+					data_addr = 0x8000 + (pattern_num * 16) + sprite_line;
+				}
+				draw_spriteline(read16(data_addr), x, flags);
+			}
 		}
 	}
 }

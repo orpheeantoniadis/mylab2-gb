@@ -32,7 +32,7 @@
 #define TILEDATA_STARTREGION1 0x8000
 
 #define SPRITE_DISPLAY				LCDC_BIT_ISSET(1)
-#define SPRITE_SIZE						LCDC_BIT_ISSET(2)
+#define SIZE_FLAG							LCDC_BIT_ISSET(2)
 #define WINDOW_DISPLAY				LCDC_BIT_ISSET(5)
 
 static inline uint8_t LCD_IS_ENABLE(void) {return (LCDC>>7)&1;}
