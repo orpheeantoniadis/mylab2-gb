@@ -16,6 +16,7 @@
 #include "gpu.h"
 #include "memory.h"
 #include "timer.h"
+#include "joypad.h"
 
 #define USE_LCD			1
 #define USE_BOOTROM 0
@@ -78,7 +79,7 @@ void init_project(void) {
 		registers.pc = 0x100;
 		interrupt_master = 1;
     // important for tetris -> init the buttons (active low)
-    memory.MEM[0xff00-OAM_OFFSET] = 0x3F;
+    P1 = 0x3F;
 		write8(0xFF10, 0x80);
 		write8(0xFF11, 0xBF);
 		write8(0xFF12, 0xF3);
@@ -210,7 +211,35 @@ int main(int argc, char **argv) {
 		SDL_Thread *t = SDL_CreateThread(gb_thread, "Gameboy Thread", NULL);
 		while (!quit){
 			if (USE_LCD == 1) {
-				if (SDL_PollEvent(&e) && e.type == SDL_QUIT) quit = true;
+				if (SDL_PollEvent(&e)) {
+          switch (e.type) {
+            case SDL_QUIT: quit = true; break;
+            case SDL_KEYDOWN:
+        			switch(e.key.keysym.sym) {
+                case SDLK_d: key_pressed(0); break;
+        				case SDLK_q: key_pressed(1); break;
+        				case SDLK_z: key_pressed(2); break;
+        				case SDLK_s: key_pressed(3); break;
+                case SDLK_p: key_pressed(4); break;
+        				case SDLK_l: key_pressed(5); break;
+        				case SDLK_LSHIFT: key_pressed(6); break;
+        				case SDLK_RETURN: key_pressed(7); break;
+        			}
+        		  break;
+            case SDL_KEYUP:
+        			switch(e.key.keysym.sym) {
+                case SDLK_d: key_released(0); break;
+        				case SDLK_q: key_released(1); break;
+        				case SDLK_z: key_released(2); break;
+        				case SDLK_s: key_released(3); break;
+                case SDLK_p: key_released(4); break;
+        				case SDLK_l: key_released(5); break;
+        				case SDLK_LSHIFT: key_released(6); break;
+        				case SDLK_RETURN: key_released(7); break;
+        			}
+        		  break;
+          }
+        }
 			}
 		}
 		print_registers();

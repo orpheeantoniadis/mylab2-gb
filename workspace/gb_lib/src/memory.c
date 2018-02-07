@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "cpu.h"
 #include "memory.h"
+#include "joypad.h"
 
 __DATA(RAM2) memory_t memory;
 static uint8_t MBC = 0;
@@ -112,6 +113,7 @@ uint8_t read8(uint16_t addr) {
 	else if (addr < 0xa000) return memory.VRAM[addr-0x8000];
 	else if (addr < 0xc000) return rambanks[addr-0xa000+(rambank*0x2000)];
 	else if (addr < 0xfe00) return memory.WRAM[(addr-0xc000)%0x2000];
+	else if (addr == 0xff00) return get_joypad_state();
 	else return memory.MEM[addr-OAM_OFFSET];
 }
 
@@ -121,7 +123,6 @@ void write8(uint16_t addr, uint8_t data) {
 	else if (addr < 0xc000 && ram_enable)  rambanks[addr-0xa000+(rambank*0x2000)] = data;
 	else if (addr < 0xfe00) memory.WRAM[(addr-0xc000)%0x2000] = data;
 	else if (addr < 0xfea0) memory.OAM[addr-0xfe00] = data;
-	else if (addr == 0xff00) memory.MEM[addr-OAM_OFFSET] |= data & 0x30;
 	else if (addr == 0xff04) DIV = 0;
 	else if (addr == 0xff44) LY = 0;
 	else if (addr == 0xff46) dma_transfer(data);

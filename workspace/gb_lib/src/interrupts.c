@@ -31,7 +31,10 @@ void interrupts_cycle(void) {
 				case IR_LCD: registers.pc = 0x48; break;
 				case IR_TIMER: registers.pc = 0x50; break;
 				case IR_SERIAL: registers.pc = 0x58; break;
-				case IR_JOYPAD: registers.pc = 0x60; break;
+				case IR_JOYPAD:
+					printf("coucou\n");
+					registers.pc = 0x60;
+					break;
 				}
 			}
 		}

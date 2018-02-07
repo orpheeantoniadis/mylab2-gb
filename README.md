@@ -15,14 +15,14 @@ Note : Works for UNIX based systems only
 	Usage :
 	./gameboy <game_file>
 	
-Note : Not working with Tetris but works fine with Dr. Mario
+Play with <kbd>Z</kbd>, <kbd>Q</kbd>, <kbd>S</kbd>, <kbd>D</kbd>, <kbd>P</kbd>, <kbd>L</kbd>, <kbd>Enter</kbd>, <kbd>LShift</kbd>.
 	
 ## Features
 |feature|comment|state|
 |-|-|-|
 |CPU|Pass all Blargg's cpu tests|:white_check_mark:|
 |GPU|No support for window and sprites|:x:|
-|Joypad|Not implemented yet|:x:|
+|Joypad|Works fine|:white_check_mark:|
 |Sound|Not implemented yet|:x:|
 |Interrupts|Pass Blargg's interrupt tests|:white_check_mark:|
 |Timer|Pass Blargg's timer test|:white_check_mark:|

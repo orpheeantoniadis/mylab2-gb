@@ -46,6 +46,7 @@ typedef struct {
 extern memory_t memory;
 extern const uint8_t bootstrap[];
 
+#define P1 (memory.MEM[0xff00-OAM_OFFSET])
 #define SB (memory.MEM[0xff01-OAM_OFFSET])
 #define SC (memory.MEM[0xff02-OAM_OFFSET])
 
