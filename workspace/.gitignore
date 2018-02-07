@@ -31,3 +31,7 @@
 Debug
 makefile
 !gb_lib/makefile
+
+#roms
+gb_lib/roms
+gb_lib/raw_roms

@@ -19,7 +19,7 @@
 #include "joypad.h"
 
 #define USE_LCD			1
-#define USE_BOOTROM 1
+#define USE_BOOTROM 0
 #define FREQ				60
 #define CYCLES_FREQ	(CLOCKSPEED/FREQ)
 
