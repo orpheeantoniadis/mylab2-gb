@@ -96,19 +96,19 @@ static void draw_sprites(void) {
 	  for (i = 0; i < 40; i++) {
 			// 4 bytes per sprite so x4
 			id = i * 4;
-			y = memory.OAM[i] - 16;
-			x = memory.OAM[i+1] - 8;
+			y = memory.OAM[id] - 16;
+			x = memory.OAM[id+1] - 8;
 			if (SIZE_FLAG == 0) {
 				size = 8;
-				pattern_num = memory.OAM[i+2];
+				pattern_num = memory.OAM[id+2];
 			} else {
 				size = 16;
 				// least significant bit to 0 when size = 16
-				pattern_num = memory.OAM[i+2] & ~1;
+				pattern_num = memory.OAM[id+2] & ~1;
 			}
-			flags = memory.OAM[i+3];
+			flags = memory.OAM[id+3];
 			
-			if (x == 0 || y == 0 || y >= GB_LCD_HEIGHT) continue;
+			if (x == 0 || x >= GB_LCD_WIDTH || y == 0 || y >= GB_LCD_HEIGHT) continue;
 			
 			if (LY >= y && LY < (y + size)) {
 				sprite_line = LY - y;

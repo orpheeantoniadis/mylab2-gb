@@ -21,7 +21,7 @@ Play with <kbd>Z</kbd>, <kbd>Q</kbd>, <kbd>S</kbd>, <kbd>D</kbd>, <kbd>P</kbd>, 
 |feature|comment|state|
 |-|-|-|
 |CPU|Pass all Blargg's cpu tests|:white_check_mark:|
-|GPU|No support for window and sprites|:x:|
+|GPU|Uses SDL2|:white_check_mark:|
 |Joypad|Works fine|:white_check_mark:|
 |Sound|Not implemented yet|:x:|
 |Interrupts|Pass Blargg's interrupt tests|:white_check_mark:|

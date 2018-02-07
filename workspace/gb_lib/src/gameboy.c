@@ -19,7 +19,7 @@
 #include "joypad.h"
 
 #define USE_LCD			1
-#define USE_BOOTROM 0
+#define USE_BOOTROM 1
 #define FREQ				60
 #define CYCLES_FREQ	(CLOCKSPEED/FREQ)
 
@@ -28,7 +28,7 @@ SDL_Renderer *renderer;
 SDL_Texture *texture;
 SDL_Event e;
 uint32_t pixels[GB_LCD_WIDTH*GB_LCD_HEIGHT];
-uint8_t rom[0x10000];
+uint8_t rom[0x100000];
 bool quit = false;
 double period = ((1.0 / FREQ) * 1e6);
 
@@ -78,8 +78,6 @@ void init_project(void) {
 		registers.sp = 0xfffe;
 		registers.pc = 0x100;
 		interrupt_master = 1;
-    // important for tetris -> init the buttons (active low)
-    P1 = 0x3F;
 		write8(0xFF10, 0x80);
 		write8(0xFF11, 0xBF);
 		write8(0xFF12, 0xF3);

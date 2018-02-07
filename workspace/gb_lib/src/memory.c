@@ -120,7 +120,7 @@ uint8_t read8(uint16_t addr) {
 void write8(uint16_t addr, uint8_t data) {
 	if (addr < 0x8000) banking_handler(addr, data);
 	else if (addr < 0xa000) memory.VRAM[addr-0x8000] = data;
-	else if (addr < 0xc000 && ram_enable)  rambanks[addr-0xa000+(rambank*0x2000)] = data;
+	else if (addr < 0xc000) { if (ram_enable) rambanks[addr-0xa000+(rambank*0x2000)] = data; }
 	else if (addr < 0xfe00) memory.WRAM[(addr-0xc000)%0x2000] = data;
 	else if (addr < 0xfea0) memory.OAM[addr-0xfe00] = data;
 	else if (addr == 0xff04) DIV = 0;
