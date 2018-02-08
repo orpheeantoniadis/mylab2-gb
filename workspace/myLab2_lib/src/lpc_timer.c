@@ -1,13 +1,13 @@
 /*
 ===============================================================================
- Name        : timer.c
+ Name        : lpc_timer.c
  Author      : O. Antoniadis
  Copyright   : HES-SO hepia
  Year        : 2016-2017
 ===============================================================================
 */
 
-#include "timers.h"
+#include <lpc_timer.h>
 
 void initTimer(LPC_TIM_TypeDef* timer, uint32_t pclk) {
 	if (timer == TIMER2) {

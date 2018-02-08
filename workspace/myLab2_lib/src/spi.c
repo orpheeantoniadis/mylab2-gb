@@ -7,8 +7,8 @@
 ===============================================================================
 */
 
+#include <lpc_timer.h>
 #include "spi.h"
-#include "timers.h"
 
 #define BUFFER_SIZE	256
 

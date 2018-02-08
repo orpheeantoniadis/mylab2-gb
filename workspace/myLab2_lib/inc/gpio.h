@@ -19,11 +19,11 @@
 #define RISING	0
 #define FALLING	1
 
-#define CENTER	19
-#define UP		20
-#define RIGHT	21
-#define DOWN	22
-#define LEFT	23
+#define JOYSTICK_CENTER	19
+#define JOYSTICK_UP		20
+#define JOYSTICK_LEFT	23
+#define JOYSTICK_DOWN	22
+#define JOYSTICK_RIGHT	21
 
 #define BUTTON_A		10
 #define BUTTON_B		19

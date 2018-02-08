@@ -7,9 +7,9 @@
 ===============================================================================
 */
 
+#include <lpc_timer.h>
 #include "gpio.h"
 #include "utils.h"
-#include "timers.h"
 
 void LedSetState(uint8_t led, uint8_t state) {
 	LPC_GPIO2->FIODIR |= 1 << led;

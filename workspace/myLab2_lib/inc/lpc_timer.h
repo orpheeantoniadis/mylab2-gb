@@ -1,14 +1,14 @@
 /*
 ===============================================================================
- Name        : timer.h
+ Name        : lpc_timer.h
  Author      : O. Antoniadis
  Copyright   : HES-SO hepia
  Year        : 2016-2017
 ===============================================================================
 */
 
-#ifndef _TIMERS_H_
-#define _TIMERS_H_
+#ifndef _LPC_TIMER_H_
+#define _LPC_TIMER_H_
 
 #ifdef __USE_CMSIS
 #include "LPC17xx.h"

@@ -18,6 +18,6 @@
 #define TRIGGER	1
 
 void Delay(uint32_t val);
-void joystick_handler(void(*oper)(uint8_t arg), uint8_t mode);
+void joystick_handler(void(*oper)(uint8_t, uint8_t, void*), void *arg, uint8_t mode);
 
 #endif /* _UTILS_H */

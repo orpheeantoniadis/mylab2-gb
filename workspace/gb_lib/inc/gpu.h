@@ -9,15 +9,15 @@
 #define SCANLINES_NB    153
 
 #ifdef __UNIX
-#define WHITE				0x9bbc0f
+#define WHITE		0x9bbc0f
 #define LIGHT_GRAY	0x8bac0f
-#define DARK_GRAY		0x306230
-#define BLACK				0x0f380f
+#define DARK_GRAY	0x306230
+#define BLACK		0x0f380f
 #else
-#define WHITE
-#define LIGHT_GRAY
-#define DARK_GRAY
-#define BLACK
+#define WHITE		0xFFFF
+#define LIGHT_GRAY	0x7BCF
+#define DARK_GRAY	0x3186
+#define BLACK		0x0000
 #endif
 
 #define LCD_SCAN_PERIOD 456
