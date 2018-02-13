@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
-#include "memory.h"
 #include "joypad.h"
+#include "logger.h"
+#include "memory.h"
 
 __DATA(RAM2) memory_t memory;
 static uint8_t MBC = 0;
@@ -97,25 +98,88 @@ static void dma_transfer(uint8_t data) {
 }
 
 void load_rom(char *filename) {
+	uint8_t i;
+	char name[16];
+	char *type, *rom_size, *ram_size;
+	
 #ifdef __UNIX
 	FILE *file;
 	int cnt = 0;
 	if ((file = fopen(filename,"r")) == NULL) {
-		fprintf(stderr,"File not found\n");
+		logger(ERROR, "File not found\n");
+		return;
 	}
 	while (!feof(file)) {
 		fread(&rom[cnt], sizeof(uint8_t), 1, file);
 		cnt++;
 	}
 	fclose(file);
+	logger(INFO, "ROM loaded successfully\n");
 #endif
-	switch (rom[0x147]) {
-		case 1: MBC = 1; break;
-		case 2: MBC = 1; break;
-		case 3: MBC = 1; break;
-		case 5: MBC = 2; break;
-		case 6: MBC = 2; break;
+
+	for (i = 0; i < 16; i++) name[i] = rom[NAME_OFFSET+i];
+	logger(INFO, "ROM name: %s\n", name);
+	
+	switch (rom[TYPE_OFFSET]) {
+		case 0x00: type = "ROM ONLY"; break;
+		case 0x01: type = "MBC1"; MBC = 1; break;
+		case 0x02: type = "MBC1+RAM"; MBC = 1; break;
+		case 0x03: type = "MBC1+RAM+BATTERY"; MBC = 1; break;
+		case 0x05: type = "MBC2"; MBC = 2; break;
+		case 0x06: type = "MBC2+BATTERY"; MBC = 2; break;
+		case 0x08: type = "ROM+RAM"; break;
+		case 0x09: type = "ROM+RAM+BATTERY"; break;
+		case 0x0b: type = "MMM01"; break;
+		case 0x0c: type = "MMM01+RAM"; break;
+		case 0x0d: type = "MMM01+RAM+BATTERY"; break;
+		case 0x0f: type = "MBC3+TIMER+BATTERY"; break;
+		case 0x10: type = "MBC3+TIMER+RAM+BATTERY"; break;
+		case 0x11: type = "MBC3"; break;
+		case 0x12: type = "MBC3+RAM"; break;
+		case 0x13: type = "MBC3+RAM+BATTERY"; break;
+		case 0x19: type = "MBC5"; break;
+		case 0x1a: type = "MBC5+RAM"; break;
+		case 0x1b: type = "MBC5+RAM+BATTERY"; break;
+		case 0x1c: type = "MBC5+RUMBLE"; break;
+		case 0x1d: type = "MBC5+RUMBLE+RAM"; break;
+		case 0x1e: type = "MBC5+RUMBLE+RAM+BATTERY"; break;
+		case 0x20: type = "MBC6"; break;
+		case 0x22: type = "MBC7+SENSOR+RUMBLE+RAM+BATTERY"; break;
+		case 0xfc: type = "POCKET CAMERA"; break;
+		case 0xfd: type = "BANDAI TAMA5"; break;
+		case 0xfe: type = "HuC3"; break;
+		case 0xff: type = "HuC1+RAM+BATTERY"; break;
+		default : type = "UNKNOWN TYPE"; break;
 	}
+	logger(INFO, "ROM type: %s\n", type);
+	
+	switch (rom[ROM_SIZE_OFFSET]) {
+		case 0x00: rom_size = "32KB"; break;
+		case 0x01: rom_size = "64KB"; break;
+		case 0x02: rom_size = "128KB"; break;
+		case 0x03: rom_size = "256KB"; break;
+		case 0x04: rom_size = "512KB"; break;
+		case 0x05: rom_size = "1MB"; break;
+		case 0x06: rom_size = "2MB"; break;
+		case 0x07: rom_size = "4MB"; break;
+		case 0x08: rom_size = "8MB"; break;
+		case 0x52: rom_size = "1.1MB"; break;
+		case 0x53: rom_size = "1.2MB"; break;
+		case 0x54: rom_size = "1.5MB"; break;
+		default : rom_size = "UNKNOWN ROM SIZE"; break;
+	}
+	logger(INFO, "ROM size: %s\n", rom_size);
+	
+	switch (rom[ROM_SIZE_OFFSET]) {
+		case 0x00: ram_size = "None"; break;
+		case 0x01: ram_size = "2KB"; break;
+		case 0x02: ram_size = "8KB"; break;
+		case 0x03: ram_size = "32KB"; break;
+		case 0x04: ram_size = "128KB"; break;
+		case 0x05: ram_size = "64KB"; break;
+		default : ram_size = "UNKNOWN RAM SIZE"; break;
+	}
+	logger(INFO, "RAM size: %s\n", ram_size);
 }
 
 uint8_t read8(uint16_t addr) {

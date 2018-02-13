@@ -9,6 +9,11 @@
 #include <cr_section_macros.h>
 #endif
 
+#define NAME_OFFSET 		0x134
+#define TYPE_OFFSET 		0x147
+#define ROM_SIZE_OFFSET 0x148
+#define RAM_SIZE_OFFSET 0x149
+
 #define VRAM_SPACE      0x2000
 #define WRAM_SPACE      0x2000
 #define OAM_SPACE       0x100

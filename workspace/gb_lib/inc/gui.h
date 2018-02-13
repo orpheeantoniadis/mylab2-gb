@@ -7,6 +7,7 @@
 #include "memory.h"
 #include "timer.h"
 #include "joypad.h"
+#include "logger.h"
 
 #define USE_BOOTROM 0
 #define USE_LCD		1

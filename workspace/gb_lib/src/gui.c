@@ -4,6 +4,7 @@
 #include "gui.h"
 
 void boot_gameboy(char *filename) {
+	logger(INFO, "Starting emulator\n");
 	load_rom(filename);
 	if (USE_BOOTROM == 0) {
 		registers.af = 0x01b0;
