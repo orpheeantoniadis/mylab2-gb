@@ -7,6 +7,7 @@
 ===============================================================================
 */
 
+#include "utils.h"
 #include "touchscreen.h"
 
 /* ***********************************************************
@@ -15,10 +16,11 @@
  * @param 	none
  * @return 	none
  * ***********************************************************/
-void init_touchscreen(void) {
+void init_touchscreen(uint8_t mode) {
+	enableGPIOInterrupt(GPIO2, RISING, TOUCH_SCREEN);
 	enableGPIOInterrupt(GPIO2, FALLING, TOUCH_SCREEN);
 	init_I2C();
-	write_touchscreen(G_MODE, 0);
+	write_touchscreen(G_MODE, mode);
 }
 
 /* ***********************************************************

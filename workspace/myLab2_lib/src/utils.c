@@ -23,7 +23,7 @@ void Delay(uint32_t val){
 
 void joystick_handler(void(*oper)(uint8_t, uint8_t, void*), void *arg, uint8_t mode) {
 	uint8_t pos;
-	if (mode == TRIGGER) {
+	if (mode == POLLING) {
 		for (pos = JOYSTICK_CENTER; pos <= JOYSTICK_LEFT; pos++) {
 			bool current_state = JoystickGetState(pos);
 			if (current_state != last_state[pos-JOYSTICK_CENTER]) {
@@ -33,7 +33,7 @@ void joystick_handler(void(*oper)(uint8_t, uint8_t, void*), void *arg, uint8_t m
 			last_state[pos-JOYSTICK_CENTER] = current_state;
 		}
 		return;
-	} else if (mode == POLLING) {
+	} else if (mode == TRIGGER) {
 		for (pos = JOYSTICK_CENTER; pos <= JOYSTICK_LEFT; pos++) {
 			if (JoystickGetState(pos)) {oper(pos, RISING, arg); return;}
 		}

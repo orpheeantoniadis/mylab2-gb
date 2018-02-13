@@ -36,6 +36,6 @@ uint8_t SwitchGetState();
 
 void enableGPIOInterrupt(LPC_GPIO_TypeDef* gpio, uint32_t mode, uint8_t pin);
 void clearGPIOInterrupt(LPC_GPIO_TypeDef* gpio, uint8_t pin);
-uint32_t getGPIOInterruptStatus(LPC_GPIO_TypeDef* gpio, uint32_t mode, uint8_t pin);
+uint8_t getGPIOInterruptStatus(LPC_GPIO_TypeDef* gpio, uint32_t edge, uint8_t pin);
 
 #endif

@@ -39,10 +39,10 @@ uint8_t SwitchGetState() {
 	return ~(LPC_GPIO2->FIOPIN0);
 }
 
-void enableGPIOInterrupt(LPC_GPIO_TypeDef* gpio, uint32_t mode, uint8_t pin) {
+void enableGPIOInterrupt(LPC_GPIO_TypeDef* gpio, uint32_t edge, uint8_t pin) {
 	gpio->FIODIR &= ~(1 << pin);
 	NVIC_EnableIRQ(EINT3_IRQn);
-	if (mode == FALLING) {
+	if (edge == FALLING) {
 		if (gpio == GPIO0) {
 			LPC_GPIOINT->IO0IntEnF |= 1 << pin;
 		}
@@ -50,7 +50,7 @@ void enableGPIOInterrupt(LPC_GPIO_TypeDef* gpio, uint32_t mode, uint8_t pin) {
 			LPC_GPIOINT->IO2IntEnF |= 1 << pin;
 		}
 	}
-	if (mode == RISING) {
+	if (edge == RISING) {
 		if (gpio == GPIO0) {
 			LPC_GPIOINT->IO0IntEnR |= 1 << pin;
 		}
@@ -69,21 +69,21 @@ void clearGPIOInterrupt(LPC_GPIO_TypeDef* gpio, uint8_t pin) {
 	}
 }
 
-uint32_t getGPIOInterruptStatus(LPC_GPIO_TypeDef* gpio, uint32_t mode, uint8_t pin) {
+uint8_t getGPIOInterruptStatus(LPC_GPIO_TypeDef* gpio, uint32_t mode, uint8_t pin) {
 	if (mode == FALLING) {
 		if (gpio == GPIO0) {
-			return LPC_GPIOINT->IO0IntStatF >> pin;
+			return ((LPC_GPIOINT->IO0IntStatF >> pin) & 1);
 		}
 		if (gpio == GPIO2) {
-			return LPC_GPIOINT->IO2IntStatF >> pin;
+			return ((LPC_GPIOINT->IO2IntStatF >> pin) & 1);
 		}
 	}
 	if (mode == RISING) {
 		if (gpio == GPIO0) {
-			return LPC_GPIOINT->IO0IntStatR >> pin;
+			return ((LPC_GPIOINT->IO0IntStatR >> pin) & 1);
 		}
 		if (gpio == GPIO2) {
-			return LPC_GPIOINT->IO2IntStatR >> pin;
+			return ((LPC_GPIOINT->IO2IntStatR >> pin) & 1);
 		}
 	}
 	return 0;

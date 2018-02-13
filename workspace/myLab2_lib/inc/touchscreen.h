@@ -24,7 +24,7 @@
 #define P1_YL	0x06
 #define G_MODE	0xA4
 
-void init_touchscreen(void);
+void init_touchscreen(uint8_t mode);
 void write_touchscreen(uint8_t addr, uint8_t data);
 void read_touchscreen(uint8_t addr, uint8_t *data, uint32_t nb_byte);
 uint16_t touchscreen_get_x1(void);
