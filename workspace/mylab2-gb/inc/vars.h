@@ -44,5 +44,9 @@
 #include "joypad.h"
 
 #define USE_BOOTROM	0
+#define FREQ		30
+#define CYCLES_FREQ	(CLOCKSPEED/FREQ)
+
+_DECL volatile uint8_t pixels[0x1680];
 
 #endif /* VARS_H_ */

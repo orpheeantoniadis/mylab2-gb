@@ -150,6 +150,10 @@ int get_color(uint16_t addr, uint8_t color) {
 		case 3: new_color = (palette & 0b11000000) >> 6; break;
 	}
 	
+#ifndef __UNIX
+	return new_color;
+#endif
+
 	switch(new_color) {
 		case 0: return WHITE;
 		case 1: return LIGHT_GRAY;
@@ -176,8 +180,6 @@ void gpu_cycle(uint8_t cycles) {
 			STAT_SET_MODE(0);
 			ir_selection = (STAT >> 3) & 1;
 		} else { // mode 1
-			LY++;
-			cpu_cycles_counter -= LCD_SCAN_PERIOD;
 			if (LY > SCANLINES_NB) LY = 0;
 			else if (LY == GB_LCD_HEIGHT) {
 				change_mode = STAT_GET_MODE() != 1;
@@ -185,6 +187,8 @@ void gpu_cycle(uint8_t cycles) {
 				ir_selection = (STAT >> 4) & 1;
 				interrupt_request(IR_VBLANK);
 			} else if (LY < GB_LCD_HEIGHT) draw_scanline();
+			cpu_cycles_counter -= LCD_SCAN_PERIOD;
+			LY++;
 		}
 		if (change_mode && ir_selection) interrupt_request(IR_LCD);
 		if (LY == LYC) { // check coincidence flag
