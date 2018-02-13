@@ -36,16 +36,7 @@
 #include "touchscreen.h"
 
 // gb_lib libraries
-#include "cpu.h"
-#include "interrupts.h"
-#include "gpu.h"
-#include "memory.h"
-#include "timer.h"
-#include "joypad.h"
-
-#define USE_BOOTROM	0
-#define FREQ		30
-#define CYCLES_FREQ	(CLOCKSPEED/FREQ)
+#include "gui.h"
 
 _DECL volatile uint8_t pixels[0x1680];
 

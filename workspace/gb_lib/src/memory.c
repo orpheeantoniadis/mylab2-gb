@@ -96,7 +96,19 @@ static void dma_transfer(uint8_t data) {
 	}
 }
 
-void load_rom(void) {
+void load_rom(char *filename) {
+#ifdef __UNIX
+	FILE *file;
+	int cnt = 0;
+	if ((file = fopen(filename,"r")) == NULL) {
+		fprintf(stderr,"File not found\n");
+	}
+	while (!feof(file)) {
+		fread(&rom[cnt], sizeof(uint8_t), 1, file);
+		cnt++;
+	}
+	fclose(file);
+#endif
 	switch (rom[0x147]) {
 		case 1: MBC = 1; break;
 		case 2: MBC = 1; break;

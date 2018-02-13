@@ -69,7 +69,7 @@ extern const uint8_t bootstrap[];
 
 #define BOOT_ROM_IS_ENABLE() (memory.MEM[0xff50-OAM_OFFSET]==0)
 
-void load_rom(void);
+void load_rom(char *filename);
 uint8_t read8(uint16_t addr);
 void write8(uint16_t addr, uint8_t val);
 uint16_t read16(uint16_t addr);

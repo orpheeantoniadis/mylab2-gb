@@ -11,17 +11,7 @@
 #include <mach/mach.h>
 #endif
 
-#include "cpu.h"
-#include "interrupts.h"
-#include "gpu.h"
-#include "memory.h"
-#include "timer.h"
-#include "joypad.h"
-
-#define USE_LCD			1
-#define USE_BOOTROM 0
-#define FREQ				60
-#define CYCLES_FREQ	(CLOCKSPEED/FREQ)
+#include "gui.h"
 
 SDL_Window* window;
 SDL_Renderer *renderer;
@@ -68,121 +58,11 @@ void SDL2_render(void) {
 	SDL_RenderPresent(renderer);
 }
 
-void init_project(void) {
-	load_rom();
-	if (USE_BOOTROM == 0) {
-		registers.af = 0x01b0;
-		registers.bc = 0x0013;
-		registers.de = 0x00d8;
-		registers.hl = 0x014d;
-		registers.sp = 0xfffe;
-		registers.pc = 0x100;
-		interrupt_master = 1;
-		write8(0xFF10, 0x80);
-		write8(0xFF11, 0xBF);
-		write8(0xFF12, 0xF3);
-		write8(0xFF14, 0xBF);
-		write8(0xFF16, 0x3F);
-		write8(0xFF19, 0xBF);
-		write8(0xFF1A, 0x7A);
-		write8(0xFF1B, 0xFF);
-		write8(0xFF1C, 0x9F);
-		write8(0xFF1E, 0xBF);
-		write8(0xFF20, 0xFF);
-		write8(0xFF23, 0xBF);
-		write8(0xFF24, 0x77);
-		write8(0xFF25, 0xF3);
-		write8(0xFF26, 0xF1);
-		write8(0xFF40, 0x91);
-		write8(0xFF47, 0xFC);
-		write8(0xFF48, 0xFF);
-		write8(0xFF49, 0xFF);
-		write8(0xFF50, 0x01);
-	}
-}
+void set_pixel(uint16_t id, uint32_t data) { pixels[id] = data; }
 
-uint8_t load_rom2(char *filename) {
-	FILE *file;
-	int cnt = 0;
-	if ((file = fopen(filename,"r")) == NULL) {
-		fprintf(stderr,"File not found\n");
-		return 1;
-	}
-	while (!feof(file)) {
-		fread(&rom[cnt], sizeof(uint8_t), 1, file);
-		cnt++;
-	}
-	fclose(file);
-	return 0;
-}
+uint32_t get_pixel(uint16_t id) { return pixels[id]; }
 
-void draw_tileline(uint16_t data, uint8_t tilenum) {
-	uint8_t i, x;
-	uint8_t part1, part2, color;
-
-	part1 = data & 0xff;
-	part2 = (data >> 8) & 0xff;
-	x = 8 * tilenum;
-	
-	for (i = 0; i < 8; i++) {
-		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
-    pixels[LY * GB_LCD_WIDTH + x+i] = get_color(0xff47, color);
-	}
-}
-
-void draw_spriteline(uint16_t data, uint8_t x, uint8_t flags) {
-  uint8_t i, j;
-  uint8_t part1, part2, color_id;
-  int color;
-
-  part1 = data & 0xff;
-  part2 = (data >> 8) & 0xff;
-  j = 7;
-  
-  for (i = 0; i < 8; i++) {
-    // skip off-screen pixels
-    if (x+i >= GB_LCD_WIDTH) continue;
-    
-    // when priority bit is set, sprites prevail only over white color
-    if (((flags >> 7) & 1) && pixels[LY * GB_LCD_WIDTH + x+i] != WHITE) continue;
-    
-    // X flip (bit 5 of flag register)
-    if ((flags >> 5) & 1)
-      color_id = (part1 >> (7 - j) & 1) | ((part2 >> (7 - j) & 1) << 1);
-    else
-      color_id = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
-
-    // white is transparent for sprites
-    if (color_id == 0) continue;
-
-    // address of the color palette (bit 4 of flag register)
-    if ((flags >> 4) & 1)
-      color = get_color(0xff49, color_id);
-    else
-      color = get_color(0xff48, color_id);
-
-    pixels[LY * GB_LCD_WIDTH + x+i] = color;
-    j--;
-  }
-}
-
-void gb_update(void) {
-	uint8_t cycles;
-	uint32_t total_cycles = 0;
-	while (total_cycles < CYCLES_FREQ) {
-		cycles = cpu_cycle();
-		interrupts_cycle();
-		gpu_cycle(cycles);
-		timer_cycle(cycles);
-		total_cycles += cycles;
-		// Blargg's tests
-		if (SC == 0x81) {
-			printf("%c", SB);
-			SC = 0;
-		}
-	}
-	SDL2_render();
-}
+void draw_screen(void) { SDL2_render(); }
 
 int gb_thread(void *arg) {
 	struct timespec start, finish;
@@ -203,8 +83,7 @@ int gb_thread(void *arg) {
 
 int main(int argc, char **argv) {	
 	if (argc == 2) {
-		if (load_rom2(argv[1]) == 1) return EXIT_FAILURE;
-		init_project();
+		boot_gameboy(argv[1]);
 		if (USE_LCD == 1) SDL2_init();
 		SDL_Thread *t = SDL_CreateThread(gb_thread, "Gameboy Thread", NULL);
 		while (!quit){
@@ -240,7 +119,6 @@ int main(int argc, char **argv) {
         }
 			}
 		}
-		print_registers();
 		SDL_WaitThread(t, NULL);
 		if (USE_LCD == 1) SDL2_destroy();
 	} else {

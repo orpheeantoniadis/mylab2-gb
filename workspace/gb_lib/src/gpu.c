@@ -5,6 +5,30 @@
 
 static uint16_t cpu_cycles_counter = 0;
 
+static uint32_t get_color(uint16_t addr, uint8_t color) {
+	uint8_t palette = memory.MEM[addr-OAM_OFFSET];
+	uint8_t new_color;
+
+	switch(color) {
+		case 0: new_color = palette & 0b11; break;
+		case 1: new_color = (palette & 0b1100) >> 2; break;
+		case 2: new_color = (palette & 0b110000) >> 4; break;
+		case 3: new_color = (palette & 0b11000000) >> 6; break;
+	}
+
+#ifndef __UNIX
+	return new_color;
+#else
+	switch(new_color) {
+		case 0: return WHITE;
+		case 1: return LIGHT_GRAY;
+		case 2: return DARK_GRAY;
+		case 3: return BLACK;
+		default: return WHITE;
+	}
+#endif
+}
+
 static uint16_t background_line_num(void) {
 	uint8_t draw_line = LY + SCROLLY;
 	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
@@ -15,6 +39,20 @@ static uint16_t window_line_num(void) {
 	uint8_t draw_line = LY - WINDOWY;
 	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
 	return tile_line << 5; // 32 is the number of tiles in a line
+}
+
+static void draw_tileline(uint16_t data, uint8_t tilenum) {
+	uint8_t i, x;
+	uint8_t part1, part2, color;
+
+	part1 = data & 0xff;
+	part2 = (data >> 8) & 0xff;
+	x = 8 * tilenum;
+
+	for (i = 0; i < 8; i++) {
+		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
+		set_pixel(LY * GB_LCD_WIDTH + x+i, get_color(0xff47, color));
+	}
 }
 
 static void draw_tiles(void) {
@@ -84,6 +122,42 @@ static void draw_tiles(void) {
 	}
 }
 
+static void draw_spriteline(uint16_t data, uint8_t x, uint8_t flags) {
+	uint8_t i, j;
+	uint8_t part1, part2, color_id;
+	uint32_t color;
+
+	part1 = data & 0xff;
+	part2 = (data >> 8) & 0xff;
+	j = 7;
+
+	for (i = 0; i < 8; i++) {
+		// skip off-screen pixels
+		if (x+i >= GB_LCD_WIDTH) continue;
+
+		// when priority bit is set, sprites prevail only over white color
+		if (((flags >> 7) & 1) && get_pixel(LY * GB_LCD_WIDTH + x+i) != WHITE) continue;
+
+		// X flip (bit 5 of flag register)
+		if ((flags >> 5) & 1)
+		  color_id = (part1 >> (7 - j) & 1) | ((part2 >> (7 - j) & 1) << 1);
+		else
+		  color_id = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
+
+		// white is transparent for sprites
+		if (color_id == 0) continue;
+
+		// address of the color palette (bit 4 of flag register)
+		if ((flags >> 4) & 1)
+		  color = get_color(0xff49, color_id);
+		else
+		  color = get_color(0xff48, color_id);
+
+		set_pixel(LY * GB_LCD_WIDTH + x+i, color);
+		j--;
+	}
+}
+
 static void draw_sprites(void) {
 	uint8_t id;
 	uint8_t size;
@@ -136,30 +210,6 @@ static void draw_scanline(void) {
 	}
 	if (LCDC_BIT_ISSET(1)) {
 		draw_sprites();
-	}
-}
-
-int get_color(uint16_t addr, uint8_t color) {
-	uint8_t palette = memory.MEM[addr-OAM_OFFSET];
-	uint8_t new_color;
-	
-	switch(color) {
-		case 0: new_color = palette & 0b11; break;
-		case 1: new_color = (palette & 0b1100) >> 2; break;
-		case 2: new_color = (palette & 0b110000) >> 4; break;
-		case 3: new_color = (palette & 0b11000000) >> 6; break;
-	}
-	
-#ifndef __UNIX
-	return new_color;
-#endif
-
-	switch(new_color) {
-		case 0: return WHITE;
-		case 1: return LIGHT_GRAY;
-		case 2: return DARK_GRAY;
-		case 3: return BLACK;
-		default: return WHITE;
 	}
 }
 

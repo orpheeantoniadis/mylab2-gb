@@ -31,9 +31,9 @@
 #define TILEDATA_STARTREGION0 0x8800
 #define TILEDATA_STARTREGION1 0x8000
 
-#define SPRITE_DISPLAY				LCDC_BIT_ISSET(1)
-#define SIZE_FLAG							LCDC_BIT_ISSET(2)
-#define WINDOW_DISPLAY				LCDC_BIT_ISSET(5)
+#define SPRITE_DISPLAY	LCDC_BIT_ISSET(1)
+#define SIZE_FLAG		LCDC_BIT_ISSET(2)
+#define WINDOW_DISPLAY	LCDC_BIT_ISSET(5)
 
 static inline uint8_t LCD_IS_ENABLE(void) {return (LCDC>>7)&1;}
 static inline uint8_t LCDC_BIT_ISSET(uint8_t bit) {return (LCDC>>bit)&1;}
@@ -42,9 +42,8 @@ static inline void STAT_CLEAR_BIT(uint8_t bit) {STAT=STAT&~(1<<bit);}
 static inline void STAT_SET_MODE(uint8_t mode) {STAT=(STAT&~3)|mode;}
 static inline uint8_t STAT_GET_MODE(void) {return STAT&3;}
 
-void draw_tileline(uint16_t pixels, uint8_t tilenum);
-void draw_spriteline(uint16_t pixels, uint8_t x, uint8_t flags);
-int get_color(uint16_t addr, uint8_t color);
+void set_pixel(uint16_t id, uint32_t data);
+uint32_t get_pixel(uint16_t id);
 void gpu_cycle(uint8_t cycles);
 
 #endif
