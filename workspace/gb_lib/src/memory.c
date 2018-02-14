@@ -97,8 +97,9 @@ static void dma_transfer(uint8_t data) {
 	}
 }
 
-void load_rom(char *filename) {
-	uint8_t i;
+int load_rom(char *filename) {
+	uint16_t i;
+	uint8_t checksum;
 	char name[16];
 	char *type, *rom_size, *ram_size;
 	
@@ -107,15 +108,21 @@ void load_rom(char *filename) {
 	int cnt = 0;
 	if ((file = fopen(filename,"r")) == NULL) {
 		logger(ERROR, "File not found\n");
-		return;
+		return -1;
 	}
 	while (!feof(file)) {
 		fread(&rom[cnt], sizeof(uint8_t), 1, file);
 		cnt++;
 	}
 	fclose(file);
-	logger(INFO, "ROM loaded successfully\n");
 #endif
+
+	checksum = 0;
+	for (i = 0x134; i < 0x14d; i++) checksum = checksum - rom[i] - 1;
+	if (checksum != rom[CHECKSUM_OFFSET]){
+		logger(ERROR, "Checksum incorrect\n");
+		return -1;
+	}
 
 	for (i = 0; i < 16; i++) name[i] = rom[NAME_OFFSET+i];
 	logger(INFO, "ROM name: %s\n", name);
@@ -180,6 +187,9 @@ void load_rom(char *filename) {
 		default : ram_size = "UNKNOWN RAM SIZE"; break;
 	}
 	logger(INFO, "RAM size: %s\n", ram_size);
+	
+	logger(INFO, "ROM loaded successfully\n");
+	return 0;
 }
 
 uint8_t read8(uint16_t addr) {

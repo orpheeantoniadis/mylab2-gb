@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include "logger.h"
 
-const char *log_level_str[10] = { "ERROR", "WARNING", "INFO"};
+const char *log_level_str[10] = { "ERROR", "WARNING", "INFO", "DEBUG"};
 
 void logger(uint8_t level, char *format, ...) {
 	va_list arguments;

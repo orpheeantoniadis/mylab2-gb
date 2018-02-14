@@ -3,9 +3,12 @@
 #include <stdint.h>
 #include "gui.h"
 
-void boot_gameboy(char *filename) {
+int boot_gameboy(char *filename) {
 	logger(INFO, "Starting emulator\n");
-	load_rom(filename);
+	if (load_rom(filename) == -1) {
+		logger(ERROR, "ROM load error\n");
+		return -1;
+	}
 	if (USE_BOOTROM == 0) {
 		registers.af = 0x01b0;
 		registers.bc = 0x0013;
@@ -35,6 +38,7 @@ void boot_gameboy(char *filename) {
 		write8(0xFF49, 0xFF);
 		write8(0xFF50, 0x01);
 	}
+	return 0;
 }
 
 void gb_update(void) {

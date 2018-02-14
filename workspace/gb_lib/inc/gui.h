@@ -15,7 +15,7 @@
 #define CYCLES_FREQ	(CLOCKSPEED/FREQ)
 
 void draw_screen(void);
-void boot_gameboy(char *filename);
+int boot_gameboy(char *filename);
 void gb_update(void);
 
 #endif

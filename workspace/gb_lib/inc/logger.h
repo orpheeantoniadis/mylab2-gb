@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-enum log_level { ERROR, WARNING, INFO};
+enum log_level { ERROR, WARNING, INFO, _DEBUG};
 #define LOG_LEVEL	INFO
 extern const char *log_level_str[10];
 

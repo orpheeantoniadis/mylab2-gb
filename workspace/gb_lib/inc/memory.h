@@ -13,6 +13,7 @@
 #define TYPE_OFFSET 		0x147
 #define ROM_SIZE_OFFSET 0x148
 #define RAM_SIZE_OFFSET 0x149
+#define CHECKSUM_OFFSET	0x14d
 
 #define VRAM_SPACE      0x2000
 #define WRAM_SPACE      0x2000
@@ -74,7 +75,7 @@ extern const uint8_t bootstrap[];
 
 #define BOOT_ROM_IS_ENABLE() (memory.MEM[0xff50-OAM_OFFSET]==0)
 
-void load_rom(char *filename);
+int load_rom(char *filename);
 uint8_t read8(uint16_t addr);
 void write8(uint16_t addr, uint8_t val);
 uint16_t read16(uint16_t addr);
