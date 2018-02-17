@@ -34,6 +34,7 @@
 #include "utils.h"
 #include "lcd.h"
 #include "touchscreen.h"
+#include "uart.h"
 
 // gb_lib libraries
 #include "gui.h"

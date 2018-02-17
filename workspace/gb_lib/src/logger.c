@@ -9,10 +9,12 @@ void logger(uint8_t level, char *format, ...) {
 	va_list arguments;
 	va_start(arguments, format);
 
+#ifdef __UNIX
 	if (level <= LOG_LEVEL) {
 		printf("[ML2GB] %s: ", log_level_str[level]);
 		vprintf(format, arguments);
 	}
+#endif
 
 	va_end(arguments);
 }

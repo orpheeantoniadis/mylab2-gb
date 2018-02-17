@@ -22,6 +22,7 @@ void init_project(void) {
 	enableGPIOInterrupt(GPIO0, RISING, BUTTON_B);
 	enableGPIOInterrupt(GPIO0, FALLING, BUTTON_B);
 	init_touchscreen(POLLING);
+	uart_init(UART0, 115200);
 	boot_gameboy(NULL);
 }
 
