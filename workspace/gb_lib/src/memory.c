@@ -107,7 +107,7 @@ int load_rom(char *filename) {
 	FILE *file;
 	int cnt = 0;
 	if ((file = fopen(filename,"r")) == NULL) {
-		logger(ERROR, "File not found\n");
+		gb_log(ERROR, "File not found\n");
 		return -1;
 	}
 	while (!feof(file)) {

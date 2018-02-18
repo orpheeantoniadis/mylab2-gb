@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include "uart.h"
 #include "gui.h"
+
+#ifndef __UNIX
+#include "uart.h"
+#endif
 
 const char *log_level_str[10] = { "ERROR", "WARNING", "INFO", "DEBUG"};
 
@@ -64,7 +67,6 @@ void gb_update(void) {
 }
 
 void gb_log(uint8_t level, char *format, ...) {
-	char buffer[50];
 	va_list arguments;
 	va_start(arguments, format);
 
@@ -73,6 +75,7 @@ void gb_log(uint8_t level, char *format, ...) {
 		printf("[ML2GB] %s: ", log_level_str[level]);
 		vprintf(format, arguments);
 #else
+		char buffer[50];
 		sprintf(buffer, "[ML2GB] %s: ", log_level_str[level]);
 		uart_send(UART0, (uint8_t *)buffer, strlen(buffer));
 		vsprintf(buffer, format, arguments);

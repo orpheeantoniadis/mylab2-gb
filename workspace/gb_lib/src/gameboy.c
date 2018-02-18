@@ -84,7 +84,7 @@ int gb_thread(void *arg) {
 int main(int argc, char **argv) {	
 	if (argc == 2) {
 		if (boot_gameboy(argv[1]) == -1) {
-      logger(INFO, "Closing emulator\n");
+      gb_log(INFO, "Closing emulator\n");
       return EXIT_FAILURE;
     }
 		if (USE_LCD == 1) SDL2_init();
@@ -128,6 +128,6 @@ int main(int argc, char **argv) {
 		printf("Usage : %s <game_file>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
-  logger(INFO, "Closing emulator\n");
+  gb_log(INFO, "Closing emulator\n");
 	return EXIT_SUCCESS;
 }
