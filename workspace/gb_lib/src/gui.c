@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <stdarg.h>
+#include <string.h>
+#include "uart.h"
 #include "gui.h"
 
+const char *log_level_str[10] = { "ERROR", "WARNING", "INFO", "DEBUG"};
+
 int boot_gameboy(char *filename) {
-	logger(INFO, "Starting emulator\n");
+	gb_log(INFO, "Starting emulator\n");
 	if (load_rom(filename) == -1) {
-		logger(ERROR, "ROM load error\n");
+		gb_log(ERROR, "ROM load error\n");
 		return -1;
 	}
 	if (USE_BOOTROM == 0) {
@@ -57,4 +61,24 @@ void gb_update(void) {
 		}
 	}
 	draw_screen();
+}
+
+void gb_log(uint8_t level, char *format, ...) {
+	char buffer[50];
+	va_list arguments;
+	va_start(arguments, format);
+
+	if (level <= LOG_LEVEL) {
+#ifdef __UNIX
+		printf("[ML2GB] %s: ", log_level_str[level]);
+		vprintf(format, arguments);
+#else
+		sprintf(buffer, "[ML2GB] %s: ", log_level_str[level]);
+		uart_send(UART0, (uint8_t *)buffer, strlen(buffer));
+		vsprintf(buffer, format, arguments);
+		uart_send(UART0, (uint8_t *)buffer, strlen(buffer));
+#endif
+	}
+
+	va_end(arguments);
 }

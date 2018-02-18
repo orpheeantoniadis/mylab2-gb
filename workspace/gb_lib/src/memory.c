@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "cpu.h"
 #include "joypad.h"
-#include "logger.h"
+#include "gui.h"
 #include "memory.h"
 
 __DATA(RAM2) memory_t memory;
@@ -120,12 +120,12 @@ int load_rom(char *filename) {
 	checksum = 0;
 	for (i = 0x134; i < 0x14d; i++) checksum = checksum - rom[i] - 1;
 	if (checksum != rom[CHECKSUM_OFFSET]){
-		logger(ERROR, "Checksum incorrect\n");
+		gb_log(ERROR, "Checksum incorrect\n");
 		return -1;
 	}
 
 	for (i = 0; i < 16; i++) name[i] = rom[NAME_OFFSET+i];
-	logger(INFO, "ROM name: %s\n", name);
+	gb_log(INFO, "ROM name: %s\n", name);
 	
 	switch (rom[TYPE_OFFSET]) {
 		case 0x00: type = "ROM ONLY"; break;
@@ -158,7 +158,7 @@ int load_rom(char *filename) {
 		case 0xff: type = "HuC1+RAM+BATTERY"; break;
 		default : type = "UNKNOWN TYPE"; break;
 	}
-	logger(INFO, "ROM type: %s\n", type);
+	gb_log(INFO, "ROM type: %s\n", type);
 	
 	switch (rom[ROM_SIZE_OFFSET]) {
 		case 0x00: rom_size = "32KB"; break;
@@ -175,7 +175,7 @@ int load_rom(char *filename) {
 		case 0x54: rom_size = "1.5MB"; break;
 		default : rom_size = "UNKNOWN ROM SIZE"; break;
 	}
-	logger(INFO, "ROM size: %s\n", rom_size);
+	gb_log(INFO, "ROM size: %s\n", rom_size);
 	
 	switch (rom[ROM_SIZE_OFFSET]) {
 		case 0x00: ram_size = "None"; break;
@@ -186,9 +186,9 @@ int load_rom(char *filename) {
 		case 0x05: ram_size = "64KB"; break;
 		default : ram_size = "UNKNOWN RAM SIZE"; break;
 	}
-	logger(INFO, "RAM size: %s\n", ram_size);
+	gb_log(INFO, "RAM size: %s\n", ram_size);
 	
-	logger(INFO, "ROM loaded successfully\n");
+	gb_log(INFO, "ROM loaded successfully\n");
 	return 0;
 }
 
