@@ -36,7 +36,7 @@
 #define LCD_MAX_WIDTH	240
 
 enum {
-	ROT_90, ROT_180, ROT_270, ROT_360
+	ROT_0, ROT_90, ROT_180, ROT_270
 };
 
 #define PIN_LCD_CS		16

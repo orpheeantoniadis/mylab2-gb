@@ -39,6 +39,12 @@
 // gb_lib libraries
 #include "gui.h"
 
+#define X_CENTER(width)	((LCD_MAX_WIDTH - 1) / 2 - (width) / 2)
+#define Y_OFFSET		20
+
 _DECL volatile uint8_t pixels[0x1680];
+extern const uint8_t battery[];
+extern const uint8_t select[];
+extern const uint8_t start[];
 
 #endif /* VARS_H_ */

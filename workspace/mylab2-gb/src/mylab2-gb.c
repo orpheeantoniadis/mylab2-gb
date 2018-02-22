@@ -11,9 +11,36 @@
 #define VAR_DECLS
 #include "vars.h"
 
+void init_graphics(void) {
+	uint32_t bmp_offset;
+	uint16_t width, height;
+
+	clear_screen(0xef5c);
+
+	// border of the gameboy screen
+	lcd_empty_rectangle(X_CENTER(GB_LCD_WIDTH+40)-2,
+					 	10-2,
+						X_CENTER(GB_LCD_WIDTH+40)+GB_LCD_WIDTH+41,
+						30+GB_LCD_HEIGHT-1+1,
+						2,
+						LCD_BLACK);
+	lcd_filled_rectangle(X_CENTER(GB_LCD_WIDTH+40),
+						 10,
+						 X_CENTER(GB_LCD_WIDTH+40)+GB_LCD_WIDTH+40,
+						 30+GB_LCD_HEIGHT-1,
+						 0x4ace);
+
+	// display battery led
+	bmp_offset = battery[0xa] | (battery[0xb]<<0x8) | (battery[0xc]<<0x10) | (battery[0xd]<<0x18);
+	width = battery[0x12] | (battery[0x13]<<0x8);
+	height = battery[0x16] | (battery[0x17]<<0x8);
+	display_bitmap16((uint16_t *)(&(battery[bmp_offset])), X_CENTER(GB_LCD_WIDTH)-18, Y_OFFSET + 30, width, height, ROT_0);
+
+}
+
 void init_project(void) {
 	init_lcd();
-	clear_screen(LCD_BLACK);
+	init_graphics();
 	initTimer(TIMER0, 25000);
 	enableTimerInterrupt(TIMER0, 10, 1, 0);
 	startTimer(TIMER0);
@@ -47,7 +74,10 @@ uint32_t get_pixel(uint16_t id) {
 void draw_screen(void) {
 	uint16_t i;
 	LCD_CS(0);
-	select_frame(0, 0, GB_LCD_WIDTH-1, GB_LCD_HEIGHT-1);
+	select_frame(X_CENTER(GB_LCD_WIDTH),
+				 Y_OFFSET,
+				 X_CENTER(GB_LCD_WIDTH)+GB_LCD_WIDTH-1,
+				 Y_OFFSET+GB_LCD_HEIGHT-1);
 	MEMORY_WRITE();
 	for (i = 0; i < GB_LCD_WIDTH*GB_LCD_HEIGHT; i++) {
 		lcd_write_data_16(get_pixel(i));

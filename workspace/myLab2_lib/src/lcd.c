@@ -217,14 +217,12 @@ void select_frame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
  * @return 	none
  * ***********************************************************/
 static void fill_frame(uint16_t color) {
-	LCD_CS(0);
 	MEMORY_WRITE();
 	uint32_t i;
 	for (i = 0; i < nb_pixel; i++) {
 		lcd_write_data_16(color);
 	}
 	NOP();
-	LCD_CS(1);
 }
 
 /* ***********************************************************
@@ -245,10 +243,10 @@ void init_lcd(void) {
 }
 
 void clear_screen(uint16_t color) {
-	//LCD_CS(0);
+	LCD_CS(0);
 	select_frame(0, 0, LCD_MAX_WIDTH - 1, LCD_MAX_HEIGHT - 1);
 	fill_frame(color);
-	//LCD_CS(1);
+	LCD_CS(1);
 }
 
 void set_pixel8(uint8_t val, uint16_t color, uint16_t back_color) {
@@ -342,10 +340,15 @@ void read_bmp_file(uint16_t *bitmap, char *filename, uint16_t *width, uint16_t *
 
 void display_bitmap16(uint16_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t rotation) {
 	int i, j;
-	select_frame(x, y, x + width - 1, y + height - 1);
 	LCD_CS(0);
+	select_frame(x, y, x + width - 1, y + height - 1);
 	MEMORY_WRITE();
 	switch(rotation) {
+		case ROT_0 :
+			for (i = height - 1; i >= 0 ; i--)
+				for (j = 0; j < width; j++)
+					lcd_write_data_16(bitmap[i * width + j]);
+			break;
 		case ROT_90 :
 			for (j = 0; j < width; j++) for (i = 0; i < height ; i++) lcd_write_data_16(bitmap[i * width + j]);
 			break;
@@ -354,9 +357,6 @@ void display_bitmap16(uint16_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
 			break;
 		case ROT_270 :
 			for (j = width - 1; j >= 0; j--) for (i = height - 1; i >= 0 ; i--) lcd_write_data_16(bitmap[i * width + j]);
-			break;
-		case ROT_360 :
-			for (i = height - 1; i >= 0 ; i--) for (j = 0; j < width; j++) lcd_write_data_16(bitmap[i * width + j]);
 			break;
 	}
 	NOP();
@@ -391,8 +391,10 @@ void draw_filled_square(uint16_t x, uint16_t y, uint16_t len, uint16_t color) {
 		y2 = y + (len - 1);
 	}
 
+	LCD_CS(0);
 	select_frame(x1, y1, x2, y2);
 	fill_frame(color);
+	LCD_CS(1);
 }
 
 /* ***********************************************************
@@ -434,6 +436,8 @@ void lcd_empty_rectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uin
 }
 
 void lcd_filled_rectangle(int x1, int y1, int x2, int y2, int color) {
+	LCD_CS(0);
 	select_frame(x1, y1, x2, y2);
 	fill_frame(color);
+	LCD_CS(1);
 }
