@@ -22,7 +22,7 @@
 #include "fonts.h"
 #include "sys_call.h"
 
-#define USE_SD_CARD		1
+#define USE_SD_CARD		0
 
 #define LCD_BLUE  		(0xF<<1)
 #define LCD_GREEN 		(0x3f<<5)

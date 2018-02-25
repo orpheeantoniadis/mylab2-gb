@@ -34,19 +34,50 @@ void init_graphics(void) {
 	display_bitmap16((uint16_t *)(&(battery[bmp_offset])), X_CENTER(GB_LCD_WIDTH)-18, Y_OFFSET + 30, width, height, ROT_0);
 
 	// display select button
-	bmp_offset = select[0xa] | (select[0xb]<<0x8) | (select[0xc]<<0x10) | (select[0xd]<<0x18);
-	width = select[0x12] | (select[0x13]<<0x8);
-	height = select[0x16] | (select[0x17]<<0x8);
-	display_bitmap16((uint16_t *)(&(select[bmp_offset])), X_CENTER(GB_LCD_WIDTH)+24, 250, width, height, ROT_0);
+	display_select();
 
 	// display start button
-	bmp_offset = start[0xa] | (start[0xb]<<0x8) | (start[0xc]<<0x10) | (start[0xd]<<0x18);
-	width = start[0x12] | (start[0x13]<<0x8);
-	height = start[0x16] | (start[0x17]<<0x8);
-	display_bitmap16((uint16_t *)(&(start[bmp_offset])), X_CENTER(GB_LCD_WIDTH)+104, 250, width, height, ROT_0);
+	display_start();
+
 }
 
-// override
+void display_select(void) {
+	uint32_t bmp_offset;
+	uint16_t width, height;
+
+	if (buttons_states & 1) {
+		bmp_offset = pushed_select[0xa] | (pushed_select[0xb]<<0x8) | (pushed_select[0xc]<<0x10) | (pushed_select[0xd]<<0x18);
+		width = pushed_select[0x12] | (pushed_select[0x13]<<0x8);
+		height = pushed_select[0x16] | (pushed_select[0x17]<<0x8);
+		display_bitmap16((uint16_t *)(&(pushed_select[bmp_offset])), X_CENTER(GB_LCD_WIDTH)+24, 250, width, height, ROT_0);
+	} else if ((buttons_states >> 1) & 1) {
+		bmp_offset = select[0xa] | (select[0xb]<<0x8) | (select[0xc]<<0x10) | (select[0xd]<<0x18);
+		width = select[0x12] | (select[0x13]<<0x8);
+		height = select[0x16] | (select[0x17]<<0x8);
+		display_bitmap16((uint16_t *)(&(select[bmp_offset])), X_CENTER(GB_LCD_WIDTH)+24, 250, width, height, ROT_0);
+	}
+}
+
+void display_start(void) {
+	uint32_t bmp_offset;
+	uint16_t width, height;
+
+	if ((buttons_states >> 2) & 1) {
+		bmp_offset = pushed_start[0xa] | (pushed_start[0xb]<<0x8) | (pushed_start[0xc]<<0x10) | (pushed_start[0xd]<<0x18);
+		width = pushed_start[0x12] | (pushed_start[0x13]<<0x8);
+		height = pushed_start[0x16] | (pushed_start[0x17]<<0x8);
+		display_bitmap16((uint16_t *)(&(pushed_start[bmp_offset])), X_CENTER(GB_LCD_WIDTH)+104, 250, width, height, ROT_0);
+		buttons_states &= ~(1<<2);
+	} else if ((buttons_states >> 3) & 1) {
+		bmp_offset = start[0xa] | (start[0xb]<<0x8) | (start[0xc]<<0x10) | (start[0xd]<<0x18);
+		width = start[0x12] | (start[0x13]<<0x8);
+		height = start[0x16] | (start[0x17]<<0x8);
+		display_bitmap16((uint16_t *)(&(start[bmp_offset])), X_CENTER(GB_LCD_WIDTH)+104, 250, width, height, ROT_0);
+		buttons_states &= ~(1<<3);
+	}
+}
+
+// Override
 void set_pixel(uint16_t id, uint32_t data) {
 	// clear pixel data
 	pixels[id/4] &= ~(0b11 << ((id % 4) * 2));
@@ -54,7 +85,7 @@ void set_pixel(uint16_t id, uint32_t data) {
 	pixels[id/4] |= data << ((id % 4) * 2);
 }
 
-// override
+// Override
 uint32_t get_pixel(uint16_t id) {
 	uint8_t pixel = (pixels[id/4] >> ((id % 4) * 2)) & 0b11;
 	switch(pixel) {
@@ -66,7 +97,7 @@ uint32_t get_pixel(uint16_t id) {
 	}
 }
 
-// override
+// Override
 void draw_screen(void) {
 	uint16_t i;
 	LCD_CS(0);

@@ -71,10 +71,12 @@ void EINT3_IRQHandler(void) {
 	if (getGPIOInterruptStatus(GPIO2, RISING, TOUCH_SCREEN)) {
 		key_released(7);
 		clearGPIOInterrupt(GPIO2, TOUCH_SCREEN);
+		buttons_states |= 1<<3;
 	}
 	if (getGPIOInterruptStatus(GPIO2, FALLING, TOUCH_SCREEN)) {
 		key_pressed(7);
 		clearGPIOInterrupt(GPIO2, TOUCH_SCREEN);
+		buttons_states |= 1<<2;
 	}
 }
 
@@ -82,5 +84,7 @@ int main(void) {
 	init_project();
 	while(1) {
 		gb_update();
+		display_select();
+		display_start();
 	}
 }

@@ -14,7 +14,11 @@
 extern const uint8_t battery[];
 extern const uint8_t select[];
 extern const uint8_t start[];
+extern const uint8_t pushed_select[];
+extern const uint8_t pushed_start[];
 
 void init_graphics(void);
+void display_select(void);
+void display_start(void);
 
 #endif /* DISPLAY_H_ */
