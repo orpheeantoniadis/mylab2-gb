@@ -74,9 +74,12 @@ void EINT3_IRQHandler(void) {
 		buttons_states |= 1<<3;
 	}
 	if (getGPIOInterruptStatus(GPIO2, FALLING, TOUCH_SCREEN)) {
-		key_pressed(7);
-		clearGPIOInterrupt(GPIO2, TOUCH_SCREEN);
-		buttons_states |= 1<<2;
+		//if (touchscreen_get_x1() >= START_X && touchscreen_get_x1() <= (START_X + BUTTON_WIDTH) &&
+		//	touchscreen_get_y1() >= BUTTONS_Y && touchscreen_get_y1() <= (BUTTONS_Y + BUTTON_HEIGHT)) {
+			key_pressed(7);
+			clearGPIOInterrupt(GPIO2, TOUCH_SCREEN);
+			buttons_states |= 1<<2;
+		//}
 	}
 }
 
@@ -84,7 +87,5 @@ int main(void) {
 	init_project();
 	while(1) {
 		gb_update();
-		display_select();
-		display_start();
 	}
 }

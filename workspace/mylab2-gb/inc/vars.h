@@ -42,8 +42,4 @@
 // other
 #include "display.h"
 
-_DECL uint8_t pixels[0x1680];
-// 0:select_pushed, 1:select_released, 2:start_pushed, 3:start_released
-_DECL uint8_t buttons_states _INIT(0b1010);
-
 #endif /* VARS_H_ */
