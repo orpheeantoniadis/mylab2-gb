@@ -94,7 +94,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="inc"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="backup" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -133,9 +133,9 @@
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.1096908522" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.optimization.flags.1417332172" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-fno-common" valueType="string"/>
-								<option id="com.crt.advproject.gcc.hdrlib.1492642568" superClass="com.crt.advproject.gcc.hdrlib" value="Redlib" valueType="enumerated"/>
-								<option id="com.crt.advproject.gcc.specs.600769082" superClass="com.crt.advproject.gcc.specs" value="com.crt.advproject.gcc.specs.codered" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.1147776658" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="com.crt.advproject.gcc.hdrlib.1492642568" name="Library headers" superClass="com.crt.advproject.gcc.hdrlib" value="Redlib" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.specs.600769082" name="Specs" superClass="com.crt.advproject.gcc.specs" value="com.crt.advproject.gcc.specs.codered" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.1147776658" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS_CORE_LPC17xx/inc}&quot;"/>
 								</option>
@@ -145,9 +145,9 @@
 								<option id="com.crt.advproject.gas.arch.853804454" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm3" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.thumb.504192205" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
 								<option id="gnu.both.asm.option.flags.crt.808357823" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -DNDEBUG -D__CODE_RED -DCORE_M3 -D__USE_CMSIS=CMSIS_CORE_LPC17xx -D__LPC17XX__ -D__REDLIB__" valueType="string"/>
-								<option id="com.crt.advproject.gas.hdrlib.2012319221" superClass="com.crt.advproject.gas.hdrlib" value="Redlib" valueType="enumerated"/>
-								<option id="com.crt.advproject.gas.specs.1379083094" superClass="com.crt.advproject.gas.specs" value="com.crt.advproject.gas.specs.codered" valueType="enumerated"/>
-								<option id="gnu.both.asm.option.include.paths.619079332" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+								<option id="com.crt.advproject.gas.hdrlib.2012319221" name="Library headers" superClass="com.crt.advproject.gas.hdrlib" value="Redlib" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.specs.1379083094" name="Specs" superClass="com.crt.advproject.gas.specs" value="com.crt.advproject.gas.specs.codered" valueType="enumerated"/>
+								<option id="gnu.both.asm.option.include.paths.619079332" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS_CORE_LPC17xx/inc}&quot;"/>
 								</option>
@@ -168,13 +168,13 @@
 									<listOptionValue builtIn="false" value="-print-memory-usage"/>
 								</option>
 								<option id="com.crt.advproject.link.gcc.hdrlib.309431189" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.semihost" valueType="enumerated"/>
-								<option id="gnu.c.link.option.libs.1595929901" superClass="gnu.c.link.option.libs" valueType="libs">
+								<option id="gnu.c.link.option.libs.1595929901" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="CMSIS_CORE_LPC17xx"/>
 								</option>
-								<option id="gnu.c.link.option.paths.459940915" superClass="gnu.c.link.option.paths" valueType="libPaths">
+								<option id="gnu.c.link.option.paths.459940915" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS_CORE_LPC17xx/Release}&quot;"/>
 								</option>
-								<option id="com.crt.advproject.link.crpenable.1468300751" superClass="com.crt.advproject.link.crpenable" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.link.crpenable.1468300751" name="Enable Code Read Protection" superClass="com.crt.advproject.link.crpenable" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.2025352300" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -184,7 +184,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="inc"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="backup" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

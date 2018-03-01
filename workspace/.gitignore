@@ -31,6 +31,7 @@
 Debug
 makefile
 !gb_lib/makefile
+!mylab2-gb/images/makefile
 
 #roms
 gb_lib/roms

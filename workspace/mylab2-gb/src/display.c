@@ -17,7 +17,7 @@ void init_graphics(void) {
 	uint32_t bmp_offset;
 	uint16_t width, height;
 
-	clear_screen(0xe73b);
+	clear_screen(BACK_COLOR);
 
 	// border of the gameboy screen
 	lcd_empty_rectangle(X_CENTER(GB_LCD_WIDTH+40)-2,
@@ -30,13 +30,25 @@ void init_graphics(void) {
 						 10,
 						 X_CENTER(GB_LCD_WIDTH+40)+GB_LCD_WIDTH+40,
 						 30+GB_LCD_HEIGHT-1,
-						 0x4ace);
+						 BORDER_COLOR);
+
+	// display matrix text
+	bmp_offset = matrix[0xa] | (matrix[0xb]<<0x8) | (matrix[0xc]<<0x10) | (matrix[0xd]<<0x18);
+	width = matrix[0x12] | (matrix[0x13]<<0x8);
+	height = matrix[0x16] | (matrix[0x17]<<0x8);
+	display_bitmap16((uint16_t *)(&(matrix[bmp_offset])), X_CENTER(GB_LCD_WIDTH)-16, Y_OFFSET - 9, width, height, ROT_0);
 
 	// display battery led
 	bmp_offset = battery[0xa] | (battery[0xb]<<0x8) | (battery[0xc]<<0x10) | (battery[0xd]<<0x18);
 	width = battery[0x12] | (battery[0x13]<<0x8);
 	height = battery[0x16] | (battery[0x17]<<0x8);
 	display_bitmap16((uint16_t *)(&(battery[bmp_offset])), X_CENTER(GB_LCD_WIDTH)-18, Y_OFFSET + 30, width, height, ROT_0);
+
+	// display nintendo logo
+	bmp_offset = logo[0xa] | (logo[0xb]<<0x8) | (logo[0xc]<<0x10) | (logo[0xd]<<0x18);
+	width = logo[0x12] | (logo[0x13]<<0x8);
+	height = logo[0x16] | (logo[0x17]<<0x8);
+	display_bitmap16((uint16_t *)(&(logo[bmp_offset])), X_CENTER(GB_LCD_WIDTH+40)-2, 35+GB_LCD_HEIGHT, width, height, ROT_0);
 
 	// display select button
 	display_select();
@@ -52,16 +64,16 @@ void display_select(void) {
 
 	if (PUSHED_SELECT) {
 		buttons_states &= ~1;
-		bmp_offset = pushed_select[0xa] | (pushed_select[0xb]<<0x8) | (pushed_select[0xc]<<0x10) | (pushed_select[0xd]<<0x18);
-		width = pushed_select[0x12] | (pushed_select[0x13]<<0x8);
-		height = pushed_select[0x16] | (pushed_select[0x17]<<0x8);
-		display_bitmap16((uint16_t *)(&(pushed_select[bmp_offset])), SELECT_X, BUTTONS_Y, width, height, ROT_0);
+		bmp_offset = pselect[0xa] | (pselect[0xb]<<0x8) | (pselect[0xc]<<0x10) | (pselect[0xd]<<0x18);
+		width = pselect[0x12] | (pselect[0x13]<<0x8);
+		height = pselect[0x16] | (pselect[0x17]<<0x8);
+		display_bitmap16((uint16_t *)(&(pselect[bmp_offset])), SELECT_X, BUTTONS_Y, width, height, ROT_0);
 	} else if (RELEASED_SELECT) {
 		buttons_states &= ~(1<<1);
-		bmp_offset = select[0xa] | (select[0xb]<<0x8) | (select[0xc]<<0x10) | (select[0xd]<<0x18);
-		width = select[0x12] | (select[0x13]<<0x8);
-		height = select[0x16] | (select[0x17]<<0x8);
-		display_bitmap16((uint16_t *)(&(select[bmp_offset])), SELECT_X, BUTTONS_Y, width, height, ROT_0);
+		bmp_offset = rselect[0xa] | (rselect[0xb]<<0x8) | (rselect[0xc]<<0x10) | (rselect[0xd]<<0x18);
+		width = rselect[0x12] | (rselect[0x13]<<0x8);
+		height = rselect[0x16] | (rselect[0x17]<<0x8);
+		display_bitmap16((uint16_t *)(&(rselect[bmp_offset])), SELECT_X, BUTTONS_Y, width, height, ROT_0);
 	}
 }
 
@@ -71,16 +83,16 @@ void display_start(void) {
 
 	if (PUSHED_START) {
 		buttons_states &= ~(1<<2);
-		bmp_offset = pushed_start[0xa] | (pushed_start[0xb]<<0x8) | (pushed_start[0xc]<<0x10) | (pushed_start[0xd]<<0x18);
-		width = pushed_start[0x12] | (pushed_start[0x13]<<0x8);
-		height = pushed_start[0x16] | (pushed_start[0x17]<<0x8);
-		display_bitmap16((uint16_t *)(&(pushed_start[bmp_offset])), START_X, BUTTONS_Y, width, height, ROT_0);
+		bmp_offset = pstart[0xa] | (pstart[0xb]<<0x8) | (pstart[0xc]<<0x10) | (pstart[0xd]<<0x18);
+		width = pstart[0x12] | (pstart[0x13]<<0x8);
+		height = pstart[0x16] | (pstart[0x17]<<0x8);
+		display_bitmap16((uint16_t *)(&(pstart[bmp_offset])), START_X, BUTTONS_Y, width, height, ROT_0);
 	} else if (RELEASED_START) {
 		buttons_states &= ~(1<<3);
-		bmp_offset = start[0xa] | (start[0xb]<<0x8) | (start[0xc]<<0x10) | (start[0xd]<<0x18);
-		width = start[0x12] | (start[0x13]<<0x8);
-		height = start[0x16] | (start[0x17]<<0x8);
-		display_bitmap16((uint16_t *)(&(start[bmp_offset])), START_X, BUTTONS_Y, width, height, ROT_0);
+		bmp_offset = rstart[0xa] | (rstart[0xb]<<0x8) | (rstart[0xc]<<0x10) | (rstart[0xd]<<0x18);
+		width = rstart[0x12] | (rstart[0x13]<<0x8);
+		height = rstart[0x16] | (rstart[0x17]<<0x8);
+		display_bitmap16((uint16_t *)(&(rstart[bmp_offset])), START_X, BUTTONS_Y, width, height, ROT_0);
 	}
 }
 
