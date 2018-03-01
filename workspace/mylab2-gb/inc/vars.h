@@ -41,5 +41,6 @@
 
 // other
 #include "display.h"
+#include "controls.h"
 
 #endif /* VARS_H_ */

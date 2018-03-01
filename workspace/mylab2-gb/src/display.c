@@ -10,7 +10,7 @@
 
 uint8_t pixels[0x1680];
 
-// 0:select_pushed, 1:select_released, 2:start_pushed, 3:start_released
+// 5:start_state, 4:select_state, 3:start_released, 2:start_pushed, 1:select_released, 0:select_pushed
 uint8_t buttons_states = 0b1010;
 
 void init_graphics(void) {
