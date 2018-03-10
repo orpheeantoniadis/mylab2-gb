@@ -3,6 +3,7 @@
 \usepackage{fontspec}
 \usepackage{enumitem}
 \usepackage{authblk}
+\usepackage{minted}
 \setlength{\parindent}{0pt}
 \usepackage[left=2.5cm,top=2.5cm,right=2.5cm,bottom=2.5cm]{geometry}
 
@@ -18,12 +19,28 @@
 \newpage
 \setcounter{tocdepth}{4}
 \tableofcontents
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
 \subsection{Objectif}
+L'objectif principal de ce projet était de développer un émulateur de la console
+de jeux vidéos de Nintendo appelée Gameboy pour la carte de d'extension MyLab2
+développée à l'hepia. Un emulateur est un logiciel permettant d'imiter le comportement
+physique d'un matériel informatique. Le but ici est donc d'imiter le comportement
+du processeur de la Gameboy avec tous ces périphériques. \\
+
+Il a fallut dans un premier temps comprendre le fonctionnement de la Gameboy. 
+Le projet a donc commencé par un travail de recherche et de documentation. Etant 
+donné que Nintendo n'a jamais rendu public la datasheet de sa console, toutes les 
+informations récoltées ont été obtenues après un travail de reverse engineering 
+effectuée par la communauté. Heureusement, la communauté de développeurs d'émulateurs 
+est très active, de nombreux forums et blogs existent ce qui a simplifié la recherche
+d'informations. Toutes les sources que j'ai trouvé seront listées à la fin de se 
+document et pourront faire office de base de donnée complète pour quiconque voulant 
+en apprendre plus sur la console ou bien même voulant développer son propre émulateur.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -38,10 +55,70 @@
 
 \section{MyLab2}
 \subsection{Introduction}
+La MyLab2 est une carte d'extension pour les kits de développement des microcontrolleurs
+LPC1769 et LPC4337 de NXP. Cette carte a été développée à hepia, au laboratoire
+de systèmes numériques. Elle vient se superposer aux cartes de NXP via des connecteurs
+broches. \\
+
+Le LPC1769 de NXP est un microcontrolleur ARM Cortex-M3 ayant une fréquence d'horloge
+pouvant aller jusqu'à 120MHz. Ce dernier propose une mémoire flash de 512kB (mais
+seulement la moitié est programmable avec la version gratuite de LPCXpresso) ainsi
+qu'une SRAM de 64kB. A noter que les 64kB de SRAM sont discontinus et qu'il y a en
+réalité deux banques de RAM de 32kB chacune. 
+Le LPC4337 de NXP est un microcontrolleur ARM Cortex-M4 ayant une fréquence d'horloge 
+pouvant aller jusqu'à 204MHz mais inclut aussi un coprocesseur ARM Cortex-M0 pouvant
+aller à la même fréquence d'horloge. La SRAM de ce dernier fait 136kB. \\
+
+Pour ce projet, le microcontrolleur utilisé sera le LPC1769 pour un soucis pratique.
+En effet, nous avons déjà eu à utiliser cette carte pour le cours de microcontrolleurs
+et périphériques de deuxième année ce qui fait que j'avais déjà une grande partie de
+la librairie de gestion des périphériques de la carte d'extension prête. C'était un
+gain de temps non négligeable qui m'a permis de me concentrer sur l'émulation de
+la Gameboy. \\
+
+Le projet pourrait tout de même être repris et porté sur le LPC4337 afin d'avoir de
+meilleures performances étant donné que sa fréquence d'horloge est deux fois plus
+grande, qu'il dispose de deux processeurs permettant une parallélisation des taches
+et qu'il y a plus de RAM.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Pérphériques utilisés}
+\subsubsection{Boutons}
+Les boutons A et B de la MyLab2 sont de simples pins GPIO. Le LPC1769 propose
+des interruptions (EINT3) sur les ports 0 et 2 du GPIO. Ici, le bouton A est sur la pin
+10 du port 2 (P2.10) et le bouton B est sur la pin 19 du port 0 (P0.19). L'interruption
+peut se faire sur le flanc montant ou descendant (ou les deux). Pour l'activer,
+il faut mettre le bit correspondant à 1 dans le registre \mintinline{c}{IntEnF}
+(flanc descendant) ou \mintinline{c}{IntEnR} (flanc montant). Lors d'une interruption,
+il faut regarder laquelle a eu lieu dans le registre \mintinline{c}{IntStatF}/\mintinline{c}{IntStatR}
+puis la quittancer en mettant le bon bit à 1 dans le registre \mintinline{c}{IntClr}.
+
+\subsubsection{Joystick}
+Le joystick de la MyLab2 est aussi relié à une pin GPIO mais contrairement aux
+boutons A et B, il est relié au port 1 du GPIO. Il n'y a pas d'interruptions
+sur le port 1 du GPIO, il faut donc vérifier l'état des pins du joystick de manière
+régulière. Pour se faire, un timer sera utilisé qui provoquera une interruption
+(TIMER0) toutes les 10ms. La routine d'interruption appelle la fonction \mintinline{c}{joystick_handler}
+qui prend comme argument une fonction de callback (un pointeur sur une fonction
+qui sera appelée si une des directions du joystick est appuyée), l'argument de cette 
+dernière, et le mode de vérification (\mintinline{c}{POLLING} ou \mintinline{c}{TRIGGER}). 
+En mode \mintinline{c}{POLLING}, la fonction de callback sera appelée qu'une seule
+fois si le joystick est maintenu appuyé contrairement au mode \mintinline{c}{TRIGGER}
+où la fonction sera appelée tant que le joystick n'est pas relâché. La fonction de
+callback doit avoir comme prototype:
+
+\inputminted[breaklines,breaksymbol=,linenos,frame=single,stepnumber=5,tabsize=2,firstline=14,lastline=14]
+{c}{../../workspace/mylab2-gb/src/controls.c}
+
+avec \mintinline{c}{pos} qui est la position du joystick, \mintinline{c}{edge} qui
+est le flanc (montant ou descendant) et \mintinline{c}{arg} qui contient l'argument
+de la fonction (peut être à \mintinline{c}{NULL}).
+
+\subsubsection{Ecran LCD}
+
+\subsubsection{Dalle tactile}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

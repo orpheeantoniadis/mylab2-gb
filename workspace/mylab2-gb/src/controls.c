@@ -11,7 +11,8 @@
 // 0: null, 1: RISING, 2: FALLING
 uint8_t touchscreen_edge = 0;
 
-void joystick_callback(uint8_t pos, uint8_t edge, void *arg) {
+void joystick_callback(uint8_t pos, uint8_t edge, void *arg)
+{
 	if (edge == RISING) {
 		switch(pos) {
 			case JOYSTICK_RIGHT: key_pressed(0); break;
