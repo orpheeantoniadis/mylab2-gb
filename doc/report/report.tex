@@ -155,13 +155,44 @@ en utilisant les instructions 0x2A et 0x2B, puis il faut écrire les données re
 à la couleur du pixel désirée en utilisant l'instruction 0x2C).
 
 \subsubsection{Dalle tactile}
+La MyLab2 communique avec la dalle tactile en utilisant le bus I$^2$C. La détection 
+d'appuie sur la dalle tactile se fait quand à elle par interruption GPIO. Il faut
+donc activer d'abord ces interruptions (comme pour les boutons A et B) puis récupérer 
+les informations voulues dans la routine d'interruption. Les informations sont par 
+exemple les coordonnées de position et peuvent être lues dans les registres de la 
+dalle tactile dont les adresses sont disponibles dans la documentation. Pour ce projet, 
+il n'y a eu besoin que de récupérer des coordonnées de la position détectée. Pour
+récupérer  ces informations, il faut d'abord envoyer (donc écrire sur le bus I$^2$C)
+l'adresse du registre à lire et ensuite venir lire dans ce registre. \\
 
+A noter qu'il faut bien entendu initialiser le bus I$^2$C ce qui est fait relativement de la même
+manière que le bus SPI. Petite différence juste pour fixer la fréquence de transmission
+qui se fait par deux registres, les registres \mintinline{c}{I2SCLH} et \mintinline{c}{I2SCLL}.
+Ces registres correspondent respectivement à la fréquence de l'horloge à l'état haut et à l'état
+bas. La fréquence du bus I$^2$C en fast mode est de 400kHz et l'horloge périphérique
+est à 25MHz par défaut donc il faut mettre ces deux registres à 32 ($\frac{25000}{32+32}=400$).
+Il faut pour finir activer les interruptions I$^2$C et créer l'algorithme représenté
+par un organigramme dans la documentation du LPC1769.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Gameboy}
 \subsection{Introduction}
+La Gameboy est une console de jeux vidéos portable 8 bits développée et fabriquée
+par la firme japonaise Nintendo. La console a été mise en vente en 1989 et a connu
+un franc succès à travers le monde jusqu'à la fin de sa production en 2003.
+Nous allons dans cette partie étudier les caractéristiques et les périphériques
+de la console. \\
+
+Le processeur de la Gameboy est le LR35902, processeur semblable au Zilog Z80 et
+cadensé à 4,19MHz. La mémoire de la console est de 64kB. Elle possède quatre boutons, 
+A, B, START et SELECT, une croix directionnelle et une fente pour insérer les 
+cartouches de jeux qui était située sur le haut, à l'arrière de la console. Elle est
+aussi dotée de hauts parleurs et d'un port série pour la communication entre deux
+consoles. Le son et la communication série ne seront pas emulés pour ce projet
+mais une amélioration future pourrait les rajouter. Divisons donc toutes ces parties
+en blocs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
