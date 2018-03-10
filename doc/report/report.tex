@@ -116,6 +116,43 @@ est le flanc (montant ou descendant) et \mintinline{c}{arg} qui contient l'argum
 de la fonction (peut être à \mintinline{c}{NULL}).
 
 \subsubsection{Ecran LCD}
+La MyLab2 utilise le le bus de communication SPI pour communiquer avec l’écran. 
+Afin d'initialiser le SPI, il faut d'abord sélectionner les bonnes pins dans les 
+registres appropriés (\mintinline{c}{PINSEL0} et \mintinline{c}{PINSEL1}). En effet, 
+les pins sont configurées par défaut sur des pins GPIO. Pour le LPC1769 ce sont 
+donc les bits 31:30 de \mintinline{c}{PINSEL0} et 5:0 de \mintinline{c}{PINSEL1} 
+qu'il faut modifier. \\
+
+Il faut ensuite fixer la valeur de la fréquence de transmission. Un registre de configuration du
+SPI le permet. C'est le registre \mintinline{c}{SPCCR}. La valeur
+donné à ce registre va diviser la valeur de l'horloge du SPI. Pour atteindre
+une fréquence de transmission maximale, il faut mettre l'horloge du SPI à 100MHz
+en modifiant le registre \mintinline{c}{PCLKSEL0} puis fixer la valeur du registre
+\mintinline{c}{SPCCR} à 10 pour avoir une fréquence de transmission de 10MHz ($\frac{100}{10}$).
+Pour finir il faut juste activer la communication SPI en la mettant en master mode.
+Ceci se fait dans le registre \mintinline{c}{SPCR} (bit 5 à 1). \\
+
+L'écriture et la lecture du bus SPI se fait à l'aide du même registre pour le
+LPC1769. Ce registre est le registre  \mintinline{c}{SPDR}. Pour écrire,
+il faut fixer la valeur du registre aux données à envoyer puis attendre que le flag
+de confirmation d'envoi soit mis à 1. Ce flag est le bit 7 du registre \mintinline{c}{SPSR}.
+\newline
+Pour venir lire sur le bus SPI, il faut d'abord envoyer 0xFF (donc en utilisant
+la fonction d'écriture) puis venir lire sur ce même registre (buffer bi-directionnel). \\
+
+L'écran LCD accepte 2 types de données, les instructions et les arguments
+d'instruction. La pin DC (pin GPIO 1.16) permet de contrôler ce qui va être envoyé.
+Le DC est à 0 lors de l'envoi d'une instruction et à 1 pour l'envoi d'un argument.
+La liste complète des instructions est disponible dans la documentation de l'écran
+LCD. Pour ce projet, seulement 3 de ces instructions sont utilisées. Celle pour séléctionner
+la colonne d'écriture en pixels (instruction 0x2A), celle pour séléctionner la ligne
+d'écriture en pixels (instruction 0x2B) et enfin, celle pour écrire dans la mémoire
+de l'écran (instruction 0x2C). La mémoire est l'ensemble des données qui composent
+l'intégralité des pixels de l'écran. Ici l'écran est de $240 \times 320$ et un pixel
+est codé sur 16 bits donc la mémoire serait ces $240 \times 320 \times 16$ bits.
+Pour allumer un pixel sur l'écran, il faut d'abord séléctionner la zone d'écriture
+en utilisant les instructions 0x2A et 0x2B, puis il faut écrire les données relatives 
+à la couleur du pixel désirée en utilisant l'instruction 0x2C).
 
 \subsubsection{Dalle tactile}
 
