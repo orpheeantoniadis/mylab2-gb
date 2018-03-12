@@ -4,6 +4,8 @@
 \usepackage{enumitem}
 \usepackage{authblk}
 \usepackage{minted}
+\usepackage{tabularx}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \setlength{\parindent}{0pt}
 \usepackage[left=2.5cm,top=2.5cm,right=2.5cm,bottom=2.5cm]{geometry}
 
@@ -198,21 +200,184 @@ en blocs.
 
 \subsection{CPU}
 \subsubsection{Architecture}
+Comme dit précedemment, le processeur de la Gameboy est semblable au Zilog Z80.
+C'est en fait un hybride entre le Zilog Z80 et le Intel 8080. Le Intel 8080 a été
+conçu pour être compatible avec le Zilog Z80 ce qui veut dire que les instructions
+du 8080 sont aussi présentes dans le Z80. Le nom de ce processeur hybride est Sharp
+LR35902. \\
+
+Le processeur de la Gameboy est un processeur 8 bits avec 16 bits de bus d'adresse.
+Il utilise 6 registres de 16 bits dont 4 pouvant être séparés en deux registres de
+8 bits. Il donne aussi accès à 256 instructions ($2^{8}$) plus 256 instructions
+supplémentaires et ses 16 bits de bus d'adresse permet d'adresser 64kB de mémoire.
+Regardons maintenant plus en détail les regsitres du LR35902.
 
 \subsubsection{Registres}
+Ci-dessous, un tableau explicatif des 6 registres du processeur de la Gameboy.
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{| C{4cm} | C{4cm} | C{4cm} |}
+			\hline
+			Registres & 15:8 & 7:0 \\ \hline
+			AF & A : registre & F : flags \\ \hline
+			BC & B : registre & C : registre \\ \hline
+			DE & D : registre & E : registre \\ \hline
+			HL & H : registre & L : registre \\ \hline
+			SP & \multicolumn{2}{c|}{Stack pointer} \\ \hline
+			PC & \multicolumn{2}{c|}{Program counter} \\ \hline
+		\end{tabular}
+	}
+\end{center}
+Les regsitres, A, BC, DE et HL sont les registres de travail donc utilisés pour
+toutes les opérations du programme. Le registre F contient les flags du processeur.
+Il y a 4 flags différents.
+\begin{itemize}[label=\textbullet]
+	\item Z (Zero flag), qui indique si le résultat de la dernière opération était 0
+	\item N (Negative flag), qui indique si le résultat de la dernière opération était négatif
+	\item H (Halfcarry flag), qui indique s'il y a eu une retenue sur les 4 premiers bits
+	\item C (Carry flag), qui indique s'il y a eu une retenue
+\end{itemize}
+Note: le Halfcarry flag était en général utilisé pour les affichages en décimal sur
+l'écran (par exemple le score du joueur).
 
 \subsubsection{Instructions}
+Nous avons vu plus haut que le processeur de la Gameboy donnait accès à $256 \times 2$
+instructions alors qu'une instruction était sur 8 bits. L'instruction 0xCB était
+en fait une instruction préfix. Toute instruction donnée après ce prefix faisait
+partie des 256 instructions supplémentaires. Nous verrons un exemple d'instruction
+plus bas. Regardons d'abord le jeu d'instructions de la Gameboy et divisons les en catégories.
+\paragraph{Instructions arithmériques}
+\begin{itemize}[label=\textbullet]
+	\item INC, incrémentation du registre
+	\item DEC, décrémentation du registre
+	\item ADD, addition de deux registres
+	\item SUB, soustraction de deux registres
+	\item ADC, addition de deux registres et du carry flag
+	\item SBC, soustraction de deux registres et du carry flag
+\end{itemize}
+\paragraph{Opérations logiques}
+\begin{itemize}[label=\textbullet]
+	\item AND, ET bit à bit
+	\item OR, OU bit à bit
+	\item XOR, OU exclusif bit à bit
+\end{itemize}
+\paragraph{Opérations sur les bits}
+\begin{itemize}[label=\textbullet]
+	\item RL, rotation à gauche
+	\item RR, rotation à droite
+	\item SL, décalage à gauche
+	\item SR, décalage à droite
+	\item SWAP, inversion des bits
+	\item BIT, teste un bit
+	\item SET, set un bit
+	\item RES, reset un bit
+\end{itemize}
+\paragraph{Sauts}
+\begin{itemize}[label=\textbullet]
+	\item JP, saut absolu à une adresse
+	\item JR, saut relatif
+	\item CALL, saut et stockage du program counter sur la pile (appel de fonction)
+	\item RET, saut à l'adresse stockée dans la pile (retour de fonction)
+\end{itemize}
+\paragraph{Opérations avec la pile}
+\begin{itemize}[label=\textbullet]
+	\item PUSH, stockage d'un registre dans la pile
+	\item POP, récupération de la dernière donnée empilée
+\end{itemize}
+\paragraph{Commandes processeur}
+\begin{itemize}[label=\textbullet]
+	\item NOP, pas d'opération
+	\item HALT, arrête le processeur jusqu'à la prochaine interruption
+	\item STOP, arrête le processeur
+	\item EI, active une interruption
+	\item DI, désactive une interruption
+\end{itemize}
+\paragraph{Autres instructions}
+\begin{itemize}[label=\textbullet]
+	\item LOAD, stockage d'une donnée depuis ou dans la mémoire
+	\item CP, comparaison de deux registres
+	\item DAA, conversion du registre A en décimal
+\end{itemize}
+\newpage
+
+\paragraph{Exemples d'instructions}
+\begin{itemize}[label=\textbullet]
+	\item 0x11 0x10 0x10 $\rightarrow$ LD DE, 0x1010
+	\item 0xCB 0xC0 $\rightarrow$ SET 0, B
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Mémoire}
 \subsubsection{Memory map}
+Nous avons vu à plusieurs reprises que la Gameboy avait une mémoire de 64kB.
+Voyons plus en détail la structure de cette mémoire.
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{| C{4cm} | C{4cm} | c |}
+			\hline
+			Adresses & Nom & Description \\ \hline
+			0000h – 3FFFh & ROM0 & ROM non-échangeable \\ \hline
+			4000h – 7FFFh & ROMX & ROM échangeable \\ \hline
+			8000h – 9FFFh & VRAM & Video RAM \\ \hline
+			A000h – BFFFh & SRAM & RAM externe \\ \hline
+			C000h – CFFFh & WRAM0 & Work RAM \\ \hline
+			D000h – DFFFh & WRAMX & Work RAM échangeable \\ \hline
+			E000h – FDFFh & ECHO & Echo de la WRAM \\ \hline
+			FE00h – FE9Fh & OAM & Sprites \\ \hline
+			FEA0h – FEFFh & UNUSED & - \\ \hline
+			FF00h – FF7Fh & I/O Registers & - \\ \hline
+			FF80h – FFFEh & HRAM & RAM interne du CPU \\ \hline
+			FFFFh & IE Register & Registre d'activation des interruptions \\ \hline
+		\end{tabular}
+	}
+\end{center}
 
 \subsubsection{Cartouche}
 
+La cartouche est un périphérique externe sur la Gameboy originale. Tout le code
+qui est executé par la Gameboy est contenu dans la cartouche. Le jeu est mappé 
+dans les 32 premiers kB de la mémoire de la console. Le problème qui se pose ici
+est que les jeux ne peuvent faire une taille que de 32kB si on ne prend en compte
+que cette information. Pour résoudre ce problème, la Gameboy met à disposition 
+un mécanisme d'échanges de blocs mémoires entre sa mémoire et la mémoire du jeu 
+(appelé MBC). \\
+
+Ces échanges se font aux adresses allant de 0x4000 à 0x7FFF. Il existe de nombreux 
+types de MBC dont la liste est disponible sur internet. Afin de savoir à quel type 
+de MBC nous avons à faire, il faut lire à l'adresse 0x147. Il faut écrire à une 
+adresse entre 0x2000 et 0x4000 pour changer de banque de ROM et écrire entre 0x4000 
+et 0x6000 pour changer de banque de RAM. L'échange de banques de RAM n'est pas activé 
+par défaut. Le jeu doit d'abord écrire 0xA à une adresse entre 0x0000 et 0x2000. 
+A noté que toutes ces écritues ne sont pas effectives, elle permettent juste de 
+gérer les banques de mémoire. Aucune donnée n'est écrite en ROM.
+
 \subsubsection{Bootstrap}
+Dans la partie précédente, nous avons vu que les 32 premiers kB du jeu étaient mappés
+au début de la mémoire de la console. Le seul moment ou ce n'est pas le cas est 
+durant le démarrage de la console. Lors du démarrage de la console, le processeur
+execute un petit bout de code allant de 0x0 à 0x100. Ce bout de code est stocké en
+dur dans la console et permet d'initialiser les registres et la mémoire de la Gameboy.
+Le code de bootstrap n'a jamais été donné par Nintendo et n'a été que récemment
+décodé par la communauté de développeurs. Ce code est donc mappé dans les 256 premiers
+bytes de la console, le program counter commence à 0 puis après avoir executé l'ensemble
+des instructions, il arrive à 0x100. L'éxécution du bootstrap était représenté par
+un scroll du logo de Nintendo sur l'écran. Ensuite, Le bootstrap est retiré et le jeu peu
+commencer son éxécution. A noter que le code du jeu commence donc à l'adresse
+0x100. Les 256 premiers bytes contiennent les routines d'interruption.
 
 \subsubsection{DMA}
+Le registre DMA (0xFF46) permet d'activer le transfert DMA, entre tout adresse
+(entre 0x0 et 0xF19F) et l'OAM (mémoire contenant les sprites). Le transfert commence
+quand l'adresse source st écrite dans le registre DMA. Etant donné que le registre
+ne fait que 8 bits, l'adresse source est multipliée par 0x100 et donne la réelle
+adresse de départ du transfert. \\
+
+Une fois que le transfert DMA commence, les données commençant à l'adresse
+écrite dans le registre DMA sont écrites dans la région OAM de la mémoire.
+Il y a 160 bytes écrits lors de ce transfert (taille de la région OAM).  L'avantage 
+du DMA est de permettre de copier l'intégralité des données de sprites en une seule 
+instruction au lieu d'avoir à faire 160 instructions à la suite.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
