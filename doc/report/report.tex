@@ -19,7 +19,7 @@
 \maketitle
 
 \newpage
-\setcounter{tocdepth}{4}
+\setcounter{tocdepth}{3}
 \tableofcontents
 \newpage
 
@@ -200,7 +200,7 @@ en blocs.
 
 \subsection{CPU}
 \subsubsection{Architecture}
-Comme dit précedemment, le processeur de la Gameboy est semblable au Zilog Z80.
+Comme dit précédemment, le processeur de la Gameboy est semblable au Zilog Z80.
 C'est en fait un hybride entre le Zilog Z80 et le Intel 8080. Le Intel 8080 a été
 conçu pour être compatible avec le Zilog Z80 ce qui veut dire que les instructions
 du 8080 sont aussi présentes dans le Z80. Le nom de ce processeur hybride est Sharp
@@ -356,7 +356,7 @@ gérer les banques de mémoire. Aucune donnée n'est écrite en ROM.
 Dans la partie précédente, nous avons vu que les 32 premiers kB du jeu étaient mappés
 au début de la mémoire de la console. Le seul moment ou ce n'est pas le cas est 
 durant le démarrage de la console. Lors du démarrage de la console, le processeur
-execute un petit bout de code allant de 0x0 à 0x100. Ce bout de code est stocké en
+exécute un petit bout de code allant de 0x0 à 0x100. Ce bout de code est stocké en
 dur dans la console et permet d'initialiser les registres et la mémoire de la Gameboy.
 Le code de bootstrap n'a jamais été donné par Nintendo et n'a été que récemment
 décodé par la communauté de développeurs. Ce code est donc mappé dans les 256 premiers
@@ -382,13 +382,102 @@ instruction au lieu d'avoir à faire 160 instructions à la suite.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Interruptions}
+
 \subsubsection{Activer une interruption}
+La Gameboy est capable de générer 5 types d'interruptions pour certains de ses
+périphériques. Ces interruptions pouvaient être contrôlées depuis deux registres
+contenus dans la mémoire. Le registre IE (0xFFFF) et le registre IF (0xFF0F).
+Les 5 premiers bits de ces deux registres représentaient chacun une interruption.
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{| C{4cm} | C{4cm} | C{4cm} |}
+			\hline
+			Bit & Interruption & Adresse \\ \hline
+			0 & V-Blank & 40h \\ \hline
+			1 & LCD & 48h \\ \hline
+			2 & Timer & 50h \\ \hline
+			3 & Serial & 58h \\ \hline
+			4 & Joypad & 60h \\ \hline
+		\end{tabular}
+	}
+\end{center}
+Ici, l'adresse est l'adresse dans la mémoire qui contient la routine d'interruption
+(comme expliqué en 3.3.2). Le registre IE (Interrupt Enable) est modifié par le jeu.
+Le registre IF (Interrupt Flag) quand à lui est modifié par les périphériques lorsqu'une 
+interruption est demandée. \\
+
+La dernière chose à savoir sur la gestion des interruptions est le "interrupt master".
+Il n'est pas contenu dans la mémoire de la console et est un simple booléen que les
+jeux mettent à 1 ou à 0. Si il est à 1, aucune interruption ne pourra être traité.
+C'est donc un interrupteur qui est mis à 0 ou à 1 par les instructions EI, DI ou RETI.
 
 \subsubsection{Demander une interruption}
+Comme dit précédemment, un périphérique demande une interruption en modifiant le
+bon bit dans le registre IF. Lorsqu'une interruption est demandée, elle n'est pas
+forcemment traitée directement par le CPU. Tant que l'interruption n'est pas traitée,
+le flag d'interruption doit resté à 1. De plus, lorsque un bit du registe IF est mis
+à 1 par un périphérique que le même bit dans le registre IE est aussi à 1 et que
+le CPU exécute l'instruction EI, le CPU ne sautera pas à la routine d'interruption
+directement mais au prochain cycle d'horloge. A noter que cette particularité vaut 
+pour l'instruction EI mais pas pour l'instruction RETI. Cette dernière retourne à
+la dernière adresse mise dans la pile mais active les interruptions au coup d'horloge
+actuel. \\
+
+Exemple avec EI: \newline
+\mintinline{c}{di} \newline
+\mintinline{c}{ld a, 4h} \newline
+\mintinline{c}{ld [FFFFh], a} \newline
+\mintinline{c}{ld [FF0Fh], a} \newline
+\mintinline{c}{ei} \newline
+\mintinline{c}{inc a // cette instruction va être exécutée avant la routine d'interruption} \newline
+\mintinline{c}{inc a // cette instruction va être exécutée après la routine d'interruption} \newline
+
+Exemple avec RETI: \newline
+\mintinline{c}{di} \newline
+\mintinline{c}{ld a, 4h} \newline
+\mintinline{c}{ld [FFFFh], a} \newline
+\mintinline{c}{ld [FF0Fh], a} \newline
+\mintinline{c}{reti} \newline
+\mintinline{c}{inc a // cette instruction va être exécutée après la routine d'interruption} \newline
+\mintinline{c}{inc a} \newline
 
 \subsubsection{Traiter une interruption}
+Nous avons pu voir qu'une interruption est traitée que si les bits correspondant
+sont actifs dans les registres IE et IF mais aussi que le "interrupt master" (IME) est
+à 1. La program counter est mis sur la pile puis il prend la valeur de l'adresse 
+de la routine d'interruption demandée, IME est mis à 0 et le 
+bit correspondant à l'interruption est mis à 0 dans le registre IF. Les routines
+d'interruption terminent normalement par une instruction RET ou RETI. Dans le cas
+de l'instruction RET, les interruption ne sont pas réactivées. Par contre, RETI
+les réactive (IME à 1) ce qui permet à une autre interruption d'être
+traitée (si par exemple un autre périphérique avait demandé une interruption en même
+temps que le premier). Les priorités de traitement d'une interruption est dans l'ordre
+du tableau ci-dessus. Le bit de poids faible a donc la plus grande priorité et ainsi
+de suite.
 
 \subsubsection{Comportement de HALT}
+L'instruction HALT est une instruction particulière car elle arrête le processeur
+jusqu'à qu'une interruption a lieu. Son comportement varie en fonction de l'état
+des registes IE, IF et du IME. L'instruction a en fait 3 comportements
+différents.
+\begin{itemize}[label=\textbullet]
+	\item IME = 1
+	\begin{itemize}[label=\textbullet]
+		\item L'instruction HALT est exécutée normalement, le CPU s'arrête jusqu'à
+		ce que deux bits correspondants soient mis à 1 dans IE et IF. Une fois fait,
+		le CPU repart et saute directement à la routine d'interruption.
+	\end{itemize}
+	\item IME = 0
+	\begin{itemize}[label=\textbullet]
+		\item Si deux bits correspondants ne sont pas encore à 1 dans IE et IF, HALT 
+		s'exécute normalement, comme lorsque IME = 1 sauf qu'une fois le CPU reveillé,
+		l'exécution du programme continue (sans routine d'interruption).
+		\item Si deux bits correspondants sont déjà à 1 dans IE et IF, le bug de HALT
+		se produit. L'instruction HALT n'est pas exécutée et le processeur n'incrémente
+		pas le program counter. L'instruction après l'instruction HALT est donc exécutée
+		deux fois.
+	\end{itemize}
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
