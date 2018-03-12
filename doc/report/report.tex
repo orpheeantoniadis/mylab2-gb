@@ -385,9 +385,9 @@ instruction au lieu d'avoir à faire 160 instructions à la suite.
 
 \subsubsection{Activer une interruption}
 La Gameboy est capable de générer 5 types d'interruptions pour certains de ses
-périphériques. Ces interruptions pouvaient être contrôlées depuis deux registres
+périphériques. Ces interruptions peuvent être contrôlées depuis deux registres
 contenus dans la mémoire. Le registre IE (0xFFFF) et le registre IF (0xFF0F).
-Les 5 premiers bits de ces deux registres représentaient chacun une interruption.
+Les 5 premiers bits de ces deux registres représentent chacun une interruption.
 \begin{center}
 	\scalebox{1}{
 		\begin{tabular}{| C{4cm} | C{4cm} | C{4cm} |}
@@ -482,10 +482,55 @@ différents.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Timer}
+\subsubsection{Fonctionnement}
+La Gameboy possède un timer qui compte à une certaine fréquence et provoque une
+interruption lorsqu'il dépasse la limite du registre (overflow). Le timer se trouve
+à l'adresse 0xFF05 de la mémoire (TIMA). Sa fréquence est donné par les deux premiers
+bits du registre contrôle situé à l'adresse 0xFF07 (TAC). Le registre TIMA est sur 8 bits donc
+sa valeur maximale est 255. Lorsque TIMA dépasse cette valeur la requête d'interruption
+est envoyé et TIMA prend la valeur contenu par le registre à l'adress 0xFF06 (TMA).
+On peut donc dire que TMA est le registre d'initialisation du timer. Il y a un
+dernier registre lié au timer situé à l'adresse 0xFF04 appelé le divider register
+(DIV). Nous verrons l'utilité de ce registre plus en détail après. Pour résumer :
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{| C{4cm} | C{4cm} | C{4cm} |}
+			\hline
+			Registre & Adresse & Description \\ \hline
+			DIV & FF04h & Divider register \\ \hline
+			TIMA & FF05h & Timer counter \\ \hline
+			TMA & FF06h & Timer modulo \\ \hline
+			TAC & FF07h & Timer controller \\ \hline
+		\end{tabular}
+	}
+\end{center}
+
 \subsubsection{Timer controller}
+Le timer controller permet de fixer la fréquence du timer. Cette dernière peut être
+de 4096Hz, 262144Hz, 65536Hz ou 16384Hz. C'est aussi dans ce registre qu'il est indiqué
+si le timer est activé. C'est le bit 2 qui donne cette information (à 1 le timer
+est activé et à 0 il ne l'est pas). Le deux bits de poids faible du registre TAC
+indiquent à quelle fréquence va être incrémenté le timer.
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{| C{4cm} | C{4cm} |}
+			\hline
+			TAC[1:0] & Fréquence \\ \hline
+			00 & 4096Hz \\ \hline
+			01 & 262144Hz \\ \hline
+			10 & 65536Hz \\ \hline
+			11 & 16384Hz \\ \hline
+		\end{tabular}
+	}
+\end{center}
 
 \subsubsection{Divider register}
-
+Le divider register est semblable au registre TIMA sauf que son incrémentation
+ne dépend pas du registre TAC. Ce registre est incrémenté dans tous les cas à une 
+fréquence de 16382Hz et est toujours actif, même si le timer est désactivé. Ce registre
+était surtout utilisé pour la génération de nombres pseudo aléatoires. En effet, étant
+donné qu'il est incrémenté constamment à partir du démarrage de la console, il
+est très dur de prévoir quelle sera sa valeur.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
