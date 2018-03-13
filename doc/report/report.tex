@@ -530,12 +530,66 @@ ne dépend pas du registre TAC. Ce registre est incrémenté dans tous les cas �
 fréquence de 16382Hz et est toujours actif, même si le timer est désactivé. Ce registre
 était surtout utilisé pour la génération de nombres pseudo aléatoires. En effet, étant
 donné qu'il est incrémenté constamment à partir du démarrage de la console, il
-est très dur de prévoir quelle sera sa valeur.
+est très dur de prévoir quelle sera sa valeur. A noter que ce registre est remis
+à 0 si le jeu tente d'écrire dedans (à partir d'une instruction LOAD par exemple).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{GPU}
 \subsubsection{Contrôleur LCD}
+L'écran LCD de la Gameboy a une résolution de $160 \times 144$. L'écran LCD peut
+être activé ou désactivé en modifiant le bit 7 du registre à l'adresse 0xFF40 appelé
+LCD control (LCDC). L'écran est activé lorsque ce bit est à 1. Si le LCD est activé,
+le controlleur de l'écran scanne ligne par ligne donc il y a théoriquement 144 lignes
+à scanner. Cependant, le compteur de ligne (LY) situé à l'adresse 0xFF44 de la mémoire
+va de 0 à 153. Les 8 lignes entre 144 et 153 sont des lignes qui n'existent pas mais
+qui premettent au controlleur LCD d'entrer dans ce qui est appelé la V-Blank period.
+Cette uné période où la mémoire vidéo de la console (VRAM) et la mémoire de sprites 
+(OAM) peuvent être modifiés par le CPU. Lorsque le LCD arrive dans la V-Blank period,
+une requête d'interruption est envoyé. De plus, comme pour le registre DIV du timer,
+le registre LY est remis à 0 si le jeu essaye d'écrire dedans (par une instruction 
+LOAD par exemple). \\
+
+Nous avon vu un état du controlleur de l'écran LCD qui est le V-Blank mais il a 
+en fait 4 états différents.  H-Blank, V-Blank, recherche de sprites et transfert
+des données au LCD. Ces états sont indiqués dans le registre à l'adresse 0xFF41
+(STAT). Les deux bits de poids faible de ce registre représentent l'état actuel
+du controlleur.
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{| C{4cm} | C{4cm} | C{6cm} |}
+			\hline
+			STAT[1:0] & État & Description \\ \hline
+			00 & H-Blank & La VRAM et l'OAM peuvent être modifiées par le CPU \\ \hline
+			01 & V-Blank & La VRAM et l'OAM peuvent être modifiées par le CPU et l'écran est désactivé\\ \hline
+			10 & Recherche de sprites & Le controlleur lit l'OAM qui est donc inaccessible par le CPU \\ \hline
+			11 & Transfert des données & Le controlleur lit l'OAM et la VRAM qui sont donc inaccessibles par le CPU \\ \hline
+		\end{tabular}
+	}
+\end{center} \bigbreak
+
+Lorsqu'une nouvelle ligne est scannée, le controlleur entre dans l'état 2 puis il
+passe au 3 et enfin au 0. Ce pattern est ensuite répété jusqu'à ce que le controlleur
+arrive en V-Blank period et passe à l'état 1. Tout est recommencé une fois le V-Blank
+passé. Il faut 456 coups d'horloge pour scanner une ligne et passer à la suivante.
+Ce qui sépare le nombre de cycles passés à chaque état de cette manière:
+\begin{itemize}[label=\textbullet]
+	\item 80 coups d'horloge pour l'état 2
+	\item 172 coups d'horloge pour l'état 3
+	\item 204 coups d'horloge pour l'état 0
+\end{itemize} \bigbreak
+
+Lors d'un changement d'état (par exemple lors du passage du mode 1 au mode 2),
+le controlleur LCD peut demander une interruption. Les bits 3, 4 et 5 du registre
+STAT permettent d'activer ces interruptions. Le bit 3 autorise l'interruption lors
+du passage au mode 0, le bit 4 lors du passage au mode 1 et le bit 5 lors du passage
+au mode 2. Il n'y a pas d'interruption possible lors du passage au mode 3. \\
+
+Un dernier registre est lié au controlleur LCD, le registre à l'adresse 0xFF45
+appelé LY compare (LYC). Si les registres LY et LYC on la même valeur, le bit 2
+du registre STAT est mis à 1. Si ce bit est à 1 est que son bit d'interruption associé,
+le bit 6, est aussi à 1 alors une interruption est demandé. Cette interruption
+permet au jeu de savoir quand une ligne est scannée pour faire certains effets.
 
 \subsubsection{Affichage}
 
