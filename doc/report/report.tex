@@ -592,6 +592,107 @@ le bit 6, est aussi à 1 alors une interruption est demandé. Cette interruption
 permet au jeu de savoir quand une ligne est scannée pour faire certains effets.
 
 \subsubsection{Affichage}
+\paragraph{Contrôle de l'affichage} \mbox{} \\
+
+Nous avons vu précedemment que l'écran LCD de la Gameboy a pous résolution
+$160 \times 144$. Ceci est partiellemnt vrai. Physiquement, l'écran a ces dimensions
+mais dans la mémoire, l'écran a une résolution de $256 \times 256$. Ces pixels
+supplémentaires permettent le scrolling des éléments de fond de l'affichage. Le
+scrolling se fait à l'aide de deux registres, SCROLLY et SCROLLX situés respectivement
+aux adresses 0xFF42 et 0xFF43. Ces $256 \times 256$ pixels sont rassemblés en $32 \times 32$ tiles.
+Une tile fait donc $8 \times 8$ pixels. En plus de cette zone de fond, l'affichage de la
+Gameboy possède aussi une zone appelé window (ou fenêtre). La fenêtre est composée
+de tiles, comme le fond sauf que cet élément est fixe, il ne peut pas être scrollé.
+La position de la fenêtre sur l'écran est définie à l'aide des registres WINDOWY
+et WINDOWX situés respectivement aux adresses 0xFF4A et 0xFF4B.
+L'interêt d'une zone fixe est l'affichage d'éléments fixes comme le score du joueur,
+sa vie, etc... Le dernier élément graphique qui a déjà été vu plus haut est le sprite.
+Un sprite représente tous les objets en mouvement sur l'écran (personnage contrôllé par
+le joueur, ennemis, briques de Tetris, etc...). \\
+
+Pour résumer nous avons les éléments suivants:
+\begin{itemize}[label=\textbullet]
+	\item Backgroud : La zone de fond scrollable
+	\item Window : La fenêtre fixe par dessus le fond
+	\item Sprites : Les objets en mouvement
+\end{itemize} \bigbreak
+
+Afin de savoir où se trouvent tous ces éléments graphique dans la mémoire, il faut
+regarder dans le registre LCDC (0xFF40). Ci-dessous l'explication sur l'utilité
+de chacun de ses bits.
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{| c | c | c | c |}
+			\hline
+			Bit & Nom & \multicolumn{2}{c|}{États} \\ \hline
+			7 & LCD Enable & 0 : Off & 1 : On \\ \hline
+			6 & Window Tile Map Display Select & 0 : 9800h-9BFFh & 1 : 9C00h-9FFFh \\ \hline
+			5 & Window Display & 0 : Off & 1 : On \\ \hline
+			4 & BG / Window Tile Data Select & 0 : 8800h-97FFh & 1 : 8000h-8FFFh \\ \hline
+			3 & BG Tile Map Display Select & 0 : 980h0-9BFFh & 1 : 9C00h-9FFFh \\ \hline
+			2 & OBJ (Sprite) Size & 0 : 8x8 & 1 : 8x16 \\ \hline
+			1 & OBJ (Sprite) Display Enable & 0 : Off & 1 : On \\ \hline
+			0 & BG / WindowDisplay & 0 : Off & 1 : On \\ \hline
+		\end{tabular}
+	}
+\end{center}
+
+\paragraph{Afficher le background et la fenêtre} \mbox{} \\
+
+On peut déjà remarquer que les bits 6, 4 et 3 indiquent des adresses en mémoire.
+Ce sont les adresses où seront situées les données indispensables à l'affichage.
+Les tile map sont des ensemble d'identifiant de tiles. L'identifiant permet de
+trouver la tile à afficher dans la data table qui contient les données des pixels
+de tous les tiles possible du jeu. L'identifiant est sur 8 bits mais est signé si
+les données sont situées entre  0x8800 et 0x97FF. Dans le cas contraire, l'identifiant
+est non signé. \\
+
+Une fois l'identifiant trouvé, il faut afficher les données contenues
+dans la data table. Un pixel de l'écran de la Gameboy est codé sur deux bits et
+une tile est composé de $8 \times 8$ pixels. Une ligne d'une tile fait donc 16 bits.
+Il faut combiner ces 16 bits pour avoir la bonne information sur les pixels de la ligne.
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+			\hline
+			Pixel & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ \hline
+			Octet 1 & 1 & 0 & 1 & 0 & 1 & 1 & 1 & 0 \\ \hline
+			Octet 2 & 0 & 0 & 1 & 1 & 0 & 1 & 0 & 1 \\ \hline
+			Identifiant couleur & 2 & 0 & 3 & 1 & 2 & 3 & 2 & 1 \\ \hline
+		\end{tabular}
+	}
+\end{center}
+Finalement, pour avoir la valeur réelle du pixel il faut aller chercher dans la
+palette de couleur située dans le registre à l'adresse 0xFF47 pour le background
+et la fenêtre (les sprites peuvent avoir deux palettes de couleur différentes
+mais nous verrons ça plus tard). Cette palette est sur 8 bits et l'identifiant
+trouvé précedemment indique quelle paire de bits contient la couleur. 0 pour les
+bits 0 et 1, 1 pour les bits 2 et 3, 2 pour les bits 4 et 5, 3 pour les bits 6 et 7.
+La couleur ainsi récupérée est aussi sur deux bits.
+\begin{itemize}[label=\textbullet]
+	\item 00 : Blanc
+	\item 01 : Gris clair
+	\item 10 : Gris foncé
+	\item 11 : Noir
+\end{itemize} \bigbreak
+
+\paragraph{Afficher les sprites} \mbox{} \\
+
+Les tiles des sprites sont toujours situées aux mêmes adresses entre 0x8000 et
+0x8FFF. Il est donc plus simple de les trouver en comparaison du background
+ou de la fenêtre. Il y a 40 tiles reservées au sprites et chaque sprite
+est lié à une table d'attributs, 4 registres sur 8 bits situés entre les adresses
+0xFE00 et 0xFE9F. Ces attributs sont, dans l'ordre, sa position en y, sa position
+en x, son identifiant dans la data table et enfin un registre d'attributs. Les
+4 bits de poids fort de ce registre d'attribtus sont utilisés par la Gameboy
+et représentent, dans l'ordre, la priorité du sprite par rapport au background,
+sa rotation en y, sa rotation en x et son numéro de palette de couleurs (nous avions
+vu précedemment que les sprites avaient deux palettes de couleurs). Ces deux
+palettes sont situées aux adresses 0xFF48 et 0xFF49. \\
+
+Pour afficher les sprites du jeu il faut donc parcourir l'ensemble des sprites 
+entre 0xFE00 et 0xFE9F et les afficher en utilisant leurs attributs. Le fonctionnement
+de la palette de couleur est le même que pour le background et la fenêtre.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
