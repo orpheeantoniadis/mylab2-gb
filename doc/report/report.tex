@@ -18,6 +18,19 @@
 \begin{document}
 \maketitle
 
+\begin{figure}[!b]
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.6\linewidth]{images/hepia.jpg}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.6\linewidth]{images/hesso.jpg}
+	\end{minipage}
+\end{figure}
+\newpage
+
 \newpage
 \setcounter{tocdepth}{3}
 \tableofcontents
@@ -52,10 +65,18 @@ en apprendre plus sur la console ou bien même voulant développer son propre é
 
 \subsection{Schéma}
 
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{MyLab2}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.3]{images/mylab2.png}
+  \caption{La MyLab2}
+\end{figure}
+
 \subsection{Introduction}
 La MyLab2 est une carte d'extension pour les kits de développement des microcontrolleurs
 LPC1769 et LPC4337 de NXP. Cette carte a été développée à hepia, au laboratoire
@@ -82,6 +103,8 @@ Le projet pourrait tout de même être repris et porté sur le LPC4337 afin d'av
 meilleures performances étant donné que sa fréquence d'horloge est deux fois plus
 grande, qu'il dispose de deux processeurs permettant une parallélisation des taches
 et qu'il y a plus de RAM.
+
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -176,10 +199,19 @@ est à 25MHz par défaut donc il faut mettre ces deux registres à 32 ($\frac{25
 Il faut pour finir activer les interruptions I$^2$C et créer l'algorithme représenté
 par un organigramme dans la documentation du LPC1769.
 
+\newpage
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Gameboy}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.5]{images/gameboy.png}
+  \caption{La Gameboy}
+\end{figure}
+
 \subsection{Introduction}
 La Gameboy est une console de jeux vidéos portable 8 bits développée et fabriquée
 par la firme japonaise Nintendo. La console a été mise en vente en 1989 et a connu
@@ -196,9 +228,18 @@ consoles. Le son et la communication série ne seront pas emulés pour ce projet
 mais une amélioration future pourrait les rajouter. Divisons donc toutes ces parties
 en blocs.
 
+\newpage
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{CPU}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.1]{images/cpu.jpg}
+  \caption{Le processeur de la Gameboy}
+\end{figure}
+
 \subsubsection{Architecture}
 Comme dit précédemment, le processeur de la Gameboy est semblable au Zilog Z80.
 C'est en fait un hybride entre le Zilog Z80 et le Intel 8080. Le Intel 8080 a été
@@ -298,7 +339,6 @@ plus bas. Regardons d'abord le jeu d'instructions de la Gameboy et divisons les 
 	\item CP, comparaison de deux registres
 	\item DAA, conversion du registre A en décimal
 \end{itemize}
-\newpage
 
 \paragraph{Exemples d'instructions}
 \begin{itemize}[label=\textbullet]
@@ -306,9 +346,18 @@ plus bas. Regardons d'abord le jeu d'instructions de la Gameboy et divisons les 
 	\item 0xCB 0xC0 $\rightarrow$ SET 0, B
 \end{itemize}
 
+\newpage
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Mémoire}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.1]{images/mem.jpg}
+  \caption{La mémoire de la Gameboy}
+\end{figure}
+
 \subsubsection{Memory map}
 Nous avons vu à plusieurs reprises que la Gameboy avait une mémoire de 64kB.
 Voyons plus en détail la structure de cette mémoire.
@@ -352,6 +401,8 @@ par défaut. Le jeu doit d'abord écrire 0xA à une adresse entre 0x0000 et 0x20
 A noté que toutes ces écritues ne sont pas effectives, elle permettent juste de 
 gérer les banques de mémoire. Aucune donnée n'est écrite en ROM.
 
+\newpage
+
 \subsubsection{Bootstrap}
 Dans la partie précédente, nous avons vu que les 32 premiers kB du jeu étaient mappés
 au début de la mémoire de la console. Le seul moment ou ce n'est pas le cas est 
@@ -365,6 +416,12 @@ des instructions, il arrive à 0x100. L'éxécution du bootstrap était représe
 un scroll du logo de Nintendo sur l'écran. Ensuite, Le bootstrap est retiré et le jeu peu
 commencer son éxécution. A noter que le code du jeu commence donc à l'adresse
 0x100. Les 256 premiers bytes contiennent les routines d'interruption.
+\newline
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.6]{images/bootstrap.png}
+  \caption{Logo de Nintendo lors de l'exécution du bootstrap}
+\end{figure}
 
 \subsubsection{DMA}
 Le registre DMA (0xFF46) permet d'activer le transfert DMA, entre tout adresse
@@ -454,6 +511,8 @@ traitée (si par exemple un autre périphérique avait demandé une interruption
 temps que le premier). Les priorités de traitement d'une interruption est dans l'ordre
 du tableau ci-dessus. Le bit de poids faible a donc la plus grande priorité et ainsi
 de suite.
+
+\newpage
 
 \subsubsection{Comportement de HALT}
 L'instruction HALT est une instruction particulière car elle arrête le processeur
@@ -676,6 +735,8 @@ La couleur ainsi récupérée est aussi sur deux bits.
 	\item 11 : Noir
 \end{itemize} \bigbreak
 
+\newpage
+
 \paragraph{Afficher les sprites} \mbox{} \\
 
 Les tiles des sprites sont toujours situées aux mêmes adresses entre 0x8000 et
@@ -724,10 +785,33 @@ De plus, lors du passage d'une des entrées de l'état haut à l'état bas (donc
 de la pression d'un bouton étant donné qu'ils sont actifs à l'état bas), une
 interruption est demandé au processeur.
 
+\newpage
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Émulateur}
+\subsection{Projet LPCXpresso}
+Une fois toutes ces informations trouvées sur la Gameboy il a fallut commencer
+à développer l'émulateur. Ce dernier est divisé en 3 parties. La librairie de gestion
+des périphériques de la MyLab2, la librairie de gestion des périphériques de la Gameboy
+et enfin le programme principal qui va utiliser ces deux librairies afin de faire
+tourner l'émulateur sur la MyLab2. Chacun des périphériques de la MyLab2 et de la
+Gameboy décrits  ci-dessus sont présents sous forme de modules dans ce deux librairie C.
+Les algorithmes implémentés sont les même que ceux décrits dans les partie 2 et 3. \\
+
+Le programme principal est divisé en deux fichiers. \mintinline{c}{display.c}
+et \mintinline{c}{controls.c}. Comme leurs noms l'indique, l'un gère les entrées
+(joystick, boutons et dalle tactile) et l'autre l'affichage (écran LCD).
+La MyLab2 a un joystick et les boutons A et B mais pas de boutons START et SELECT.
+Ils sont émulés par deux boutons affichés sur l'écran tactile. Pour l'émulation graphique,
+il a fallut diminuer le plus possible le nombre d'écriture sur l'écran LCD. J'ai
+donc décidé de créer un tableau contenant les données des $160 \times 144$ pixels
+de l'écran. Pour optimiser le plus possible l'espace, chaque pixel est sur deux bits
+dans ce tableau (comme pour la gameboy). La fonction venant parcourir ce tableau
+et l'afficher est appelé tous les$\frac{4194304}{FREQ}$ cycles d'horloge avec $FREQ$ 
+étant la nombre de raffraichissement de l'écran par seconde. $4194304$ est la fréquence 
+réelle du processeur de la Gameboy (les 4,19MHz dont j'ai parlé plus haut).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
