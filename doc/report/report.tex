@@ -697,6 +697,32 @@ de la palette de couleur est le même que pour le background et la fenêtre.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Entrées}
+La gameboy possède 8 entrées différentes. La croix directionnelle et les boutons
+A, B, START et SELECT. Leur contrôle se fait par l'intermédiaire d'un seul
+registre en mémoire, le registre P1, situé à l'adresse 0xFF00. Ce registre
+est structuré de cette manière :
+\begin{center}
+	\scalebox{1}{
+		\begin{tabular}{| c | c | c | c |}
+			\hline
+			Bit & Nom & \multicolumn{2}{c|}{États} \\ \hline
+			7 & Not used & \multicolumn{2}{c|}{-} \\ \hline
+			6 & Not Used & \multicolumn{2}{c|}{-} \\ \hline
+			5 & Select Button Keys & 0 : On & 1 : Off \\ \hline
+			4 & Select Direction Keys & 0 : On & 1 : Off \\ \hline
+			3 & Input Down or Start & 0 : Pressed & 1 : Not Pressed \\ \hline
+			2 & Input Up or Select & 0 : Pressed & 1 : Not Pressed \\ \hline
+			1 & Input Left or Button B & 0 : Pressed & 1 : Not Pressed \\ \hline
+			0 & Input Right or Button A & 0 : Pressed & 1 : Not Pressed \\ \hline
+		\end{tabular}
+	}
+\end{center}
+On peut voir que la croix directionnelle et les boutons partagent les même bits
+(de 3 à 0). C'est en fait le jeu qui va séléctionner quelles entrées vont l'intéresser
+en séléctionnant les boutons ou la croix directionnelle avec les bits 5 et 4.
+De plus, lors du passage d'une des entrées de l'état haut à l'état bas (donc lors
+de la pression d'un bouton étant donné qu'ils sont actifs à l'état bas), une
+interruption est demandé au processeur.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
