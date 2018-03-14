@@ -4,6 +4,7 @@
 \usepackage{enumitem}
 \usepackage{authblk}
 \usepackage{minted}
+\usepackage{amsmath}
 \usepackage{tabularx}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \setlength{\parindent}{0pt}
@@ -108,10 +109,10 @@ et qu'il y a plus de RAM.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Pérphériques utilisés}
+\subsection{Périphériques utilisés}
 \subsubsection{Boutons}
 Les boutons A et B de la MyLab2 sont de simples pins GPIO. Le LPC1769 propose
-des interruptions (EINT3) sur les ports 0 et 2 du GPIO. Ici, le bouton A est sur la pin
+des interruptions ($\overline{EINT3}$) sur les ports 0 et 2 du GPIO. Ici, le bouton A est sur la pin
 10 du port 2 (P2.10) et le bouton B est sur la pin 19 du port 0 (P0.19). L'interruption
 peut se faire sur le flanc montant ou descendant (ou les deux). Pour l'activer,
 il faut mettre le bit correspondant à 1 dans le registre \mintinline{c}{IntEnF}
@@ -124,7 +125,7 @@ Le joystick de la MyLab2 est aussi relié à une pin GPIO mais contrairement aux
 boutons A et B, il est relié au port 1 du GPIO. Il n'y a pas d'interruptions
 sur le port 1 du GPIO, il faut donc vérifier l'état des pins du joystick de manière
 régulière. Pour se faire, un timer sera utilisé qui provoquera une interruption
-(TIMER0) toutes les 10ms. La routine d'interruption appelle la fonction \mintinline{c}{joystick_handler}
+($\overline{TIMER0}$) toutes les 10ms. La routine d'interruption appelle la fonction \mintinline{c}{joystick_handler}
 qui prend comme argument une fonction de callback (un pointeur sur une fonction
 qui sera appelée si une des directions du joystick est appuyée), l'argument de cette 
 dernière, et le mode de vérification (\mintinline{c}{POLLING} ou \mintinline{c}{TRIGGER}). 
@@ -198,6 +199,33 @@ bas. La fréquence du bus I$^2$C en fast mode est de 400kHz et l'horloge périph
 est à 25MHz par défaut donc il faut mettre ces deux registres à 32 ($\frac{25000}{32+32}=400$).
 Il faut pour finir activer les interruptions I$^2$C et créer l'algorithme représenté
 par un organigramme dans la documentation du LPC1769.
+
+\subsubsection{UART}
+Le périphérique UART de la MyLab2 peut être utilisé pour communiquer des informations
+depuis la carte vers une machine hôte. L'UART peut par exemple être utilisé pour
+envoyer des logs du microcontrolleur. Comme pour les bus SPI et I$^2$C, l'UART
+doit d'abord être initialiser en séléctionnant les bonnes pins dans les registres
+\mintinline{c}{PCONP}, \mintinline{c}{PINSEL0}. Il faut ensuite mettre le registre
+\mintinline{c}{LCR} de l'UART à la valeur 0x80 afin d'indiquer d'autoriser l'accès aux diviseurs 
+d'horloge. Ces diviseurs sont les registres \mintinline{c}{FDR}, \mintinline{c}{DLM}
+et \mintinline{c}{DLM} et ils fixent la valeur de baudrate de la transmission.
+Le calcul pour trouver leurs valeurs est le suivant:
+\begin{equation*}
+	UART_{baudrate}=\frac{PCLK}{16 \times (256 \times DLM \times DLL) \times (1 + \frac{DivAddVal}{MulVal})}
+\end{equation*}
+$DivAddVal$ contient les 4 bits de poids faible du registre \mintinline{c}{FDR} et
+$MulVal$ ces 4 bits de poids fort. De plus leurs valeurs doivent respecter les conditions
+suivantes:
+\begin{itemize}[label=\textbullet]
+	\item $1 \leq MulVal \leq 15$
+	\item $0 \leq DivAddVal \leq 14$
+	\item $DivAddVal < MulVal$ 
+\end{itemize}
+Après avoir fixé le baudrate, il faut désactiver l'accès aux diviseurs d'horloge
+et fixer la transmission à 8 bits (5 bits par défaut) en mettant le regsitre
+\mintinline{c}{LCR} à 0x03. Pour finir, la communication UART peut être activée
+en mettant le registre \mintinline{c}{FCR} à 1. La communication se fera en utilisant
+le registre \mintinline{c}{THR}.
 
 \newpage
 
