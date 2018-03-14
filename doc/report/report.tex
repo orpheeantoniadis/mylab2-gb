@@ -819,15 +819,84 @@ interruption est demandé au processeur.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Émulateur}
-\subsection{Projet LPCXpresso}
+\subsection{Introduction}
 Une fois toutes ces informations trouvées sur la Gameboy il a fallut commencer
 à développer l'émulateur. Ce dernier est divisé en 3 parties. La librairie de gestion
-des périphériques de la MyLab2, la librairie de gestion des périphériques de la Gameboy
+des périphériques de la MyLab2, la librairie d'émulation des périphériques de la Gameboy
 et enfin le programme principal qui va utiliser ces deux librairies afin de faire
 tourner l'émulateur sur la MyLab2. Chacun des périphériques de la MyLab2 et de la
-Gameboy décrits  ci-dessus sont présents sous forme de modules dans ce deux librairie C.
+Gameboy décrits  ci-dessus sont présents sous forme de modules dans ce deux librairies C.
 Les algorithmes implémentés sont les même que ceux décrits dans les partie 2 et 3. \\
 
+\subsection{Librairie d'émulation de la Gameboy}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.4]{images/class_diag.png}
+  \caption{Diagramme de la librairie de la Gameboy}
+\end{figure}
+
+Le processeur est représenté sous forme de deux structures C. L'une représente
+les registres et l'autre une instruction. Une instruction contient son nom, 
+sa longueur, un pointeur vers une fonction, sa durée en cycles d'horloge de la Gameboy
+et un booléen qui indique si la durée dépend du résultat de l'instruction (un saut
+conditionnel par exemple ne prendre pas autant de cycles d'horloge si le saut se fait
+ou non). Toutes les instructions sont stockées sous forme de tableau et permet
+une grande flexibilité. Par exemple, si le program counter indique qu'il faut exécuter
+l'instruction 0x11, il suffit de faire \mintinline{c}{instruction_set[0x11]}. Il
+faut bien sûr prendre en compte la longueur de l'instruction ainsi que regarder
+si l'instruction ne fait pas partie de l'extension d'instructions (prefixé par 0xCB)
+mais dans l'idée c'est ce qu'il faut faire.
+
+\newpage
+
+La mémoire est accessible un peu moins facilement. En effet, à cause des problèmes 
+de mémoire de la MyLab2, la ROM a été mise entièrement en constante afin qu'elle 
+soit stockée dans la flash. De plus, toutes les zones mémoires non utilisées par 
+la Gameboy n'ont pas été émulées. La structure C représentant la mémoire n'est 
+donc pas continue (il ne suffit pas de faire mem[addr] pour accéder à la mémoire).
+Ceci rend les accès mémoires un peu plus lent mais c'était indispensable pour faire
+tourner l'émulateur sur le microcontrolleur. \\
+
+Les modules du CPU, des interruptions, du timer et du GPU contiennent chacun une
+fonction \mintinline{c}{cycle}. Ces 4 fonctions sont en fait appelées par la fonction
+\mintinline{c}{gb_update} de \mintinline{c}{gui.h} dans une boucle infinie. Ces
+fonctions permettent de mettre à jour l'état des périphériques qu'elles émulent.
+La fonction \mintinline{c}{cpu_update} retourne le nombre de cycles d'horloges
+théorique qu'aurait du prendre la Gameboy pour effectuer l'instruction actuelle.
+A chaque cycle, ce nombre est ajouté à un total de nombres de cycles qui, une fois
+arrivé à $\frac{4194304}{FREQ}$, affiche l'horloge et recommence à nouveau. Ici,
+$FREQ$  est le nombre de raffraichissement de l'écran par seconde et $4194304$ est 
+la fréquence réelle du processeur de la Gameboy (les 4,19MHz dont j'ai parlé plus haut).
+Pour être plus précis, il faudrait calculer le temps réel passé à faire un \mintinline{c}{gb_update},
+le soustraire à la période et endormir le programme le temps obtenu. Ce n'est pas
+fait ici car l'émulateur est plus lent que la vraie Gameboy, il n'y a donc pas
+besoin d'attendre. Ceci donne le schéma suivant. \\
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.4]{images/schema.png}
+  \caption{Schéma de déroulement de l'émulateur}
+\end{figure}
+\newline
+
+Les fonctions écrites en italique dans le diagramme sont des fonctions non implémentées
+dont seulement les prototypes sont données. Ceci n'a été fait que sur les fonctions
+graphique \mintinline{c}{set_pixel}, \mintinline{c}{get_pixel} et \mintinline{c}{draw_screen}.
+Ceci permet de réutiliser la librairie sur un autre environnement de programmation
+en ne changeant que ces 3 fonctions. La librairie faite durant ce travail de semestre
+peut ainsi être compilée dans un programme C sur un ordinateur. Il a juste fallut
+faire des fonctions d'affichage en utilisant la librairie graphique SDL2 en plus.
+Cette fonctionnalité m'a beaucoup aidé pour le debug étant donné la lenteur d'affichage
+de la MyLab2. L'émulateur est donc multiplateforme. \\
+
+Une dernière fonctionnalité de cette librairie est la possibilité de faire des logs.
+La fonction \mintinline{c}{gb_log} affiche les différents états de l'émulateur
+ainsi que les erreurs. Le niveau de log peut être choisi. Il y a 4 niveaux de log,
+ERROR, WARNING, INFO, DEBUG et le niveau est à INFO par défaut. Lorsque l'émulateur
+est compilé sur un ordinateur, les logs sont affichés sur stderr. Sur la MyLab2,
+les logs sont envoyés sur l'UART avec un baudrate de 115200.
+
+\subsection{Programme principal}
 Le programme principal est divisé en deux fichiers. \mintinline{c}{display.c}
 et \mintinline{c}{controls.c}. Comme leurs noms l'indique, l'un gère les entrées
 (joystick, boutons et dalle tactile) et l'autre l'affichage (écran LCD).
@@ -836,10 +905,13 @@ Ils sont émulés par deux boutons affichés sur l'écran tactile. Pour l'émula
 il a fallut diminuer le plus possible le nombre d'écriture sur l'écran LCD. J'ai
 donc décidé de créer un tableau contenant les données des $160 \times 144$ pixels
 de l'écran. Pour optimiser le plus possible l'espace, chaque pixel est sur deux bits
-dans ce tableau (comme pour la gameboy). La fonction venant parcourir ce tableau
-et l'afficher est appelé tous les$\frac{4194304}{FREQ}$ cycles d'horloge avec $FREQ$ 
-étant la nombre de raffraichissement de l'écran par seconde. $4194304$ est la fréquence 
-réelle du processeur de la Gameboy (les 4,19MHz dont j'ai parlé plus haut).
+dans ce tableau (comme pour la gameboy).
+
+\subsection{Problèmes rencontrés}
+
+\subsection{Résultats}
+
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
