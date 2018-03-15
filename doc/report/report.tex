@@ -8,6 +8,16 @@
 \usepackage{tabularx}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \setlength{\parindent}{0pt}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=blue
+}
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
 \usepackage[left=2.5cm,top=2.5cm,right=2.5cm,bottom=2.5cm]{geometry}
 
 \title{MyLab2 GB \protect\\ Emulateur de Gameboy sur MyLab2}
@@ -44,10 +54,17 @@
 \subsection{Objectif}
 L'objectif principal de ce projet était de développer un émulateur de la console
 de jeux vidéos de Nintendo appelée Gameboy pour la carte de d'extension MyLab2
-développée à l'hepia. Un emulateur est un logiciel permettant d'imiter le comportement
+développée à hepia. Un emulateur est un logiciel permettant d'imiter le comportement
 physique d'un matériel informatique. Le but ici est donc d'imiter le comportement
-du processeur de la Gameboy avec tous ces périphériques. \\
+du processeur de la Gameboy avec tous ces périphériques. Nous allons voir dans
+un premier temps les caractéristiques de la MyLab2 ainsi que de ces périphériques.
+Nous allons ensuite regarder comment fonctionne la Gameboy. L'émulateur sera
+finalement présenté avec tout son fonctionnement mais aussi les problèmes rencontrés
+et la manière dont ils ont été résolus.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Méthode}
 Il a fallut dans un premier temps comprendre le fonctionnement de la Gameboy. 
 Le projet a donc commencé par un travail de recherche et de documentation. Etant 
 donné que Nintendo n'a jamais rendu public la datasheet de sa console, toutes les 
@@ -57,10 +74,13 @@ est très active, de nombreux forums et blogs existent ce qui a simplifié la re
 d'informations. Toutes les sources que j'ai trouvé seront listées à la fin de se 
 document et pourront faire office de base de donnée complète pour quiconque voulant 
 en apprendre plus sur la console ou bien même voulant développer son propre émulateur.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection{Méthode}
+Ce n'est qu'ensuit que le travail de développement de l'émulateur a commencé. Ce
+projet de semestre a donc suivi les étapes suivantes.
+\begin{itemize}[label=\textbullet]
+	\item Travail de recherche
+	\item Implémentation de l'émulateur
+	\item Tests avec la MyLab2
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -644,7 +664,7 @@ des données au LCD. Ces états sont indiqués dans le registre à l'adresse 0xF
 du controlleur.
 \begin{center}
 	\scalebox{1}{
-		\begin{tabular}{| C{4cm} | C{4cm} | C{6cm} |}
+		\begin{tabular}{| c | c | C{9cm} |}
 			\hline
 			STAT[1:0] & État & Description \\ \hline
 			00 & H-Blank & La VRAM et l'OAM peuvent être modifiées par le CPU \\ \hline
@@ -828,6 +848,8 @@ tourner l'émulateur sur la MyLab2. Chacun des périphériques de la MyLab2 et d
 Gameboy décrits  ci-dessus sont présents sous forme de modules dans ce deux librairies C.
 Les algorithmes implémentés sont les même que ceux décrits dans les partie 2 et 3. \\
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Librairie d'émulation de la Gameboy}
 
 \begin{figure}[!h]
@@ -896,20 +918,91 @@ ERROR, WARNING, INFO, DEBUG et le niveau est à INFO par défaut. Lorsque l'ému
 est compilé sur un ordinateur, les logs sont affichés sur stderr. Sur la MyLab2,
 les logs sont envoyés sur l'UART avec un baudrate de 115200.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Programme principal}
 Le programme principal est divisé en deux fichiers. \mintinline{c}{display.c}
 et \mintinline{c}{controls.c}. Comme leurs noms l'indique, l'un gère les entrées
 (joystick, boutons et dalle tactile) et l'autre l'affichage (écran LCD).
 La MyLab2 a un joystick et les boutons A et B mais pas de boutons START et SELECT.
-Ils sont émulés par deux boutons affichés sur l'écran tactile. Pour l'émulation graphique,
-il a fallut diminuer le plus possible le nombre d'écriture sur l'écran LCD. J'ai
-donc décidé de créer un tableau contenant les données des $160 \times 144$ pixels
-de l'écran. Pour optimiser le plus possible l'espace, chaque pixel est sur deux bits
-dans ce tableau (comme pour la gameboy).
+Ils sont émulés par deux boutons affichés sur l'écran tactile. \\
+
+Le problème avec l'émulation des boutons sur l'écran tactile est que le bus I$^2$C
+a besoin des interruptions pour fonctionner sauf que nous avons vu plus haut que 
+la détection de l'écran marche avec une interruption GPIO. L'interruption I$^2$C 
+ne se fera jamais tant que nous nous trouvons dans l'interruption $\overline{EINT3}$.
+Il faut donc simplement avertir avec des flags si l'écran a été appuyé ou relaché
+puis venir  vérifier ces flags régulièrement et appeler les fonctions de la dalle tactile.
+Ici, ces flags sont vérifiés avec la même fréquence que le raffraichissement de
+l'écran. Pour l'émulation graphique, il a fallut diminuer le plus possible le nombre 
+d'écritures sur l'écran LCD. J'ai donc décidé de créer un tableau contenant les
+données des $160 \times 144$ pixels de l'écran. Pour optimiser le plus possible 
+l'espace, chaque pixel est sur deux bits dans ce tableau (comme pour la gameboy).
+Voilà finalement à quoi ressemble le \mintinline{c}{main} du programme C flashé
+sur la carte.
+
+\inputminted[breaklines,breaksymbol=,linenos,frame=single,stepnumber=5,tabsize=2,firstline=14,lastline=35]
+{c}{../../workspace/mylab2-gb/src/mylab2-gb.c}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Problèmes rencontrés}
+\subsubsection{Limites de la MyLab2}
+Durant tout le développement de l'émulateur, de nombreux problèmes ont été rencontrés.
+Tout d'abord, j'ai vite été confronté aux limitations de la MyLab2. En effet,
+son processeur n'est pas assez rapide pour émuler la Gameboy. Il faut 5sec à la
+Gameboy pour passer le code de Bootstrap alors qu'il en faut 25 à la MyLab2 pour
+faire la même chose. L'émulateur est donc 5 fois plus lent sur le microcontrolleur.
+De plus, sa mémoire n'est pas suffisante pour accueillir l'intégralité de la mémoire
+de la Gameboy. Comme déjà expliqué précedemment, j'ai du scinder la mémoire afin
+de retirer les parties inutiles et mettre la ROM en flash. Même comme ça, les jeux
+les plus lourds ne pourront jamais être émulés par la MyLab2 car il faudrait au moins
+émuler 32kB de RAM pour la Gameboy. J'ai aussi essayé un moment d'utiliser le DMA
+du LPC1769 afin de communiquer avec l'écran. Pour utiliser le DMA, il ne faut pas
+utiliser l'interface SPI mais l'interface SSP0. Ce n'est qu'une fois l'implémentation
+de la gestion du SSP0 que j'ai découvert un bug avec le SSP0 sur le LPC1769. La ligne
+MOSI de l'interface reste toujours à l'état haut. Je n'ai donc pas pu utiliser le
+DMA pour la communication avec l'écran LCD.
+
+\subsubsection{Débogage de l'émulateur}
+La Gameboy doit être une des consoles la plus émulée de part sa simplicité mais aussi
+sa valeur nostalgique. Comme je l'ai déjà dit plus haut, ceci fait que l'on peut
+trouver énomément de documentation sur internet voir même trop. Il a été difficile
+de séparer les informations vraies des fausses. J'ai trouvé de nombreux documents,
+projets ou blogs se contredisant les uns des autres. Il a donc fallut tester, voir
+si le comportement est bien le bon mais même comme ça, il était difficile de vraiment
+savoir si l'émulateur était juste (surtout avant l'implémentation de l'écran LCD).
+Heureusement, des tests unitaires ont été développés par la communauté afin d'aider
+dans le développement d'émulateurs. Ces tests sont les tests de Blargg et les tests
+de Mooneye. J'ai personnellement plus travaillé avec les tests de Blargg car ils
+sont plus globaux alors que ceux de Mooneye sont spécifique à des comportements précis
+de la Gameboy. La première chose qu'il a fallut valider était l'implémentation
+du CPU. Au départ les tests ne passaient pas mais c'est ainsi que j'ai pu trouver
+des erreurs dans certaines implémentations d'instructions. Les tests de Blargg
+affichent les résultats des tests sur l'écran mais pour ceux n'ayant pas encore
+implémenté l'affichage, les résultats sont aussi écrites dans le registre SB, à
+l'adresse 0xFF01 de la Gameboy. Si 0x81 est écrit dans le registre SC (adresse 0xFF02),
+il faut venir lire le registre SB. Chaque donnée est un caractère du résultat
+du test. Ces registres permettent normalement de contrôler la communication série
+de la Gameboy.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Résultats}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.3]{images/mylab2gb.jpg}
+  \caption{MyLab2 GB en marche}
+\end{figure}
+L'émulateur est entièrement fonctionnel sur la MyLab2. A noter que toutes les
+composantes graphiques supplémentaires comme le logo de Nintendo ou l'indicateur
+de batterie sont des fichiers bitmap mises en constantes dans le programme. Il
+manque tout de même certaines choses comme le son ou la communcation série (on
+pourrait imaginer deux MyLab2 pouvant communiquer). L'émulateur n'est donc pas fini
+il permet de faire tourner certains jeux mais pas tous. L'émulation de toutes
+les banques de mémoire est aussi à finir. Tout ce qui reste à faire est indiqué
+sur la page Github du projet. Il faudrait aussi trouver une solution pour le
+problème de latence.
 
 \newpage
 
@@ -917,5 +1010,39 @@ dans ce tableau (comme pour la gameboy).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Conclusion}
+Bien que plus lent que la Gameboy originale, l'émulateur développé durant ce
+semestre est finalement fonctionnel. Il peut encore y avoir un peu d'optimisation
+mais au final il sera toujours plus lent. Une idée avait été de porter l'émulateur
+sur la MyLab2 avec le LPC4337 qui est dual core. Même si les horloge des deux
+processeurs de ce microcontrolleur ont une fréquence d'horloge plus élevée,
+je pense que ça ne rendra toujours pas l'émulateur aussi rapide que l'original.
+Nous avons vu plus haut que actuellement, l'émulateur est 5 fois plus lent que
+normalement. Le LPC4337 et seulement 2 fois plus rapide que le LPC1769. Même
+paralléliser les tâches ne servirait pas ici car ce n'est pas l'affichage qui
+ralentit mais bien le travail d'émulation du CPU. L'émulateur serait juste
+un peu plus jouable avec le LPC4337. \\
+
+Une solution à laquelle j'ai pensé est de refaire entierement le processeur
+de la Gameboy sur une FPGA. La FPGA serait connectée à la MyLab2 (par les pins
+Pmod par exemple). La FPGA s'occuperait de toute la partie logique et la MyLab2
+de tout l'affichage et des entrées. Une partie de l'émulateur fait durant ce 
+semestre serait donc utilisable et toute la partie FPGA serait à faire. On pourrait
+imaginer un nouveau travail de semestre portant sur ce sujet. \\
+
+En conclusion, je dirais que ce projet a été très intéressant. Il m'a permis de
+découvrir le fonctionnement d'une console à laquelle j'ai pu jouer par le passé.
+J'ai aussi pu expérimenter les limites de la MyLab2 qui est une carte que nous
+avons beaucoup utilisé en deuxième année. J'espère que des idées d'amélioration
+pourront être trouvées afin d'avoir un émulateur réellement fonctionnel fait à hepia.
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Références}
+\nocite{*}
+\bibliographystyle{unsrt}
+\bibliography{biblio}
 
 \end{document}
