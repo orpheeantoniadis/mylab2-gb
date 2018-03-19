@@ -71,23 +71,70 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{MyLab2}
+\subsection{Introduction}
 \begin{frame}
 	\frametitle{\secname}
+  \framesubtitle{\subsecname}
   \begin{columns}[T]
 		\begin{column}{.30\textwidth}
 			\begin{figure}
 				\includegraphics[width=1\textwidth]{images/mylab2.png}
-				\caption{MyLab2}
 			\end{figure}
 		\end{column}
 		\begin{column}{.70\textwidth}
 			\begin{itemize}
 				\item Carte d'extension pour LPC1769 et LPC4337
 				\item Développée au LSN à hepia
-				\item Programmable avec LPCXpresso
+				\item Jusqu'à 120MHz de fréquence d'horloge
+        \item 512kB de mémoire flash
+        \item 64kB de SRAM
 			\end{itemize}
 		\end{column}
 	\end{columns}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Périphériques utilisés}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=.35\textwidth]{images/mylab2_lcd.png}
+      \caption{Ecran LCD / Dalle tactile}
+    \end{figure}
+  \end{center}
+\end{frame}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=.35\textwidth]{images/mylab2_joypad.png}
+      \caption{Joystick}
+    \end{figure}
+  \end{center}
+\end{frame}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=.35\textwidth]{images/mylab2_buttons.png}
+      \caption{Boutons A et B}
+    \end{figure}
+  \end{center}
+\end{frame}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{center}
+    \begin{figure}
+      \includegraphics[width=.35\textwidth]{images/mylab2_uart.png}
+      \caption{UART}
+    \end{figure}
+  \end{center}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -220,6 +267,8 @@
   \begin{itemize}
     \item Timer
     \item DMA
+    \item Boutons A, B, START et SELECT
+    \item Croix directionnelle
     \item Son
     \item Communication série
   \end{itemize}
@@ -235,24 +284,108 @@
   \framesubtitle{\subsecname}
   \begin{center}
     \begin{figure}
-      \includegraphics[width=.65\textwidth]{images/class_diag.png}
-      \caption{Diagramme du programme}
+      \includegraphics[width=.50\textwidth]{images/class_diag.png}
     \end{figure}
   \end{center}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Schéma de déroulement}
+\subsection{Features}
 \begin{frame}
 	\frametitle{\secname}
   \framesubtitle{\subsecname}
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=.65\textwidth]{images/schema.png}
-      \caption{Schéma de déroulement du programme}
-    \end{figure}
-  \end{center}
+  \begin{columns}[T]
+		\begin{column}{.50\textwidth}
+      \begin{itemize}
+        \item Affichage fonctionnel
+        \item Jouable
+      \end{itemize}
+		\end{column}
+    \begin{column}{.50\textwidth}
+			\begin{figure}
+				\includegraphics[width=1\textwidth]{images/features1.png}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{columns}[T]
+		\begin{column}{.50\textwidth}
+      \begin{itemize}
+        \item Affichage fonctionnel
+        \item Jouable
+        \item Multiplateforme
+      \end{itemize}
+		\end{column}
+    \begin{column}{.50\textwidth}
+			\begin{figure}
+				\includegraphics[width=1\textwidth]{images/features2.png}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{columns}[T]
+		\begin{column}{.50\textwidth}
+      \begin{itemize}
+        \item Affichage fonctionnel
+        \item Jouable
+        \item Multiplateforme
+        \item Logs
+      \end{itemize}
+		\end{column}
+    \begin{column}{.50\textwidth}
+			\begin{figure}
+				\includegraphics[width=1\textwidth]{images/features3.png}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{columns}[T]
+		\begin{column}{.50\textwidth}
+      \begin{itemize}
+        \item Affichage fonctionnel
+        \item Jouable
+        \item Multiplateforme
+        \item Logs
+        \item Open source
+      \end{itemize}
+		\end{column}
+    \begin{column}{.50\textwidth}
+			\begin{figure}
+				\includegraphics[width=1\textwidth]{images/features4.png}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{columns}[T]
+		\begin{column}{.50\textwidth}
+      \begin{itemize}
+        \item Affichage fonctionnel
+        \item Jouable
+        \item Multiplateforme
+        \item Logs
+        \item Open source
+        \item Jusqu'à 12 FPS !
+      \end{itemize}
+		\end{column}
+    \begin{column}{.50\textwidth}
+			\begin{figure}
+				\includegraphics[width=1\textwidth]{images/features4.png}
+			\end{figure}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -264,23 +397,20 @@
   \begin{columns}[T]
 		\begin{column}{.40\textwidth}
 			\begin{figure}
-				\includegraphics[width=.75\textwidth]{images/screenshot.png}
-				\caption{Capture d'écran de l'émulateur}
+				\includegraphics[width=.75\textwidth]{images/mylab2gb.jpg}
 			\end{figure}
 		\end{column}
 		\begin{column}{.70\textwidth}
       Résultats:
       \begin{itemize}
-        \item Début d'émulateur fonctionnel mais lent
-        \item Compilable dans un programme C
-        \item Compréhension des limites de la MyLab2
+        \item Emulateur fonctionnel mais lent
+        \item Compréhension des limites du LPC1769
       \end{itemize}
-      Suite:
+      Possibles Suites:
       \begin{itemize}
-        \item Terminer l'émulateur (partie graphique + boutons)
-        \item Optimiser au maximum pour la MyLab2
-        \item Conclure (possible ou non)
-        \item Passer au LPC4337 ?
+        \item Ajouter toutes les fonctionnalités de la Gameboy
+        \item Passer au LPC4337
+        \item Emuler le processeur sur FPGA
       \end{itemize}
 		\end{column}
 	\end{columns}
