@@ -62,7 +62,7 @@
 	\framesubtitle{\subsecname}
 	\begin{itemize}
 		\item Recherches
-		\item Implémentation d'un début d'émulateur
+		\item Implémentation de l'émulateur
     \item Tests avec la carte MyLab2
 	\end{itemize}
 \end{frame}
@@ -101,38 +101,26 @@
   \framesubtitle{\subsecname}
   \begin{center}
     \begin{figure}
-      \includegraphics[width=.35\textwidth]{images/mylab2_lcd.png}
-      \caption{Ecran LCD / Dalle tactile}
-    \end{figure}
-  \end{center}
-\end{frame}
-\begin{frame}
-	\frametitle{\secname}
-  \framesubtitle{\subsecname}
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=.35\textwidth]{images/mylab2_joypad.png}
-      \caption{Joystick}
-    \end{figure}
-  \end{center}
-\end{frame}
-\begin{frame}
-	\frametitle{\secname}
-  \framesubtitle{\subsecname}
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=.35\textwidth]{images/mylab2_buttons.png}
-      \caption{Boutons A et B}
-    \end{figure}
-  \end{center}
-\end{frame}
-\begin{frame}
-	\frametitle{\secname}
-  \framesubtitle{\subsecname}
-  \begin{center}
-    \begin{figure}
-      \includegraphics[width=.35\textwidth]{images/mylab2_uart.png}
-      \caption{UART}
+      \only<1>{
+        \includegraphics[width=.35\textwidth]{images/mylab2.png}
+        \caption{MyLab2}
+      }
+      \only<2>{
+        \includegraphics[width=.35\textwidth]{images/mylab2_lcd.png}
+        \caption{Ecran LCD / Dalle tactile}
+      }
+      \only<3>{
+        \includegraphics[width=.35\textwidth]{images/mylab2_joypad.png}
+        \caption{Joystick}
+      }
+      \only<4>{
+        \includegraphics[width=.35\textwidth]{images/mylab2_buttons.png}
+        \caption{Boutons A et B}
+      }
+      \only<5>{
+        \includegraphics[width=.35\textwidth]{images/mylab2_uart.png}
+        \caption{UART}
+      }
     \end{figure}
   \end{center}
 \end{frame}
@@ -291,6 +279,34 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\subsection{Debug}
+\begin{frame}
+	\frametitle{\secname}
+  \framesubtitle{\subsecname}
+  \begin{columns}[T]
+		\begin{column}{.30\textwidth}
+			\begin{figure}
+				\includegraphics[width=1\textwidth]{images/blargg.png}
+			\end{figure}
+		\end{column}
+		\begin{column}{.70\textwidth}
+      Problèmes rencontrés:
+      \begin{itemize}
+        \item Emulateur trop lent pour tester l'affichage
+        \item Beaucoup d'informations trouvées
+        \item Problème de fiabilité des sources
+      \end{itemize}
+      Solutions:
+      \begin{itemize}
+        \item Utilisation de la SDL pour déboguer l'affichage
+        \item Tests unitaires (Blargg et Mooneye)
+      \end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Features}
 \begin{frame}
 	\frametitle{\secname}
@@ -391,7 +407,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Résultats et suite}
+\section{Résultats et améliorations}
 \begin{frame}
 	\frametitle{\secname}
   \begin{columns}[T]
@@ -406,11 +422,11 @@
         \item Emulateur fonctionnel mais lent
         \item Compréhension des limites du LPC1769
       \end{itemize}
-      Possibles Suites:
+      Possibles améliorations:
       \begin{itemize}
         \item Ajouter toutes les fonctionnalités de la Gameboy
-        \item Passer au LPC4337
-        \item Emuler le processeur sur FPGA
+        \item Porter sur le LPC4337
+        \item Emuler le processeur de la Gameboy sur FPGA
       \end{itemize}
 		\end{column}
 	\end{columns}
