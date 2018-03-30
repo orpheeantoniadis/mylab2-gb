@@ -68,7 +68,7 @@ extern const uint8_t bootstrap[];
 #define LY      (memory.MEM[0xff44-OAM_OFFSET])
 #define LYC     (memory.MEM[0xff45-OAM_OFFSET])
 #define WINDOWY (memory.MEM[0xff4a-OAM_OFFSET])
-#define WINDOWX (memory.MEM[0xff4b-OAM_OFFSET])
+#define WINDOWX (memory.MEM[0xff4b-OAM_OFFSET]-7)
 
 #define IF  (memory.MEM[0xff0f-OAM_OFFSET])
 #define IE  (memory.MEM[0xffff-OAM_OFFSET])

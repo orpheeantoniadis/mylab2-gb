@@ -29,97 +29,48 @@ static uint32_t get_color(uint16_t addr, uint8_t color) {
 #endif
 }
 
-static uint16_t background_line_num(void) {
-	uint8_t draw_line = LY + SCROLLY;
-	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
-	return tile_line << 5; // 32 is the number of tiles in a line
-}
-
-static uint16_t window_line_num(void) {
-	uint8_t draw_line = LY - WINDOWY;
-	uint8_t tile_line = draw_line >> 3; // 8 is the number of lines in a tile
-	return tile_line << 5; // 32 is the number of tiles in a line
-}
-
-static void draw_tileline(uint16_t data, uint8_t tilenum) {
-	uint8_t i, x;
-	uint8_t part1, part2, color;
-
-	part1 = data & 0xff;
-	part2 = (data >> 8) & 0xff;
-	x = 8 * tilenum;
-
-	for (i = 0; i < 8; i++) {
-		color = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
-		set_pixel(LY * GB_LCD_WIDTH + x+i, get_color(0xff47, color));
-	}
-}
-
-static void draw_tiles(void) {
-	uint16_t tilemap_startregion;
-	uint16_t data_startregion;
-
-	uint16_t background_line, window_line;
-	uint16_t background_col, window_col;
-	int16_t background_tile_id, window_tile_id;
-	uint16_t background_data_addr, window_data_addr;
-	uint8_t background_pixel_offset, window_pixel_offset;
-	uint8_t i;
+static void update_line(void) {
+	uint16_t map_addr, data_addr;
+	uint16_t line, col, tile_addr;
+	int16_t tile_id;
+	uint8_t line_offset, col_offset;
+	uint8_t data1, data2, color_id, i;
 	
-	if (LCDC_BIT_ISSET(4)) data_startregion = TILEDATA_STARTREGION1;
-	else data_startregion = TILEDATA_STARTREGION0;
+	if (LCDC_BIT_ISSET(4)) data_addr = DATA_ADDR1;
+	else data_addr = DATA_ADDR0;
 	if (WINDOW_DISPLAY) {
-		if (LCDC_BIT_ISSET(6)) tilemap_startregion = TILEMAP_STARTREGION1;
-		else tilemap_startregion = TILEMAP_STARTREGION0;
+		if (LCDC_BIT_ISSET(6)) map_addr = MAP_ADDR1;
+		else map_addr = MAP_ADDR0;
+		line = LY - WINDOWY;
 	} else {
-		if (LCDC_BIT_ISSET(3)) tilemap_startregion = TILEMAP_STARTREGION1;
-		else tilemap_startregion = TILEMAP_STARTREGION0;
+		if (LCDC_BIT_ISSET(3)) map_addr = MAP_ADDR1;
+		else map_addr = MAP_ADDR0;
+		line = LY + SCROLLY;
 	}
+	line_offset = (line % 8) * 2;
+	line = (line / 8) * 32;
 	
-	background_line = background_line_num();
-	window_line = window_line_num();
-	// 2 bytes per pixel so x2
-	background_pixel_offset = ((LY + SCROLLY) % 8 + SCROLLX % 8) << 1; 
-	window_pixel_offset = ((LY - WINDOWY) % 8 - WINDOWX % 8) << 1;
-	// 8 pixels per tile so /8
-	background_col = SCROLLX >> 3;
-	window_col = WINDOWX >> 3;
-	
-	for (i = 0; i < 20; i++) { // loop the tiles
-		background_data_addr = data_startregion;
-		window_data_addr = data_startregion;
+	for (i = 0; i < GB_LCD_WIDTH; i++) {
+		if (WINDOW_DISPLAY && i >= WINDOWX) col = i - WINDOWX;
+		else col = i + SCROLLX;
+		col_offset = col % 8;
+		col = col / 8;
+		
+		tile_addr = data_addr;
 		if (LCDC_BIT_ISSET(4)) { // unsigned
-			background_tile_id = (uint8_t)memory.VRAM[tilemap_startregion+background_line+background_col+i-0x8000];
-			window_tile_id = (uint8_t)memory.VRAM[tilemap_startregion+window_line-window_col+i-0x8000];
-			// 8 pixel per line and 2 bytes per pixel so x16
-			background_data_addr += background_tile_id << 4;
-			window_data_addr += window_tile_id << 4; // 8 pixel per line and 2 bytes per pixel so x16
+			tile_id = (uint8_t)memory.VRAM[map_addr+line+col-0x8000];
+			tile_addr += tile_id * 16;
 		} else { // signed
-			background_tile_id = (int8_t)memory.VRAM[tilemap_startregion+background_line+background_col+i-0x8000];
-			window_tile_id = (int8_t)memory.VRAM[tilemap_startregion+window_line-window_col+i-0x8000];
-			// 8 pixel per line and 2 bytes per pixel so x16
-			background_data_addr += (background_tile_id + 128) << 4;
-			window_data_addr += (window_tile_id + 128) << 4;
+			tile_id = (int8_t)memory.VRAM[map_addr+line+col-0x8000];
+			tile_addr += (tile_id + 128) * 16;
 		}
-		background_data_addr += background_pixel_offset;
-		window_data_addr += window_pixel_offset;
-		if (WINDOW_DISPLAY && i >= window_col) {
-    	if (i == window_col && (WINDOWX % 8) != 0) {
-				// we need to combine background tile and window tile
-				uint16_t background_data = read16(background_data_addr);
-				background_data = (background_data << (8 - (WINDOWX % 8)) << 1) >> (8 - (WINDOWX % 8)) >> 1;
-				uint16_t window_data = read16(window_data_addr);
-				window_data = (window_data >> (WINDOWX % 8) >> 1) << (WINDOWX % 8) << 1;
-				draw_tileline(background_data | window_data, i);
-			} else if (i >= window_col) {
-				// window tile only
-				draw_tileline(read16(window_data_addr), i);
-			}
-		} else {
-			// background tile only
-			draw_tileline(read16(background_data_addr), i);
-		}
+		
+		data1 = memory.VRAM[tile_addr+line_offset-0x8000];
+		data2 = memory.VRAM[tile_addr+line_offset-0x7fff];
+		color_id = (data1 >> (7 - col_offset) & 1) | ((data2 >> (7 - col_offset) & 1) << 1);
+		set_pixel(LY * GB_LCD_WIDTH + i, get_color(0xff47, color_id));
 	}
+	
 }
 
 static void draw_spriteline(uint16_t data, uint8_t x, uint8_t flags) {
@@ -206,7 +157,7 @@ static void draw_sprites(void) {
 
 static void draw_scanline(void) {
 	if (LCDC_BIT_ISSET(0)) {
-		draw_tiles();
+		update_line();
 	}
 	if (LCDC_BIT_ISSET(1)) {
 		draw_sprites();

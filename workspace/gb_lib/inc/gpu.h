@@ -24,12 +24,12 @@
 #define MODE2_BOUND     80
 #define MODE3_BOUND     252
 
-#define TILEMAP_LEN           0x400
-#define TILEMAP_STARTREGION0  0x9800
-#define TILEMAP_STARTREGION1  0x9c00
-#define TILEDATA_LEN          0x1000
-#define TILEDATA_STARTREGION0 0x8800
-#define TILEDATA_STARTREGION1 0x8000
+#define MAP_LEN			0x400
+#define MAP_ADDR0		0x9800
+#define MAP_ADDR1		0x9c00
+#define DATA_LEN		0x1000
+#define DATA_ADDR0	0x8800
+#define DATA_ADDR1	0x8000
 
 #define SPRITE_DISPLAY	LCDC_BIT_ISSET(1)
 #define SIZE_FLAG		LCDC_BIT_ISSET(2)
@@ -41,6 +41,9 @@ static inline void STAT_SET_BIT(uint8_t bit) {STAT=STAT|(1<<bit);}
 static inline void STAT_CLEAR_BIT(uint8_t bit) {STAT=STAT&~(1<<bit);}
 static inline void STAT_SET_MODE(uint8_t mode) {STAT=(STAT&~3)|mode;}
 static inline uint8_t STAT_GET_MODE(void) {return STAT&3;}
+
+static inline uint16_t background_line_num(void) { return ((LY + SCROLLY) / 8) * 32; }
+static inline uint16_t window_line_num(void) { return ((LY - WINDOWY) / 8) * 32; }
 
 void set_pixel(uint16_t id, uint32_t data);
 uint32_t get_pixel(uint16_t id);
