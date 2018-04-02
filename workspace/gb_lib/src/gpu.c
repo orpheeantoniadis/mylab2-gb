@@ -75,14 +75,12 @@ static void update_line(void) {
 	
 }
 
-static void draw_spriteline(uint16_t data, uint8_t x, uint8_t flags) {
-	uint8_t i, j;
-	uint8_t part1, part2, color_id;
+static void draw_spriteline(uint16_t data_addr, uint8_t x, uint8_t flags) {
+	uint8_t part1, part2, color_id, i;
 	uint32_t color;
 
-	part1 = data & 0xff;
-	part2 = (data >> 8) & 0xff;
-	j = 7;
+	part1 = memory.VRAM[data_addr-0x8000];
+	part2 = memory.VRAM[data_addr-0x7fff];
 
 	for (i = 0; i < 8; i++) {
 		// skip off-screen pixels
@@ -93,7 +91,7 @@ static void draw_spriteline(uint16_t data, uint8_t x, uint8_t flags) {
 
 		// X flip (bit 5 of flag register)
 		if ((flags >> 5) & 1)
-		  color_id = (part1 >> (7 - j) & 1) | ((part2 >> (7 - j) & 1) << 1);
+		  color_id = (part1 >> i & 1) | ((part2 >> i & 1) << 1);
 		else
 		  color_id = (part1 >> (7 - i) & 1) | ((part2 >> (7 - i) & 1) << 1);
 
@@ -107,7 +105,6 @@ static void draw_spriteline(uint16_t data, uint8_t x, uint8_t flags) {
 		  color = get_color(0xff48, color_id);
 
 		set_pixel(LY * GB_LCD_WIDTH + x+i, color);
-		j--;
 	}
 }
 
@@ -151,7 +148,7 @@ static void draw_sprites(void) {
 					// 8 pixel per line and 2 bytes per pixel so x16
 					data_addr = 0x8000 + (pattern_num * 16) + sprite_line;
 				}
-				draw_spriteline(read16(data_addr), x, flags);
+				draw_spriteline(data_addr, x, flags);
 			}
 		}
 	}
