@@ -4,7 +4,7 @@ SRCDIR = src
 
 XFLAGS = -Wall -Wextra
 CFLAGS = -g -I$(INCDIR) $(XFLAGS) -std=gnu99 -O3
-LDFLAGS = -lSDL2 -lpthread
+LDFLAGS = -lSDL2
 DFLAGS = -D__UNIX
 
 SRC = $(wildcard $(SRCDIR)/*.c)

@@ -61,7 +61,7 @@ static void banking_handler(uint16_t addr, uint8_t val) {
 			if (val == 0xa) ram_enable = 1;
 			else if (val == 0) ram_enable = 0;
 		}
-	} else if ((addr >= 0x200) && (addr < 0x4000)) {
+	} else if ((addr >= 0x2000) && (addr < 0x4000)) {
 		if (MBC == 1 || MBC == 2) {
 			if (MBC == 2) {
 				rombank = val;

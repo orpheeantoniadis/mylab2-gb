@@ -33,7 +33,12 @@
 
 #define SPRITE_DISPLAY	LCDC_BIT_ISSET(1)
 #define SIZE_FLAG		LCDC_BIT_ISSET(2)
-#define WINDOW_DISPLAY	LCDC_BIT_ISSET(5)
+#define WINDOW_DISPLAY	(LCDC_BIT_ISSET(5) && WINDOWY <= LY)
+
+#define BG_LINE (((LY + SCROLLY) / 8) * 32)
+#define BG_TILELINE (((LY + SCROLLY) % 8) * 2)
+#define WINDOW_LINE (((LY - WINDOWY) / 8) * 32)
+#define WINDOW_TILELINE (((LY - WINDOWY) % 8) * 2)
 
 static inline uint8_t LCD_IS_ENABLE(void) {return (LCDC>>7)&1;}
 static inline uint8_t LCDC_BIT_ISSET(uint8_t bit) {return (LCDC>>bit)&1;}
@@ -41,9 +46,6 @@ static inline void STAT_SET_BIT(uint8_t bit) {STAT=STAT|(1<<bit);}
 static inline void STAT_CLEAR_BIT(uint8_t bit) {STAT=STAT&~(1<<bit);}
 static inline void STAT_SET_MODE(uint8_t mode) {STAT=(STAT&~3)|mode;}
 static inline uint8_t STAT_GET_MODE(void) {return STAT&3;}
-
-static inline uint16_t background_line_num(void) { return ((LY + SCROLLY) / 8) * 32; }
-static inline uint16_t window_line_num(void) { return ((LY - WINDOWY) / 8) * 32; }
 
 void set_pixel(uint16_t id, uint32_t data);
 uint32_t get_pixel(uint16_t id);

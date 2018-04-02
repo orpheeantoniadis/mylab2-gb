@@ -30,7 +30,7 @@ static uint32_t get_color(uint16_t addr, uint8_t color) {
 }
 
 static void update_line(void) {
-	uint16_t map_addr, data_addr;
+	uint16_t map_addr, bg_map_addr, window_map_addr, data_addr;
 	uint16_t line, col, tile_addr;
 	int16_t tile_id;
 	uint8_t line_offset, col_offset;
@@ -38,21 +38,23 @@ static void update_line(void) {
 	
 	if (LCDC_BIT_ISSET(4)) data_addr = DATA_ADDR1;
 	else data_addr = DATA_ADDR0;
-	if (WINDOW_DISPLAY) {
-		if (LCDC_BIT_ISSET(6)) map_addr = MAP_ADDR1;
-		else map_addr = MAP_ADDR0;
-		line = LY - WINDOWY;
-	} else {
-		if (LCDC_BIT_ISSET(3)) map_addr = MAP_ADDR1;
-		else map_addr = MAP_ADDR0;
-		line = LY + SCROLLY;
-	}
-	line_offset = (line % 8) * 2;
-	line = (line / 8) * 32;
+	if (LCDC_BIT_ISSET(6)) window_map_addr = MAP_ADDR1;
+	else window_map_addr = MAP_ADDR0;
+	if (LCDC_BIT_ISSET(3)) bg_map_addr = MAP_ADDR1;
+	else bg_map_addr = MAP_ADDR0;
 	
 	for (i = 0; i < GB_LCD_WIDTH; i++) {
-		if (WINDOW_DISPLAY && i >= WINDOWX) col = i - WINDOWX;
-		else col = i + SCROLLX;
+		if (WINDOW_DISPLAY && i >= WINDOWX) {
+			map_addr = window_map_addr;
+			line = WINDOW_LINE;
+			line_offset = WINDOW_TILELINE;
+			col = i - WINDOWX;
+		} else {
+			map_addr = bg_map_addr;
+			line = BG_LINE;
+			line_offset = BG_TILELINE;
+			col = i + SCROLLX;
+		}
 		col_offset = col % 8;
 		col = col / 8;
 		
