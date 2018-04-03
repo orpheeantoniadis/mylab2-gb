@@ -174,7 +174,6 @@ static void draw_sprites(void) {
 
 static void draw_scanline(void) {
 	if (LCDC_BIT_ISSET(0)) {
-		// display_map0();
 		update_line();
 	}
 	if (LCDC_BIT_ISSET(1)) {
@@ -199,18 +198,24 @@ void gpu_cycle(uint8_t cycles) {
 			STAT_SET_MODE(0);
 			ir_selection = (STAT >> 3) & 1;
 		} else { // mode 1
-			if (LY > SCANLINES_NB) LY = 0;
-			else if (LY == GB_LCD_HEIGHT) {
+			if (LY > SCANLINES_NB) {
+				LY = 0;
+				draw_scanline();
+			} else if (LY == GB_LCD_HEIGHT) {
 				change_mode = STAT_GET_MODE() != 1;
 				STAT_SET_MODE(1);
 				ir_selection = (STAT >> 4) & 1;
 				interrupt_request(IR_VBLANK);
-			} else if (LY < GB_LCD_HEIGHT) draw_scanline();
+			} else if (LY < GB_LCD_HEIGHT) {
+				draw_scanline();
+			}
 			cpu_cycles_counter -= LCD_SCAN_PERIOD;
 			LY++;
 		}
 		if (change_mode && ir_selection) interrupt_request(IR_LCD);
-		if (LY == LYC) { // check coincidence flag
+		// check coincidence flag
+		// -1 is temporary, i think i have a bug with ir timings
+		if (LY-1 == LYC) {
 			STAT_SET_BIT(2);
 			if ((STAT >> 6) & 1) interrupt_request(IR_LCD);
 		} else STAT_CLEAR_BIT(2);
