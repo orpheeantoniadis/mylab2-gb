@@ -35,10 +35,10 @@
 #define SIZE_FLAG		LCDC_BIT_ISSET(2)
 #define WINDOW_DISPLAY	(LCDC_BIT_ISSET(5) && WINDOWY <= LY)
 
-#define BG_LINE (((LY + SCROLLY) / 8) * 32)
-#define BG_TILELINE (((LY + SCROLLY) % 8) * 2)
-#define WINDOW_LINE (((LY - WINDOWY) / 8) * 32)
-#define WINDOW_TILELINE (((LY - WINDOWY) % 8) * 2)
+#define BG_LINE (((uint8_t)(LY + SCROLLY) / 8) * 32)
+#define BG_TILELINE (((uint8_t)(LY + SCROLLY) % 8) * 2)
+#define WINDOW_LINE (((uint8_t)(LY - WINDOWY) / 8) * 32)
+#define WINDOW_TILELINE (((uint8_t)(LY - WINDOWY) % 8) * 2)
 
 static inline uint8_t LCD_IS_ENABLE(void) {return (LCDC>>7)&1;}
 static inline uint8_t LCDC_BIT_ISSET(uint8_t bit) {return (LCDC>>bit)&1;}
