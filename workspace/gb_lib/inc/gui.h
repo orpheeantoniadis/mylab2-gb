@@ -15,7 +15,7 @@ enum log_level { ERROR, WARNING, INFO, _DEBUG};
 #define USE_LCD		1
 #define LOG_LEVEL	INFO
 
-#define FREQ		30
+#define FREQ		60
 #define CYCLES_FREQ	(CLOCKSPEED/FREQ)
 
 extern const char *log_level_str[10];

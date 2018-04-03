@@ -32,18 +32,12 @@ static void display_map0(void) {
   uint16_t data_addr, tile_addr, i;
   int16_t tile_id;
   uint8_t data1, data2, color_id, j, k;
-	gb_log(_DEBUG, "SCROLLX = 0x%2x\n", SCROLLX);
-	gb_log(_DEBUG, "SCROLLY = 0x%2x\n", SCROLLY);
-	gb_log(_DEBUG, "WINDOWX = 0x%2x\n", WINDOWX);
-	gb_log(_DEBUG, "WINDOWY = 0x%2x\n", WINDOWY);
   
 	if (LCDC_BIT_ISSET(4)) data_addr = DATA_ADDR1;
 	else data_addr = DATA_ADDR0;
   for (i = 0; i < 1024; i++) {
     for (j = 0; j < 8; j++) {
-      // line = (i / 32) * 8 + j;
       for (k = 0; k < 8; k++) {
-        // col = (i % 32) * 8 + k;
         tile_addr = data_addr;
         tile_id = memory.VRAM[MAP_ADDR0+i-0x8000];
         if (tile_addr == DATA_ADDR1) tile_addr += tile_id * 16;
@@ -59,9 +53,9 @@ static void display_map0(void) {
 
 static void update_line(void) {
 	uint16_t map_addr, bg_map_addr, window_map_addr, data_addr;
-	uint16_t line, col, tile_addr;
+	uint16_t tile_addr, line;
 	int16_t tile_id;
-	uint8_t line_offset, col_offset;
+	uint8_t col, line_offset, col_offset;
 	uint8_t data1, data2, color_id, i;
 	
 	if (LCDC_BIT_ISSET(4)) data_addr = DATA_ADDR1;
